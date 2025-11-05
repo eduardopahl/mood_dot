@@ -1,7 +1,6 @@
 import '../../domain/entities/mood_entry.dart';
 import '../../domain/repositories/mood_repository.dart';
 import '../datasources/mood_local_datasource.dart';
-import '../models/mood_entry_model.dart';
 
 class MoodRepositoryImpl implements MoodRepository {
   final MoodLocalDataSource localDataSource;
@@ -10,14 +9,12 @@ class MoodRepositoryImpl implements MoodRepository {
 
   @override
   Future<int> addMoodEntry(MoodEntry entry) async {
-    final model = MoodEntryModel.fromEntity(entry);
-    return await localDataSource.insertMoodEntry(model);
+    return await localDataSource.insertMoodEntry(entry);
   }
 
   @override
   Future<List<MoodEntry>> getAllMoodEntries() async {
-    final models = await localDataSource.getAllMoodEntries();
-    return models.map((model) => model.toEntity()).toList();
+    return await localDataSource.getAllMoodEntries();
   }
 
   @override
@@ -25,40 +22,32 @@ class MoodRepositoryImpl implements MoodRepository {
     DateTime startDate,
     DateTime endDate,
   ) async {
-    final models = await localDataSource.getMoodEntriesByDateRange(
-      startDate,
-      endDate,
-    );
-    return models.map((model) => model.toEntity()).toList();
+    return await localDataSource.getMoodEntriesByDateRange(startDate, endDate);
   }
 
   @override
   Future<MoodEntry?> getMoodEntryByDate(DateTime date) async {
-    final model = await localDataSource.getMoodEntryByDate(date);
-    return model?.toEntity();
+    return await localDataSource.getMoodEntryByDate(date);
   }
 
   @override
   Future<int> updateMoodEntry(MoodEntry entry) async {
-    final model = MoodEntryModel.fromEntity(entry);
-    return await localDataSource.updateMoodEntry(model);
+    await localDataSource.updateMoodEntry(entry);
+    return 1;
   }
 
   @override
   Future<int> deleteMoodEntry(int id) async {
-    return await localDataSource.deleteMoodEntry(id);
+    if (localDataSource is MoodLocalDataSourceImpl) {
+      await (localDataSource as MoodLocalDataSourceImpl).deleteMoodEntryById(
+        id,
+      );
+    }
+    return 1;
   }
 
   @override
   Future<Map<String, dynamic>> getMoodStatistics() async {
-    final stats = await localDataSource.getMoodStatistics();
-
-    // Converter o lastEntry de model para entity se existir
-    if (stats['lastEntry'] != null && stats['lastEntry'] is MoodEntryModel) {
-      final model = stats['lastEntry'] as MoodEntryModel;
-      stats['lastEntry'] = model.toEntity();
-    }
-
-    return stats;
+    return await localDataSource.getMoodStatistics();
   }
 }

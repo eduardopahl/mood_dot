@@ -1,10 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 
+part 'mood_entry.g.dart';
+
+@HiveType(typeId: 0)
 class MoodEntry {
+  @HiveField(0)
   final int? id;
+
+  @HiveField(1)
   final DateTime date;
-  final int moodLevel; // 1-5 (1 = muito triste, 5 = muito feliz)
+
+  @HiveField(2)
+  final int moodLevel;
+
+  @HiveField(3)
   final String? note;
+
+  @HiveField(4)
   final DateTime createdAt;
 
   const MoodEntry({
@@ -15,19 +28,18 @@ class MoodEntry {
     required this.createdAt,
   });
 
-  // Getters para cores e emojis baseados no mood level
   Color get color {
     switch (moodLevel) {
       case 1:
-        return const Color(0xFF8B0000); // Vermelho escuro
+        return const Color(0xFF8B0000);
       case 2:
-        return const Color(0xFFFF4500); // Laranja avermelhado
+        return const Color(0xFFFF4500);
       case 3:
-        return const Color(0xFFFFD700); // Amarelo
+        return const Color(0xFFFFD700);
       case 4:
-        return const Color(0xFF90EE90); // Verde claro
+        return const Color(0xFF90EE90);
       case 5:
-        return const Color(0xFF228B22); // Verde
+        return const Color(0xFF228B22);
       default:
         return Colors.grey;
     }
@@ -67,7 +79,6 @@ class MoodEntry {
     }
   }
 
-  // Método copyWith para atualizações
   MoodEntry copyWith({
     int? id,
     DateTime? date,

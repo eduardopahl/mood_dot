@@ -4,24 +4,20 @@ import '../../domain/repositories/mood_repository.dart';
 import '../../data/repositories/mood_repository_impl.dart';
 import '../../data/datasources/mood_local_datasource.dart';
 
-// Provider do datasource
 final moodLocalDataSourceProvider = Provider<MoodLocalDataSource>((ref) {
   return MoodLocalDataSourceImpl.instance;
 });
 
-// Provider do repository
 final moodRepositoryProvider = Provider<MoodRepository>((ref) {
   final localDataSource = ref.watch(moodLocalDataSourceProvider);
   return MoodRepositoryImpl(localDataSource: localDataSource);
 });
 
-// Provider para todas as entradas de humor
 final moodEntriesProvider = FutureProvider<List<MoodEntry>>((ref) async {
   final repository = ref.watch(moodRepositoryProvider);
   return await repository.getAllMoodEntries();
 });
 
-// Provider para estatísticas do humor
 final moodStatisticsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {
@@ -29,7 +25,6 @@ final moodStatisticsProvider = FutureProvider<Map<String, dynamic>>((
   return await repository.getMoodStatistics();
 });
 
-// Provider para a entrada de humor de hoje
 final todayMoodEntryProvider = FutureProvider<MoodEntry?>((ref) async {
   final repository = ref.watch(moodRepositoryProvider);
   final today = DateTime.now();
@@ -51,6 +46,7 @@ class MoodEntryNotifier extends StateNotifier<AsyncValue<void>> {
 
     try {
       final entry = MoodEntry(
+        id: DateTime.now().millisecondsSinceEpoch,
         date: date,
         moodLevel: moodLevel,
         note: note,
@@ -87,14 +83,12 @@ class MoodEntryNotifier extends StateNotifier<AsyncValue<void>> {
   }
 }
 
-// Provider do StateNotifier
 final moodEntryNotifierProvider =
     StateNotifierProvider<MoodEntryNotifier, AsyncValue<void>>((ref) {
       final repository = ref.watch(moodRepositoryProvider);
       return MoodEntryNotifier(repository);
     });
 
-// Provider para entradas por intervalo de datas (útil para gráficos)
 final moodEntriesByDateRangeProvider =
     FutureProvider.family<List<MoodEntry>, DateRange>((ref, dateRange) async {
       final repository = ref.watch(moodRepositoryProvider);
@@ -104,7 +98,6 @@ final moodEntriesByDateRangeProvider =
       );
     });
 
-// Classe auxiliar para o provider de intervalo de datas
 class DateRange {
   final DateTime start;
   final DateTime end;

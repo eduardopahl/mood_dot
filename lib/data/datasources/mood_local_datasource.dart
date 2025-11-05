@@ -1,186 +1,202 @@
-import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
-import '../models/mood_entry_model.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import '../../domain/entities/mood_entry.dart';
 
 abstract class MoodLocalDataSource {
-  Future<int> insertMoodEntry(MoodEntryModel entry);
-  Future<List<MoodEntryModel>> getAllMoodEntries();
-  Future<List<MoodEntryModel>> getMoodEntriesByDateRange(
+  Future<int> insertMoodEntry(MoodEntry entry);
+  Future<List<MoodEntry>> getAllMoodEntries();
+  Future<List<MoodEntry>> getMoodEntriesByDateRange(
     DateTime startDate,
     DateTime endDate,
   );
-  Future<MoodEntryModel?> getMoodEntryByDate(DateTime date);
-  Future<int> updateMoodEntry(MoodEntryModel entry);
-  Future<int> deleteMoodEntry(int id);
+  Future<MoodEntry?> getMoodEntryByDate(DateTime date);
+  Future<void> updateMoodEntry(MoodEntry entry);
+  Future<void> deleteMoodEntry(String key);
   Future<Map<String, dynamic>> getMoodStatistics();
+  Future<void> clearAllData();
 }
 
 class MoodLocalDataSourceImpl implements MoodLocalDataSource {
-  static Database? _database;
-  static const String _databaseName = 'mooddot.db';
-  static const int _databaseVersion = 1;
-  static const String _tableName = 'mood_entries';
+  static const String _boxName = 'mood_entries';
+  Box<MoodEntry>? _box;
 
-  // Singleton pattern
   MoodLocalDataSourceImpl._privateConstructor();
   static final MoodLocalDataSourceImpl instance =
       MoodLocalDataSourceImpl._privateConstructor();
 
-  // Getter para o database
-  Future<Database> get database async {
-    _database ??= await _initDatabase();
-    return _database!;
+  Future<void> init() async {
+    await Hive.initFlutter();
+
+    if (!Hive.isAdapterRegistered(0)) {
+      Hive.registerAdapter(MoodEntryAdapter());
+    }
+
+    _box = await Hive.openBox<MoodEntry>(_boxName);
   }
 
-  // Inicializar o banco de dados
-  Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), _databaseName);
-
-    return await openDatabase(
-      path,
-      version: _databaseVersion,
-      onCreate: _onCreate,
-    );
-  }
-
-  // Criar tabelas
-  Future<void> _onCreate(Database db, int version) async {
-    await db.execute('''
-      CREATE TABLE $_tableName (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        date TEXT NOT NULL,
-        mood_level INTEGER NOT NULL,
-        note TEXT,
-        created_at TEXT NOT NULL
-      )
-    ''');
+  Box<MoodEntry> get box {
+    if (_box == null || !_box!.isOpen) {
+      throw Exception('Hive box não foi inicializado. Chame init() primeiro.');
+    }
+    return _box!;
   }
 
   @override
-  Future<int> insertMoodEntry(MoodEntryModel entry) async {
-    Database db = await database;
-    return await db.insert(_tableName, entry.toMap());
+  Future<int> insertMoodEntry(MoodEntry entry) async {
+    final key = DateTime.now().millisecondsSinceEpoch.toString();
+    await box.put(key, entry);
+
+    return DateTime.now().millisecondsSinceEpoch;
   }
 
   @override
-  Future<List<MoodEntryModel>> getAllMoodEntries() async {
-    Database db = await database;
-    List<Map<String, dynamic>> maps = await db.query(
-      _tableName,
-      orderBy: 'date DESC',
-    );
+  Future<List<MoodEntry>> getAllMoodEntries() async {
+    final entries = box.values.toList();
 
-    return List.generate(maps.length, (i) {
-      return MoodEntryModel.fromMap(maps[i]);
-    });
+    entries.sort((a, b) => b.date.compareTo(a.date));
+
+    return entries;
   }
 
   @override
-  Future<List<MoodEntryModel>> getMoodEntriesByDateRange(
+  Future<List<MoodEntry>> getMoodEntriesByDateRange(
     DateTime startDate,
     DateTime endDate,
   ) async {
-    Database db = await database;
-    List<Map<String, dynamic>> maps = await db.query(
-      _tableName,
-      where: 'date BETWEEN ? AND ?',
-      whereArgs: [startDate.toIso8601String(), endDate.toIso8601String()],
-      orderBy: 'date DESC',
-    );
+    final allEntries = await getAllMoodEntries();
 
-    return List.generate(maps.length, (i) {
-      return MoodEntryModel.fromMap(maps[i]);
-    });
+    return allEntries.where((entry) {
+      return entry.date.isAfter(startDate.subtract(const Duration(days: 1))) &&
+          entry.date.isBefore(endDate.add(const Duration(days: 1)));
+    }).toList();
   }
 
   @override
-  Future<MoodEntryModel?> getMoodEntryByDate(DateTime date) async {
-    Database db = await database;
+  Future<MoodEntry?> getMoodEntryByDate(DateTime date) async {
+    final allEntries = await getAllMoodEntries();
 
-    // Normalizar a data para comparar apenas ano, mês e dia
-    String dateString =
-        DateTime(date.year, date.month, date.day).toIso8601String();
+    final targetDate = DateTime(date.year, date.month, date.day);
 
-    List<Map<String, dynamic>> maps = await db.query(
-      _tableName,
-      where: 'date LIKE ?',
-      whereArgs: ['${dateString.substring(0, 10)}%'],
-      limit: 1,
-    );
-
-    if (maps.isNotEmpty) {
-      return MoodEntryModel.fromMap(maps.first);
+    for (final entry in allEntries) {
+      final entryDate = DateTime(
+        entry.date.year,
+        entry.date.month,
+        entry.date.day,
+      );
+      if (entryDate.isAtSameMomentAs(targetDate)) {
+        return entry;
+      }
     }
+
     return null;
   }
 
   @override
-  Future<int> updateMoodEntry(MoodEntryModel entry) async {
-    Database db = await database;
-    return await db.update(
-      _tableName,
-      entry.toMap(),
-      where: 'id = ?',
-      whereArgs: [entry.id],
-    );
+  Future<void> updateMoodEntry(MoodEntry entry) async {
+    String? keyToUpdate;
+
+    for (final key in box.keys) {
+      final existingEntry = box.get(key);
+      if (existingEntry?.id == entry.id) {
+        keyToUpdate = key as String;
+        break;
+      }
+    }
+
+    if (keyToUpdate != null) {
+      await box.put(keyToUpdate, entry);
+    } else {
+      await insertMoodEntry(entry);
+    }
   }
 
   @override
-  Future<int> deleteMoodEntry(int id) async {
-    Database db = await database;
-    return await db.delete(_tableName, where: 'id = ?', whereArgs: [id]);
+  Future<void> deleteMoodEntry(String key) async {
+    await box.delete(key);
+  }
+
+  Future<void> deleteMoodEntryById(int id) async {
+    String? keyToDelete;
+
+    for (final key in box.keys) {
+      final entry = box.get(key);
+      if (entry?.id == id) {
+        keyToDelete = key as String;
+        break;
+      }
+    }
+
+    if (keyToDelete != null) {
+      await deleteMoodEntry(keyToDelete);
+    }
   }
 
   @override
   Future<Map<String, dynamic>> getMoodStatistics() async {
-    Database db = await database;
+    final entries = await getAllMoodEntries();
 
-    // Média geral do humor
-    List<Map<String, dynamic>> avgResult = await db.rawQuery(
-      'SELECT AVG(mood_level) as average FROM $_tableName',
-    );
+    if (entries.isEmpty) {
+      return {
+        'average': 0.0,
+        'countByLevel': <Map<String, dynamic>>[],
+        'lastEntry': null,
+        'totalEntries': 0,
+      };
+    }
 
-    // Contagem por nível de humor
-    List<Map<String, dynamic>> countResult = await db.rawQuery(
-      'SELECT mood_level, COUNT(*) as count FROM $_tableName GROUP BY mood_level',
+    final totalMood = entries.fold<int>(
+      0,
+      (sum, entry) => sum + entry.moodLevel,
     );
+    final average = totalMood / entries.length;
 
-    // Última entrada
-    List<Map<String, dynamic>> lastEntryResult = await db.query(
-      _tableName,
-      orderBy: 'created_at DESC',
-      limit: 1,
-    );
+    final Map<int, int> countMap = {};
+    for (final entry in entries) {
+      countMap[entry.moodLevel] = (countMap[entry.moodLevel] ?? 0) + 1;
+    }
+
+    final countByLevel =
+        countMap.entries
+            .map(
+              (e) => <String, dynamic>{'mood_level': e.key, 'count': e.value},
+            )
+            .toList();
+
+    final lastEntry = entries.isNotEmpty ? entries.first : null;
 
     return {
-      'average': avgResult.first['average'] ?? 0.0,
-      'countByLevel': countResult,
-      'lastEntry':
-          lastEntryResult.isNotEmpty
-              ? MoodEntryModel.fromMap(lastEntryResult.first)
-              : null,
-      'totalEntries': await _getTotalEntries(),
+      'average': average,
+      'countByLevel': countByLevel,
+      'lastEntry': lastEntry,
+      'totalEntries': entries.length,
     };
   }
 
-  // Buscar total de entradas
-  Future<int> _getTotalEntries() async {
-    Database db = await database;
-    List<Map<String, dynamic>> result = await db.rawQuery(
-      'SELECT COUNT(*) as count FROM $_tableName',
-    );
-    return result.first['count'] ?? 0;
-  }
-
-  // Fechar o banco de dados
-  Future<void> close() async {
-    Database db = await database;
-    await db.close();
-  }
-
-  // Limpar todos os dados (útil para desenvolvimento/testes)
+  @override
   Future<void> clearAllData() async {
-    Database db = await database;
-    await db.delete(_tableName);
+    await box.clear();
+  }
+
+  Future<void> close() async {
+    await _box?.close();
+  }
+
+  List<String> getAllKeys() {
+    return box.keys.cast<String>().toList();
+  }
+
+  Map<String, MoodEntry> exportData() {
+    final Map<String, MoodEntry> data = {};
+    for (final key in box.keys) {
+      final entry = box.get(key);
+      if (entry != null) {
+        data[key as String] = entry;
+      }
+    }
+    return data;
+  }
+
+  Future<void> importData(Map<String, MoodEntry> data) async {
+    await box.clear();
+    await box.putAll(data);
   }
 }

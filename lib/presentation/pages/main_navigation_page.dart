@@ -5,8 +5,8 @@ import 'statistics_page.dart';
 import 'add_mood_page.dart';
 import 'calendar_page.dart';
 import 'settings_page.dart';
+import '../providers/mood_providers.dart';
 
-// Provider para controlar o índice da navegação
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
 
 class MainNavigationPage extends ConsumerWidget {
@@ -22,7 +22,6 @@ class MainNavigationPage extends ConsumerWidget {
         children: const [
           HomePage(),
           StatisticsPage(),
-          AddMoodPage(),
           CalendarPage(),
           SettingsPage(),
         ],
@@ -57,14 +56,14 @@ class MainNavigationPage extends ConsumerWidget {
                 _buildNavItem(
                   context,
                   ref,
-                  3,
+                  2,
                   Icons.calendar_month_rounded,
                   'Calendar',
                 ),
                 _buildNavItem(
                   context,
                   ref,
-                  4,
+                  3,
                   Icons.settings_rounded,
                   'Settings',
                 ),
@@ -126,9 +125,16 @@ class MainNavigationPage extends ConsumerWidget {
     final theme = Theme.of(context);
 
     return GestureDetector(
-      onTap: () {
-        // Navegar para a página de adicionar humor ou mostrar modal
-        ref.read(navigationIndexProvider.notifier).state = 2;
+      onTap: () async {
+        final result = await Navigator.of(context).push<bool>(
+          MaterialPageRoute(builder: (context) => const AddMoodPage()),
+        );
+
+        if (result == true) {
+          ref.invalidate(moodEntriesProvider);
+          ref.invalidate(todayMoodEntryProvider);
+          ref.invalidate(moodStatisticsProvider);
+        }
       },
       child: Container(
         width: 56,
