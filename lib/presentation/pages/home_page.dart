@@ -14,6 +14,7 @@ class HomePage extends ConsumerWidget {
     final moodEntriesAsync = ref.watch(moodEntriesProvider);
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade50,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -22,22 +23,58 @@ class HomePage extends ConsumerWidget {
           child: CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
+                child: Container(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'MoodDot',
-                        style: Theme.of(context).textTheme.headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                      Row(
+                        children: [
+                          Text(
+                            'MoodDot',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: Colors.grey.shade800,
+                            ),
+                          ),
+                          const Spacer(),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.shade100,
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Text(
+                              DateFormat(
+                                'EEEE, dd MMM',
+                                'pt_BR',
+                              ).format(DateTime.now()),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color: Colors.grey.shade600,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      const Spacer(),
+                      const SizedBox(height: 8),
                       Text(
-                        DateFormat(
-                          'EEEE, dd MMM',
-                          'pt_BR',
-                        ).format(DateTime.now()),
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        'Como tem sido seus dias?',
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.grey.shade600,
                         ),
                       ),
@@ -49,82 +86,113 @@ class HomePage extends ConsumerWidget {
               moodEntriesAsync.when(
                 data: (entries) {
                   if (entries.isEmpty) {
-                    return const SliverFillRemaining(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.sentiment_neutral,
-                              size: 64,
-                              color: Colors.grey,
-                            ),
-                            SizedBox(height: 16),
-                            Text(
-                              'Nenhum registro ainda',
-                              style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.grey,
+                    return SliverFillRemaining(
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade100,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.sentiment_neutral_outlined,
+                                  size: 40,
+                                  color: Colors.grey.shade400,
+                                ),
                               ),
-                            ),
-                            SizedBox(height: 8),
-                            Text(
-                              'Adicione seu primeiro humor!',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey,
+                              const SizedBox(height: 24),
+                              Text(
+                                'Nenhum registro ainda',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(
+                                  color: Colors.grey.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                'Toque no + para registrar seu primeiro humor',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: Colors.grey.shade500),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );
                   }
 
-                  return SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final entry = entries[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 4.0,
-                        ),
-                        child: MoodEntryCard(
+                  return SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    sliver: SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final entry = entries[index];
+                        return MoodEntryCard(
                           entry: entry,
                           onTap: () => _editMoodEntry(context, entry),
                           onDelete: () => _deleteMoodEntry(context, ref, entry),
-                        ),
-                      );
-                    }, childCount: entries.length),
+                        );
+                      }, childCount: entries.length),
+                    ),
                   );
                 },
                 loading:
-                    () => const SliverFillRemaining(
-                      child: Center(child: CircularProgressIndicator()),
+                    () => SliverFillRemaining(
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        child: const Center(
+                          child: CircularProgressIndicator(strokeWidth: 2.5),
+                        ),
+                      ),
                     ),
                 error:
                     (error, stack) => SliverFillRemaining(
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.error_outline,
-                              size: 64,
-                              color: Colors.red,
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Erro ao carregar dados',
-                              style: Theme.of(context).textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              error.toString(),
-                              style: Theme.of(context).textTheme.bodyMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: Colors.red.shade50,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.error_outline,
+                                  size: 40,
+                                  color: Colors.red.shade400,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Ops, algo deu errado',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(
+                                  color: Colors.red.shade700,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Tente novamente em alguns instantes',
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(color: Colors.grey.shade500),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

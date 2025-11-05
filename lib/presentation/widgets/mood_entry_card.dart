@@ -16,106 +16,149 @@ class MoodEntryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: InkWell(
-        onTap: onTap,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              // Indicador de cor do humor
-              Container(
-                width: 12,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: entry.color,
-                  borderRadius: BorderRadius.circular(6),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(16),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Row(
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: entry.color.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      entry.emoji,
+                      style: const TextStyle(fontSize: 24),
+                    ),
+                  ),
                 ),
-              ),
 
-              const SizedBox(width: 16),
+                const SizedBox(width: 16),
 
-              // Emoji e informações
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(entry.emoji, style: const TextStyle(fontSize: 24)),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                entry.moodDescription,
-                                style: Theme.of(context).textTheme.titleMedium,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              entry.moodDescription,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.titleMedium?.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey.shade800,
                               ),
-                              Row(
+                            ),
+                          ),
+                          Text(
+                            _formatTime(entry.createdAt),
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade500,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _formatDate(entry.date),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                      if (entry.note != null && entry.note!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade50,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            entry.note!,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey.shade700,
+                              fontStyle: FontStyle.italic,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+
+                if (onDelete != null) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: PopupMenuButton<String>(
+                      onSelected: (value) {
+                        if (value == 'delete') {
+                          onDelete?.call();
+                        }
+                      },
+                      itemBuilder:
+                          (context) => [
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: Row(
                                 children: [
-                                  Text(
-                                    _formatDate(entry.date),
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
+                                  Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.red,
+                                    size: 20,
                                   ),
-                                  Text(
-                                    ' • ${_formatTime(entry.createdAt)}',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodyMedium
-                                        ?.copyWith(color: Colors.grey.shade600),
-                                  ),
+                                  SizedBox(width: 8),
+                                  Text('Excluir'),
                                 ],
                               ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    // Nota (se existir)
-                    if (entry.note != null && entry.note!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        entry.note!,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontStyle: FontStyle.italic,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                      icon: Icon(
+                        Icons.more_horiz,
+                        color: Colors.grey.shade600,
+                        size: 20,
                       ),
-                    ],
-                  ],
-                ),
-              ),
-
-              // Botão de menu (se onDelete for fornecido)
-              if (onDelete != null)
-                PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'delete') {
-                      onDelete?.call();
-                    }
-                  },
-                  itemBuilder:
-                      (context) => [
-                        const PopupMenuItem(
-                          value: 'delete',
-                          child: Row(
-                            children: [
-                              Icon(Icons.delete_outline, color: Colors.red),
-                              SizedBox(width: 8),
-                              Text('Excluir'),
-                            ],
-                          ),
-                        ),
-                      ],
-                  child: const Icon(Icons.more_vert, color: Colors.grey),
-                ),
-            ],
+                      padding: const EdgeInsets.all(8),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
       ),
