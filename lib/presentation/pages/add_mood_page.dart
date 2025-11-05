@@ -46,6 +46,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
     final isEditing = widget.existingEntry != null;
 
     return Scaffold(
+      backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
         title: Text(isEditing ? 'Editar Humor' : 'Como você está?'),
         actions: [
@@ -64,6 +65,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
           ),
         ],
       ),
+
       body:
           moodNotifier.isLoading
               ? const Center(child: CircularProgressIndicator())

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 import '../providers/mood_providers.dart';
 import '../../domain/entities/mood_entry.dart';
 import 'add_mood_page.dart';
-import '../widgets/mood_entry_card.dart';
+import '../widgets/daily_mood_card.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -14,7 +14,7 @@ class HomePage extends ConsumerWidget {
     final moodEntriesAsync = ref.watch(moodEntriesProvider);
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
+      backgroundColor: Colors.grey.shade200,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -25,9 +25,13 @@ class HomePage extends ConsumerWidget {
               SliverToBoxAdapter(
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [Colors.blue.shade50, Colors.purple.shade50],
+                    ),
+                    borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(32),
                       bottomRight: Radius.circular(32),
                     ),
@@ -37,45 +41,93 @@ class HomePage extends ConsumerWidget {
                     children: [
                       Row(
                         children: [
-                          Text(
-                            'MoodDot',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                              color: Colors.grey.shade800,
-                            ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Olá! 👋',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleLarge?.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey.shade700,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'Como você está hoje?',
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.headlineSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.grey.shade800,
+                                ),
+                              ),
+                            ],
                           ),
                           const Spacer(),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
+                              horizontal: 16,
+                              vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade100,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Text(
-                              DateFormat(
-                                'EEEE, dd MMM',
-                                'pt_BR',
-                              ).format(DateTime.now()),
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodySmall?.copyWith(
-                                color: Colors.grey.shade600,
-                                fontWeight: FontWeight.w500,
+                              color: Colors.white.withOpacity(0.8),
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: Colors.blue.shade200,
+                                width: 1,
                               ),
+                            ),
+                            child: Column(
+                              children: [
+                                Text(
+                                  DateFormat(
+                                    'dd',
+                                    'pt_BR',
+                                  ).format(DateTime.now()),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.blue.shade700,
+                                  ),
+                                ),
+                                Text(
+                                  DateFormat(
+                                    'MMM',
+                                    'pt_BR',
+                                  ).format(DateTime.now()),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color: Colors.blue.shade600,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Como tem sido seus dias?',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                          color: Colors.grey.shade600,
+                      const SizedBox(height: 16),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.6),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          DateFormat('EEEE', 'pt_BR').format(DateTime.now()),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(
+                            color: Colors.grey.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
@@ -130,17 +182,24 @@ class HomePage extends ConsumerWidget {
                     );
                   }
 
+                  // Agrupar entries por dia
+                  final groupedEntries = _groupEntriesByDay(entries);
+
                   return SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     sliver: SliverList(
                       delegate: SliverChildBuilderDelegate((context, index) {
-                        final entry = entries[index];
-                        return MoodEntryCard(
-                          entry: entry,
-                          onTap: () => _editMoodEntry(context, entry),
-                          onDelete: () => _deleteMoodEntry(context, ref, entry),
+                        final dayEntries = groupedEntries[index];
+                        final date = dayEntries.first.date;
+
+                        return DailyMoodCard(
+                          date: date,
+                          entries: dayEntries,
+                          onEntryTap: (entry) => _editMoodEntry(context, entry),
+                          onEntryDelete:
+                              (entry) => _deleteMoodEntry(context, ref, entry),
                         );
-                      }, childCount: entries.length),
+                      }, childCount: groupedEntries.length),
                     ),
                   );
                 },
@@ -258,5 +317,28 @@ class HomePage extends ConsumerWidget {
         );
       }
     }
+  }
+
+  // Agrupa entries por dia, mantendo a ordem decrescente
+  List<List<MoodEntry>> _groupEntriesByDay(List<MoodEntry> entries) {
+    final Map<String, List<MoodEntry>> grouped = {};
+
+    for (final entry in entries) {
+      final dateKey = DateFormat('yyyy-MM-dd').format(entry.date);
+      grouped.putIfAbsent(dateKey, () => []).add(entry);
+    }
+
+    // Ordenar cada grupo por horário (decrescente - mais recente primeiro) e retornar grupos por data (decrescente)
+    final result =
+        grouped.entries.toList()..sort(
+          (a, b) => b.key.compareTo(a.key),
+        ); // Dias mais recentes primeiro
+
+    return result.map((entry) {
+      entry.value.sort(
+        (a, b) => b.date.compareTo(a.date),
+      ); // Horários decrescentes dentro do dia (mais recente primeiro)
+      return entry.value;
+    }).toList();
   }
 }
