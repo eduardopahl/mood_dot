@@ -45,6 +45,23 @@ class MoodEntry {
     }
   }
 
+  String get iconPath {
+    switch (moodLevel) {
+      case 1:
+        return 'assets/images/moods/mood_1.png';
+      case 2:
+        return 'assets/images/moods/mood_2.png';
+      case 3:
+        return 'assets/images/moods/mood_3.png';
+      case 4:
+        return 'assets/images/moods/mood_4.png';
+      case 5:
+        return 'assets/images/moods/mood_5.png';
+      default:
+        return 'assets/images/moods/mood_3.png';
+    }
+  }
+
   String get emoji {
     switch (moodLevel) {
       case 1:

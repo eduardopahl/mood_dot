@@ -39,17 +39,28 @@ class MoodEntryCard extends StatelessWidget {
             child: Row(
               children: [
                 Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: entry.color.withOpacity(0.15),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      entry.emoji,
-                      style: const TextStyle(fontSize: 24),
-                    ),
+                  width: 56,
+                  height: 56,
+                  decoration: const BoxDecoration(shape: BoxShape.circle),
+                  clipBehavior: Clip.hardEdge,
+                  child: Image.asset(
+                    entry.iconPath,
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                    errorBuilder:
+                        (context, error, stackTrace) => Container(
+                          decoration: BoxDecoration(
+                            color: entry.color.withOpacity(0.15),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              entry.emoji,
+                              style: const TextStyle(fontSize: 36),
+                            ),
+                          ),
+                        ),
                   ),
                 ),
 
