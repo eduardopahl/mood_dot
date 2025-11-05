@@ -184,15 +184,112 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
   }
 
   Widget _buildDateSelector() {
-    return Card(
-      child: ListTile(
-        leading: const Icon(Icons.calendar_today),
-        title: const Text('Data'),
-        subtitle: Text(
-          DateFormat('dd/MM/yyyy - EEEE', 'pt_BR').format(selectedDate),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
         ),
-        onTap: _selectDate,
-        trailing: const Icon(Icons.chevron_right),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: _buildDateTimeCard(
+              icon: Icons.calendar_today_outlined,
+              label: 'Data',
+              value: DateFormat('dd/MM/yyyy').format(selectedDate),
+              subtitle: DateFormat('EEEE', 'pt_BR').format(selectedDate),
+              onTap: _selectDate,
+              color: Colors.blue,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Container(
+            width: 1,
+            height: 60,
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: _buildDateTimeCard(
+              icon: Icons.access_time_outlined,
+              label: 'Hora',
+              value: DateFormat('HH:mm').format(selectedDate),
+              subtitle: 'Horário',
+              onTap: _selectTime,
+              color: Colors.orange,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateTimeCard({
+    required IconData icon,
+    required String label,
+    required String value,
+    required String subtitle,
+    required VoidCallback onTap,
+    required Color color,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          color: color.withOpacity(0.05),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(icon, size: 20, color: color),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Icon(
+                  Icons.edit_outlined,
+                  size: 16,
+                  color: color.withOpacity(0.7),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              subtitle,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -208,7 +305,34 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
 
     if (picked != null && picked != selectedDate) {
       setState(() {
-        selectedDate = picked;
+        // Manter a hora atual ao alterar apenas a data
+        selectedDate = DateTime(
+          picked.year,
+          picked.month,
+          picked.day,
+          selectedDate.hour,
+          selectedDate.minute,
+        );
+      });
+    }
+  }
+
+  Future<void> _selectTime() async {
+    final TimeOfDay? picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(selectedDate),
+    );
+
+    if (picked != null) {
+      setState(() {
+        // Manter a data atual ao alterar apenas a hora
+        selectedDate = DateTime(
+          selectedDate.year,
+          selectedDate.month,
+          selectedDate.day,
+          picked.hour,
+          picked.minute,
+        );
       });
     }
   }
