@@ -25,13 +25,6 @@ final moodStatisticsProvider = FutureProvider<Map<String, dynamic>>((
   return await repository.getMoodStatistics();
 });
 
-final todayMoodEntryProvider = FutureProvider<MoodEntry?>((ref) async {
-  final repository = ref.watch(moodRepositoryProvider);
-  final today = DateTime.now();
-  return await repository.getMoodEntryByDate(today);
-});
-
-// StateNotifier para gerenciar o estado da adição/edição de humor
 class MoodEntryNotifier extends StateNotifier<AsyncValue<void>> {
   MoodEntryNotifier(this._repository) : super(const AsyncValue.data(null));
 

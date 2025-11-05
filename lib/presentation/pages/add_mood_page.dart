@@ -246,7 +246,6 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
 
       // Invalidar os providers para recarregar os dados
       ref.invalidate(moodEntriesProvider);
-      ref.invalidate(todayMoodEntryProvider);
       ref.invalidate(moodStatisticsProvider);
 
       if (mounted) {

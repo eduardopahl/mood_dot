@@ -12,18 +12,15 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final moodEntriesAsync = ref.watch(moodEntriesProvider);
-    final todayMoodAsync = ref.watch(todayMoodEntryProvider);
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
             ref.invalidate(moodEntriesProvider);
-            ref.invalidate(todayMoodEntryProvider);
           },
           child: CustomScrollView(
             slivers: [
-              // Header customizado
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
@@ -48,27 +45,6 @@ class HomePage extends ConsumerWidget {
                   ),
                 ),
               ),
-
-              // Seção do humor de hoje
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: _buildTodaySection(context, todayMoodAsync),
-                ),
-              ),
-
-              // Lista de entradas de humor
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text(
-                    'Histórico',
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
-                ),
-              ),
-
-              const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
               moodEntriesAsync.when(
                 data: (entries) {
@@ -154,140 +130,12 @@ class HomePage extends ConsumerWidget {
                     ),
               ),
 
-              // Espaço extra no final
               const SliverToBoxAdapter(child: SizedBox(height: 100)),
             ],
           ),
         ),
       ),
     );
-  }
-
-  Widget _buildTodaySection(
-    BuildContext context,
-    AsyncValue<MoodEntry?> todayMoodAsync,
-  ) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text('Hoje', style: Theme.of(context).textTheme.titleLarge),
-                const Spacer(),
-                Text(
-                  DateFormat('dd/MM/yyyy').format(DateTime.now()),
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            todayMoodAsync.when(
-              data: (todayEntry) {
-                if (todayEntry == null) {
-                  return Column(
-                    children: [
-                      const Icon(
-                        Icons.sentiment_neutral,
-                        size: 48,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        'Como você está se sentindo hoje?',
-                        style: Theme.of(context).textTheme.bodyLarge,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: () => _addMoodEntry(context),
-                          child: const Text('Registrar humor'),
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
-                return Column(
-                  children: [
-                    Text(
-                      todayEntry.emoji,
-                      style: const TextStyle(fontSize: 48),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      todayEntry.moodDescription,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Registrado às ${DateFormat('HH:mm').format(todayEntry.createdAt)}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade600,
-                      ),
-                    ),
-                    if (todayEntry.note != null &&
-                        todayEntry.note!.isNotEmpty) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        '"${todayEntry.note}"',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontStyle: FontStyle.italic,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed:
-                                () => _editMoodEntry(context, todayEntry),
-                            child: const Text('Editar'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () => _addMoodEntry(context),
-                            child: const Text('Novo registro'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                );
-              },
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error:
-                  (error, stack) => Text(
-                    'Erro ao carregar humor de hoje',
-                    style: Theme.of(
-                      context,
-                    ).textTheme.bodyMedium?.copyWith(color: Colors.red),
-                  ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  void _addMoodEntry(BuildContext context) async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const AddMoodPage()),
-    );
-
-    if (result == true && context.mounted) {
-      // Atualizar a lista quando voltar da tela de adicionar
-      // O Riverpod vai automaticamente refrescar os providers
-    }
   }
 
   void _editMoodEntry(BuildContext context, MoodEntry entry) async {
@@ -335,7 +183,6 @@ class HomePage extends ConsumerWidget {
           .read(moodEntryNotifierProvider.notifier)
           .deleteMoodEntry(entry.id!);
       ref.invalidate(moodEntriesProvider);
-      ref.invalidate(todayMoodEntryProvider);
 
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
