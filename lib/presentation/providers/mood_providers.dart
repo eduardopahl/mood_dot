@@ -237,27 +237,6 @@ String? _getBestTimeOfDay(Map<int, double> hourlyPattern) {
   return 'Madrugada';
 }
 
-int? _getMostCommonMood(List<MoodEntry> entries) {
-  if (entries.isEmpty) return null;
-
-  final Map<int, int> moodCounts = {};
-  for (final entry in entries) {
-    moodCounts[entry.moodLevel] = (moodCounts[entry.moodLevel] ?? 0) + 1;
-  }
-
-  int mostCommon = 1;
-  int maxCount = 0;
-
-  moodCounts.forEach((mood, count) {
-    if (count > maxCount) {
-      maxCount = count;
-      mostCommon = mood;
-    }
-  });
-
-  return mostCommon;
-}
-
 List<String> _generateInsights(
   Map<String, double> weeklyPattern,
   Map<int, double> hourlyPattern,
@@ -331,6 +310,94 @@ double _calculateMoodVariation(List<MoodEntry> entries) {
 
   return variance; // Retorna a variância como medida de variação
 }
+
+// Provider para estatísticas filtradas por período
+final filteredStatisticsProvider = FutureProvider.family<
+  Map<String, dynamic>,
+  String
+>((ref, period) async {
+  // Usar o provider de entradas existente para evitar chamadas desnecessárias ao repositório
+  final entries = await ref.watch(moodEntriesProvider.future);
+
+  if (entries.isEmpty) {
+    return {
+      'average': 0.0,
+      'totalEntries': 0,
+      'streak': 0,
+      'bestTimeOfDay': null,
+      'countByLevel': [],
+    };
+  }
+
+  // Filtrar entradas baseado no período
+  final now = DateTime.now();
+  List<MoodEntry> filteredEntries;
+
+  switch (period) {
+    case 'week7Days':
+      final sevenDaysAgo = now.subtract(const Duration(days: 7));
+      filteredEntries =
+          entries.where((entry) => entry.date.isAfter(sevenDaysAgo)).toList();
+      break;
+    case 'month30Days':
+      final thirtyDaysAgo = now.subtract(const Duration(days: 30));
+      filteredEntries =
+          entries.where((entry) => entry.date.isAfter(thirtyDaysAgo)).toList();
+      break;
+    case 'month90Days':
+      final ninetyDaysAgo = now.subtract(const Duration(days: 90));
+      filteredEntries =
+          entries.where((entry) => entry.date.isAfter(ninetyDaysAgo)).toList();
+      break;
+    case 'allTime':
+    default:
+      filteredEntries = entries;
+      break;
+  }
+
+  if (filteredEntries.isEmpty) {
+    return {
+      'average': 0.0,
+      'totalEntries': 0,
+      'streak': 0,
+      'bestTimeOfDay': null,
+      'countByLevel': [],
+    };
+  }
+
+  // Calcular estatísticas com entradas filtradas
+  final average =
+      filteredEntries.map((e) => e.moodLevel).reduce((a, b) => a + b) /
+      filteredEntries.length;
+  final totalEntries = filteredEntries.length;
+
+  // Para streak, usar todas as entradas (não faz sentido filtrar por período)
+  final streak = _calculateStreak(entries);
+
+  // Calcular melhor horário com entradas filtradas
+  final hourlyPattern = _calculateHourlyPattern(filteredEntries);
+  final bestTimeOfDay = _getBestTimeOfDay(hourlyPattern);
+
+  // Contar por nível de humor
+  final Map<int, int> countByLevelMap = {};
+  for (final entry in filteredEntries) {
+    countByLevelMap[entry.moodLevel] =
+        (countByLevelMap[entry.moodLevel] ?? 0) + 1;
+  }
+
+  final countByLevel =
+      countByLevelMap.entries
+          .map((entry) => {'mood_level': entry.key, 'count': entry.value})
+          .toList();
+
+  return {
+    'average': average,
+    'totalEntries': totalEntries,
+    'streak': streak,
+    'bestTimeOfDay': bestTimeOfDay,
+    'countByLevel': countByLevel,
+  };
+});
 
 class MoodEntryNotifier extends StateNotifier<AsyncValue<void>> {
   MoodEntryNotifier(this._repository) : super(const AsyncValue.data(null));

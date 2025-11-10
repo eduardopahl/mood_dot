@@ -15,19 +15,21 @@ enum StatisticsPeriod {
   final String label;
 }
 
-class StatisticsPage extends ConsumerStatefulWidget {
+// Provider para gerenciar o período selecionado
+final selectedPeriodProvider = StateProvider<StatisticsPeriod>((ref) {
+  return StatisticsPeriod.month30Days;
+});
+
+class StatisticsPage extends ConsumerWidget {
   const StatisticsPage({super.key});
 
   @override
-  ConsumerState<StatisticsPage> createState() => _StatisticsPageState();
-}
-
-class _StatisticsPageState extends ConsumerState<StatisticsPage> {
-  StatisticsPeriod selectedPeriod = StatisticsPeriod.month30Days;
-
-  @override
-  Widget build(BuildContext context) {
-    final statisticsAsync = ref.watch(moodStatisticsProvider);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedPeriod = ref.watch(selectedPeriodProvider);
+    // Usar o provider filtrado baseado no período selecionado
+    final filteredStatsAsync = ref.watch(
+      filteredStatisticsProvider(selectedPeriod.name),
+    );
     final advancedStatsAsync = ref.watch(advancedStatsProvider);
     final moodEntriesAsync = ref.watch(moodEntriesProvider);
 
@@ -35,6 +37,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
+            // Invalida apenas os dados base - o filteredStatisticsProvider se atualizará automaticamente
             ref.invalidate(moodStatisticsProvider);
             ref.invalidate(advancedStatsProvider);
             ref.invalidate(moodEntriesProvider);
@@ -55,20 +58,20 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
                 const SizedBox(height: 16),
 
                 // Seletor de período
-                _buildPeriodSelector(),
+                _buildPeriodSelector(ref),
                 const SizedBox(height: 24),
 
                 // Cards de métricas principais
                 _buildMetricsCards(
                   context,
-                  statisticsAsync,
+                  filteredStatsAsync,
                   advancedStatsAsync,
                 ),
 
                 const SizedBox(height: 24),
 
                 // Gráfico de distribuição por humor
-                _buildMoodDistribution(context, statisticsAsync),
+                _buildMoodDistribution(context, filteredStatsAsync),
 
                 const SizedBox(height: 24),
 
@@ -87,7 +90,9 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
     );
   }
 
-  Widget _buildPeriodSelector() {
+  Widget _buildPeriodSelector(WidgetRef ref) {
+    final selectedPeriod = ref.watch(selectedPeriodProvider);
+
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -102,9 +107,8 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
               return Expanded(
                 child: GestureDetector(
                   onTap: () {
-                    setState(() {
-                      selectedPeriod = period;
-                    });
+                    ref.read(selectedPeriodProvider.notifier).state = period;
+                    // O FutureProvider.family automaticamente atualiza quando o parâmetro muda
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(
@@ -138,17 +142,18 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
 
   Widget _buildMetricsCards(
     BuildContext context,
-    AsyncValue<Map<String, dynamic>> statisticsAsync,
+    AsyncValue<Map<String, dynamic>> filteredStatsAsync,
     AsyncValue<Map<String, dynamic>> advancedStatsAsync,
   ) {
-    return statisticsAsync.when(
+    return filteredStatsAsync.when(
       data:
           (stats) => advancedStatsAsync.when(
             data: (advancedStats) {
               final average = stats['average'] as double;
               final totalEntries = stats['totalEntries'] as int;
-              final streak = advancedStats['streak'] as int;
-              final bestTimeOfDay = advancedStats['bestTimeOfDay'] as String?;
+              final streak =
+                  stats['streak'] as int; // Agora vem das stats filtradas
+              final bestTimeOfDay = stats['bestTimeOfDay'] as String?;
               return Column(
                 children: [
                   // Primeira linha de cards
@@ -313,7 +318,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
 
   Widget _buildMoodDistribution(
     BuildContext context,
-    AsyncValue<Map<String, dynamic>> statisticsAsync,
+    AsyncValue<Map<String, dynamic>> filteredStatsAsync,
   ) {
     return Container(
       decoration: BoxDecoration(
@@ -365,7 +370,7 @@ class _StatisticsPageState extends ConsumerState<StatisticsPage> {
               ],
             ),
             const SizedBox(height: 24),
-            statisticsAsync.when(
+            filteredStatsAsync.when(
               data: (stats) {
                 final countByLevel =
                     stats['countByLevel'] as List<Map<String, dynamic>>;
