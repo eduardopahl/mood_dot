@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
+import '../providers/reminder_provider.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -8,6 +9,7 @@ class SettingsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDarkMode = ref.watch(themeNotifierProvider);
+    final reminderState = ref.watch(reminderStateProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Configurações')),
@@ -20,18 +22,9 @@ class SettingsPage extends ConsumerWidget {
           ]),
           const SizedBox(height: 24),
           _buildSettingsSection(context, 'Notificações', [
-            _buildSettingsTile(
-              Icons.notifications,
-              'Lembretes diários',
-              'Desativado',
-              () {},
-            ),
-            _buildSettingsTile(
-              Icons.schedule,
-              'Horário do lembrete',
-              '20:00',
-              () {},
-            ),
+            _buildReminderToggleTile(context, reminderState, ref),
+            _buildTestButton(context, ref),
+            _buildResetLearningButton(context, ref),
           ]),
           const SizedBox(height: 24),
           _buildSettingsSection(context, 'Dados', [
@@ -120,6 +113,148 @@ class SettingsPage extends ConsumerWidget {
       subtitle: Text(subtitle),
       trailing: const Icon(Icons.chevron_right),
       onTap: onTap,
+    );
+  }
+
+  Widget _buildReminderToggleTile(
+    BuildContext context,
+    ReminderState reminderState,
+    WidgetRef ref,
+  ) {
+    debugPrint(
+      '🎨 Construindo switch - enabled: ${reminderState.isEnabled}, loading: ${reminderState.isLoading}, erro: ${reminderState.error}',
+    );
+
+    return Column(
+      children: [
+        ListTile(
+          leading: const Icon(Icons.notifications),
+          title: const Text('Lembretes diários'),
+          subtitle:
+              reminderState.isLoading
+                  ? const Text('Carregando...')
+                  : Text(reminderState.statusText),
+          trailing: Switch(
+            value: reminderState.isEnabled,
+            onChanged:
+                reminderState.isLoading
+                    ? null
+                    : (value) async {
+                      debugPrint(
+                        '🔘 Switch tocado! Valor atual: ${reminderState.isEnabled}, novo valor: $value',
+                      );
+                      try {
+                        // Limpa erro anterior
+                        ref.read(reminderStateProvider.notifier).clearError();
+                        await ref
+                            .read(reminderStateProvider.notifier)
+                            .toggleReminders();
+                        debugPrint('✅ toggleReminders() executado com sucesso');
+                      } catch (e) {
+                        debugPrint('💥 Erro ao executar toggleReminders(): $e');
+                      }
+                    },
+          ),
+        ),
+        if (reminderState.error != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.error,
+                  color: Theme.of(context).colorScheme.error,
+                  size: 16,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    reminderState.error!,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+                TextButton(
+                  onPressed:
+                      () =>
+                          ref.read(reminderStateProvider.notifier).clearError(),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTestButton(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      leading: const Icon(Icons.bug_report),
+      title: const Text('Testar Notificação'),
+      subtitle: const Text('Enviar notificação de teste'),
+      trailing: const Icon(Icons.send),
+      onTap: () async {
+        debugPrint('Test button pressed');
+        await ref.read(reminderStateProvider.notifier).testNotification();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Notificação de teste enviada!')),
+        );
+      },
+    );
+  }
+
+  Widget _buildResetLearningButton(BuildContext context, WidgetRef ref) {
+    return ListTile(
+      leading: const Icon(Icons.psychology, color: Colors.orange),
+      title: const Text('Resetar IA'),
+      subtitle: const Text(
+        'Remove padrões aprendidos de horários e preferências de notificação',
+      ),
+      trailing: const Icon(Icons.refresh),
+      onTap: () async {
+        // Mostra diálogo de confirmação
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Resetar Sistema Inteligente?'),
+                content: const Text(
+                  'Isso irá limpar todos os dados aprendidos:\n\n'
+                  '• Horários preferidos de notificação\n'
+                  '• Score de engajamento personalizado\n'
+                  '• Padrões de uso identificados\n\n'
+                  'O sistema voltará a usar configurações padrão e precisará reaprender seus hábitos.',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancelar'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    child: const Text('Resetar'),
+                  ),
+                ],
+              ),
+        );
+
+        if (confirmed == true) {
+          debugPrint('Resetando sistema de aprendizado...');
+
+          // Acessa o serviço diretamente
+          final notificationService = ref.read(notificationServiceProvider);
+          await notificationService.resetLearningSystem();
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('🧠 Sistema inteligente resetado com sucesso!'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      },
     );
   }
 }

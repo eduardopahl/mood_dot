@@ -406,9 +406,7 @@ class HomePage extends ConsumerWidget {
     );
 
     if (confirm == true && entry.id != null) {
-      await ref
-          .read(moodEntryNotifierProvider.notifier)
-          .deleteMoodEntry(entry.id!);
+      await ref.read(moodEntryProvider.notifier).deleteMoodEntry(entry.id!);
 
       // Invalidar ambos os providers para manter sincronização
       ref.invalidate(recentMoodEntriesProvider);

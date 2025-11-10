@@ -42,7 +42,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
 
   @override
   Widget build(BuildContext context) {
-    final moodNotifier = ref.watch(moodEntryNotifierProvider);
+    final moodNotifier = ref.watch(moodEntryProvider);
     final isEditing = widget.existingEntry != null;
 
     return Scaffold(
@@ -357,7 +357,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
     // Dismissar o teclado
     noteFocusNode.unfocus();
 
-    final moodNotifier = ref.read(moodEntryNotifierProvider.notifier);
+    final moodNotifier = ref.read(moodEntryProvider.notifier);
 
     try {
       if (widget.existingEntry != null) {
