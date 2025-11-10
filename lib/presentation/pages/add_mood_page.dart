@@ -46,7 +46,6 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
     final isEditing = widget.existingEntry != null;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
       appBar: AppBar(
         title: Text(isEditing ? 'Editar Humor' : 'Como você está?'),
         actions: [
@@ -57,7 +56,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
               style: TextStyle(
                 color:
                     moodNotifier.isLoading
-                        ? Colors.grey
+                        ? Theme.of(context).disabledColor
                         : Theme.of(context).primaryColor,
                 fontWeight: FontWeight.w600,
               ),
@@ -80,9 +79,13 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
+                          color: Theme.of(context).colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: Colors.blue.shade200),
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.3),
+                          ),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,14 +96,23 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                                 context,
                               ).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.w600,
-                                color: Colors.blue.shade700,
+                                color:
+                                    Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimaryContainer,
                               ),
                             ),
                             const SizedBox(height: 4),
                             Text(
                               'Criado em ${DateFormat('dd/MM/yyyy \'às\' HH:mm').format(widget.existingEntry!.createdAt)}',
-                              style: Theme.of(context).textTheme.bodySmall
-                                  ?.copyWith(color: Colors.blue.shade600),
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onPrimaryContainer
+                                    .withOpacity(0.8),
+                              ),
                             ),
                           ],
                         ),
@@ -196,7 +208,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Theme.of(context).shadowColor.withOpacity(0.05),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -211,7 +223,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
               value: DateFormat('dd/MM/yyyy').format(selectedDate),
               subtitle: DateFormat('EEEE', 'pt_BR').format(selectedDate),
               onTap: _selectDate,
-              color: Colors.blue,
+              color: Theme.of(context).colorScheme.primary,
             ),
           ),
           const SizedBox(width: 16),
@@ -228,7 +240,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
               value: DateFormat('HH:mm').format(selectedDate),
               subtitle: 'Horário',
               onTap: _selectTime,
-              color: Colors.orange,
+              color: Theme.of(context).colorScheme.secondary,
             ),
           ),
         ],
@@ -383,7 +395,8 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                   ? 'Humor atualizado com sucesso!'
                   : 'Humor registrado com sucesso!',
             ),
-            backgroundColor: Colors.green,
+            backgroundColor: Colors.green.shade600,
+            behavior: SnackBarBehavior.floating,
           ),
         );
 
@@ -395,7 +408,8 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Erro ao salvar: $error'),
-            backgroundColor: Colors.red,
+            backgroundColor: Colors.red.shade600,
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }

@@ -46,6 +46,9 @@ dependencies:
   # Chart for statistics
   fl_chart: ^0.66.0
   
+  # Shared Preferences
+  shared_preferences: ^2.2.2
+  
   # Icons
   cupertino_icons: ^1.0.8
 

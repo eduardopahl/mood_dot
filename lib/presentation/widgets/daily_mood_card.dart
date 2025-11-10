@@ -31,7 +31,7 @@ class DailyMoodCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -86,8 +86,13 @@ class DailyMoodCard extends StatelessWidget {
                         ),
                         Text(
                           '${entries.length} ${entries.length == 1 ? 'registro' : 'registros'}',
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(color: Colors.grey.shade600),
+                          style: Theme.of(
+                            context,
+                          ).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.6),
+                          ),
                         ),
                       ],
                     ),
@@ -129,7 +134,9 @@ class DailyMoodCard extends StatelessWidget {
                       child: Text(
                         DateFormat('HH:mm').format(moodEntry.date),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey.shade600,
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -172,7 +179,7 @@ class DailyMoodCard extends StatelessWidget {
                             width: 2,
                             height: 20,
                             decoration: BoxDecoration(
-                              color: Colors.grey.shade300,
+                              color: Theme.of(context).dividerColor,
                               borderRadius: BorderRadius.circular(1),
                             ),
                           ),
@@ -214,8 +221,13 @@ class DailyMoodCard extends StatelessWidget {
                                 const SizedBox(height: 2),
                                 Text(
                                   moodEntry.note!,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: Colors.grey.shade600),
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                  ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
                                 ),

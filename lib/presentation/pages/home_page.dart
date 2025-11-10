@@ -5,6 +5,7 @@ import '../providers/mood_providers.dart';
 import '../../domain/entities/mood_entry.dart';
 import 'add_mood_page.dart';
 import '../widgets/daily_mood_card.dart';
+import '../theme/app_theme.dart';
 
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
@@ -12,9 +13,9 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final moodEntriesAsync = ref.watch(moodEntriesProvider);
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.grey.shade200,
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
@@ -26,11 +27,24 @@ class HomePage extends ConsumerWidget {
                 child: Container(
                   padding: const EdgeInsets.fromLTRB(24, 20, 24, 32),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [Colors.blue.shade50, Colors.purple.shade50],
-                    ),
+                    gradient:
+                        isDarkMode
+                            ? LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppTheme.darkCardBackground,
+                                AppTheme.darkSurface,
+                              ],
+                            )
+                            : LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.blue.shade50,
+                                Colors.purple.shade50,
+                              ],
+                            ),
                     borderRadius: const BorderRadius.only(
                       bottomLeft: Radius.circular(32),
                       bottomRight: Radius.circular(32),
@@ -50,7 +64,9 @@ class HomePage extends ConsumerWidget {
                                   context,
                                 ).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.grey.shade700,
+                                  color: AppTheme.getSecondaryTextColor(
+                                    context,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -60,7 +76,7 @@ class HomePage extends ConsumerWidget {
                                   context,
                                 ).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.w700,
-                                  color: Colors.grey.shade800,
+                                  color: AppTheme.getPrimaryTextColor(context),
                                 ),
                               ),
                             ],
@@ -72,10 +88,14 @@ class HomePage extends ConsumerWidget {
                               vertical: 8,
                             ),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.8),
+                              color: AppTheme.getCardBackgroundColor(
+                                context,
+                              ).withOpacity(0.8),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: Colors.blue.shade200,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.3),
                                 width: 1,
                               ),
                             ),
@@ -90,7 +110,8 @@ class HomePage extends ConsumerWidget {
                                     context,
                                   ).textTheme.titleMedium?.copyWith(
                                     fontWeight: FontWeight.w700,
-                                    color: Colors.blue.shade700,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
                                   ),
                                 ),
                                 Text(
@@ -101,7 +122,9 @@ class HomePage extends ConsumerWidget {
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
-                                    color: Colors.blue.shade600,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withOpacity(0.8),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -117,7 +140,9 @@ class HomePage extends ConsumerWidget {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.6),
+                          color: AppTheme.getCardBackgroundColor(
+                            context,
+                          ).withOpacity(0.6),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -125,7 +150,7 @@ class HomePage extends ConsumerWidget {
                           style: Theme.of(
                             context,
                           ).textTheme.bodyMedium?.copyWith(
-                            color: Colors.grey.shade700,
+                            color: AppTheme.getPrimaryTextColor(context),
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -149,13 +174,15 @@ class HomePage extends ConsumerWidget {
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey.shade100,
+                                  color: Theme.of(context).colorScheme.surface,
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   Icons.sentiment_neutral_outlined,
                                   size: 40,
-                                  color: Colors.grey.shade400,
+                                  color: AppTheme.getSecondaryTextColor(
+                                    context,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 24),
@@ -164,15 +191,20 @@ class HomePage extends ConsumerWidget {
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleLarge?.copyWith(
-                                  color: Colors.grey.shade700,
+                                  color: AppTheme.getPrimaryTextColor(context),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'Toque no + para registrar seu primeiro humor',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(color: Colors.grey.shade500),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.copyWith(
+                                  color: AppTheme.getSecondaryTextColor(
+                                    context,
+                                  ),
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -224,13 +256,13 @@ class HomePage extends ConsumerWidget {
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  color: Colors.red.shade50,
+                                  color: Colors.red.withOpacity(0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(
                                   Icons.error_outline,
                                   size: 40,
-                                  color: Colors.red.shade400,
+                                  color: Colors.red,
                                 ),
                               ),
                               const SizedBox(height: 24),
@@ -239,15 +271,20 @@ class HomePage extends ConsumerWidget {
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleLarge?.copyWith(
-                                  color: Colors.red.shade700,
+                                  color: Colors.red,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 8),
                               Text(
                                 'Tente novamente em alguns instantes',
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(color: Colors.grey.shade500),
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.copyWith(
+                                  color: AppTheme.getSecondaryTextColor(
+                                    context,
+                                  ),
+                                ),
                                 textAlign: TextAlign.center,
                               ),
                             ],
