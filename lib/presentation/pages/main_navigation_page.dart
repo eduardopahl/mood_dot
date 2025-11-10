@@ -146,6 +146,7 @@ class MainNavigationPage extends ConsumerWidget {
 
         if (result == true) {
           ref.invalidate(moodEntriesProvider);
+          ref.invalidate(recentMoodEntriesProvider);
           ref.invalidate(moodStatisticsProvider);
         }
       },

@@ -19,6 +19,7 @@ class StatisticsPage extends ConsumerWidget {
           onRefresh: () async {
             ref.invalidate(moodStatisticsProvider);
             ref.invalidate(moodEntriesProvider);
+            ref.invalidate(recentMoodEntriesProvider);
           },
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16.0),
@@ -44,6 +45,7 @@ class StatisticsPage extends ConsumerWidget {
                         onPressed: () async {
                           ref.invalidate(moodStatisticsProvider);
                           ref.invalidate(moodEntriesProvider);
+                          ref.invalidate(recentMoodEntriesProvider);
                         },
                       ),
                     ),
