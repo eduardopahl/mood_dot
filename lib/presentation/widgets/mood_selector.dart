@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/mood_entry.dart';
+import '../theme/app_theme.dart';
 
 class MoodSelector extends StatelessWidget {
   final int selectedMoodLevel;
@@ -110,10 +111,19 @@ class MoodSelector extends StatelessWidget {
         // Slider para seleção mais precisa
         SliderTheme(
           data: SliderThemeData(
-            activeTrackColor: _getMoodColor(selectedMoodLevel),
-            thumbColor: _getMoodColor(selectedMoodLevel),
+            activeTrackColor: AppTheme.getMoodColorFromContext(
+              context,
+              selectedMoodLevel,
+            ),
+            thumbColor: AppTheme.getMoodColorFromContext(
+              context,
+              selectedMoodLevel,
+            ),
             inactiveTrackColor: Colors.grey.shade300,
-            overlayColor: _getMoodColor(selectedMoodLevel).withOpacity(0.1),
+            overlayColor: AppTheme.getMoodColorFromContext(
+              context,
+              selectedMoodLevel,
+            ).withOpacity(0.1),
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
             trackHeight: 6,
           ),
@@ -158,16 +168,25 @@ class MoodSelector extends StatelessWidget {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: _getMoodColor(selectedMoodLevel).withOpacity(0.1),
+                  color: AppTheme.getMoodColorFromContext(
+                    context,
+                    selectedMoodLevel,
+                  ).withOpacity(0.1),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: _getMoodColor(selectedMoodLevel).withOpacity(0.3),
+                    color: AppTheme.getMoodColorFromContext(
+                      context,
+                      selectedMoodLevel,
+                    ).withOpacity(0.3),
                   ),
                 ),
                 child: Text(
                   _getMoodDescription(selectedMoodLevel),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    color: _getMoodColor(selectedMoodLevel),
+                    color: AppTheme.getMoodColorFromContext(
+                      context,
+                      selectedMoodLevel,
+                    ),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -198,15 +217,6 @@ class MoodSelector extends StatelessWidget {
         ),
       ],
     );
-  }
-
-  Color _getMoodColor(int moodLevel) {
-    final tempEntry = MoodEntry(
-      date: DateTime.now(),
-      moodLevel: moodLevel,
-      createdAt: DateTime.now(),
-    );
-    return tempEntry.color;
   }
 
   String _getMoodDescription(int moodLevel) {

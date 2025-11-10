@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import '../../presentation/theme/app_theme.dart';
 
 part 'mood_entry.g.dart';
 
@@ -43,6 +44,11 @@ class MoodEntry {
       default:
         return Colors.grey;
     }
+  }
+
+  // Método para obter cor baseada no contexto (tema atual)
+  Color getColorFromContext(BuildContext context) {
+    return AppTheme.getMoodColorFromContext(context, moodLevel);
   }
 
   String get iconPath {

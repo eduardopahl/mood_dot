@@ -41,8 +41,8 @@ class HomePage extends ConsumerWidget {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Colors.blue.shade50,
-                                Colors.purple.shade50,
+                                AppTheme.primaryColor.withOpacity(0.15),
+                                AppTheme.secondaryColor.withOpacity(0.15),
                               ],
                             ),
                     borderRadius: const BorderRadius.only(

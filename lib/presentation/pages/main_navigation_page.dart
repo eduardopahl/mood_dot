@@ -28,10 +28,10 @@ class MainNavigationPage extends ConsumerWidget {
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Theme.of(context).shadowColor.withOpacity(0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -104,7 +104,14 @@ class MainNavigationPage extends ConsumerWidget {
             Icon(
               icon,
               size: 24,
-              color: isSelected ? theme.primaryColor : Colors.grey.shade600,
+              color:
+                  isSelected
+                      ? Theme.of(
+                        context,
+                      ).bottomNavigationBarTheme.selectedItemColor
+                      : Theme.of(
+                        context,
+                      ).bottomNavigationBarTheme.unselectedItemColor,
             ),
             const SizedBox(height: 4),
             Text(
@@ -112,7 +119,14 @@ class MainNavigationPage extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 10,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                color: isSelected ? theme.primaryColor : Colors.grey.shade600,
+                color:
+                    isSelected
+                        ? Theme.of(
+                          context,
+                        ).bottomNavigationBarTheme.selectedItemColor
+                        : Theme.of(
+                          context,
+                        ).bottomNavigationBarTheme.unselectedItemColor,
               ),
             ),
           ],

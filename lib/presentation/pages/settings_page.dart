@@ -68,7 +68,7 @@ class SettingsPage extends ConsumerWidget {
     return ListTile(
       leading: Icon(
         isDarkMode ? Icons.dark_mode : Icons.light_mode,
-        color: Theme.of(context).primaryColor,
+        color: Theme.of(context).colorScheme.onSurface,
       ),
       title: const Text('Modo escuro'),
       subtitle: Text(isDarkMode ? 'Ativado' : 'Desativado'),
@@ -94,7 +94,8 @@ class SettingsPage extends ConsumerWidget {
           child: Text(
             title,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
+              color: Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

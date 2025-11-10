@@ -19,13 +19,13 @@ class MoodEntryCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
+            color: Colors.black.withOpacity(0.08),
+            blurRadius: 16,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
@@ -51,7 +51,9 @@ class MoodEntryCard extends StatelessWidget {
                     errorBuilder:
                         (context, error, stackTrace) => Container(
                           decoration: BoxDecoration(
-                            color: entry.color.withOpacity(0.15),
+                            color: entry
+                                .getColorFromContext(context)
+                                .withOpacity(0.15),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -79,7 +81,7 @@ class MoodEntryCard extends StatelessWidget {
                                 context,
                               ).textTheme.titleMedium?.copyWith(
                                 fontWeight: FontWeight.w600,
-                                color: Colors.grey.shade800,
+                                color: Theme.of(context).colorScheme.onSurface,
                               ),
                             ),
                           ),
@@ -88,7 +90,7 @@ class MoodEntryCard extends StatelessWidget {
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade500,
+                              color: Theme.of(context).colorScheme.outline,
                               fontWeight: FontWeight.w500,
                             ),
                           ),
@@ -98,7 +100,7 @@ class MoodEntryCard extends StatelessWidget {
                       Text(
                         _formatDate(entry.date),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey.shade600,
+                          color: Theme.of(context).colorScheme.outline,
                         ),
                       ),
                       if (entry.note != null && entry.note!.isNotEmpty) ...[
@@ -109,7 +111,9 @@ class MoodEntryCard extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.grey.shade50,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.surface.withOpacity(0.5),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -117,7 +121,9 @@ class MoodEntryCard extends StatelessWidget {
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall?.copyWith(
-                              color: Colors.grey.shade700,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.7),
                               fontStyle: FontStyle.italic,
                             ),
                             maxLines: 2,
@@ -133,7 +139,7 @@ class MoodEntryCard extends StatelessWidget {
                   const SizedBox(width: 8),
                   Container(
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: Theme.of(context).colorScheme.surface,
                       shape: BoxShape.circle,
                     ),
                     child: PopupMenuButton<String>(
@@ -161,7 +167,7 @@ class MoodEntryCard extends StatelessWidget {
                           ],
                       icon: Icon(
                         Icons.more_horiz,
-                        color: Colors.grey.shade600,
+                        color: Theme.of(context).colorScheme.outline,
                         size: 20,
                       ),
                       padding: const EdgeInsets.all(8),

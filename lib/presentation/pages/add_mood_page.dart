@@ -56,8 +56,10 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
               style: TextStyle(
                 color:
                     moodNotifier.isLoading
-                        ? Theme.of(context).disabledColor
-                        : Theme.of(context).primaryColor,
+                        ? Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.4)
+                        : Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
             ),

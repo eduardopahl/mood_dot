@@ -6,20 +6,31 @@ class AppTheme {
   static const Color secondaryColor = Color(0xFF8B5CF6); // Violet
   static const Color accentColor = Color(0xFF06B6D4); // Cyan
 
-  // Cores de humor (mantém as mesmas para ambos os temas)
-  static const Color moodVeryBad = Color(0xFF8B0000); // Dark Red
-  static const Color moodBad = Color(0xFFFF4500); // Orange Red
-  static const Color moodNeutral = Color(0xFFFFD700); // Gold
-  static const Color moodGood = Color(0xFF90EE90); // Light Green
-  static const Color moodVeryGood = Color(0xFF228B22); // Forest Green
+  // Cores de humor para Light Theme (mais saturadas para melhor contraste)
+  static const Color lightMoodVeryBad = Color(0xFFDC2626); // Red-600
+  static const Color lightMoodBad = Color(0xFFEA580C); // Orange-600
+  static const Color lightMoodNeutral = Color(0xFFD97706); // Amber-600
+  static const Color lightMoodGood = Color(0xFF059669); // Emerald-600
+  static const Color lightMoodVeryGood = Color(0xFF047857); // Emerald-700
+
+  // Cores de humor para Dark Theme (versões originais mais suaves)
+  static const Color darkMoodVeryBad = Color(0xFF8B0000); // Dark Red
+  static const Color darkMoodBad = Color(0xFFFF4500); // Orange Red
+  static const Color darkMoodNeutral = Color(0xFFFFD700); // Gold
+  static const Color darkMoodGood = Color(0xFF90EE90); // Light Green
+  static const Color darkMoodVeryGood = Color(0xFF228B22); // Forest Green
 
   // Cores para o Light Theme
-  static const Color lightSurface = Color(0xFFFAFAFA);
-  static const Color lightBackground = Color(0xFFF5F5F5);
-  static const Color lightCardBackground = Colors.white;
+  static const Color lightSurface = Color(0xFFF5F6F7); // Mais escuro
+  static const Color lightBackground = Color(
+    0xFFEFEFF1,
+  ); // Tom cinza mais visível
+  static const Color lightCardBackground = Color(
+    0xFFFBFCFD,
+  ); // Ligeiramente off-white
   static const Color lightTextPrimary = Color(0xFF1F2937);
   static const Color lightTextSecondary = Color(0xFF6B7280);
-  static const Color lightDivider = Color(0xFFE5E7EB);
+  static const Color lightDivider = Color(0xFFE2E8F0); // Tom mais suave
 
   // Cores para o Dark Theme
   static const Color darkSurface = Color(0xFF111827);
@@ -66,9 +77,12 @@ class AppTheme {
       // Card
       cardTheme: CardTheme(
         color: lightCardBackground,
-        elevation: 2,
-        shadowColor: Colors.black.withOpacity(0.1),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 4,
+        shadowColor: Colors.black.withOpacity(0.15),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(color: lightDivider.withOpacity(0.3), width: 0.5),
+        ),
       ),
 
       // Elevated Button
@@ -373,22 +387,30 @@ class AppTheme {
     );
   }
 
-  // Helper para obter cores de humor
-  static Color getMoodColor(int moodLevel) {
+  // Helper para obter cores de humor baseada no tema
+  static Color getMoodColor(int moodLevel, {bool? isDarkMode}) {
+    final bool useDarkColors = isDarkMode ?? false;
+
     switch (moodLevel) {
       case 1:
-        return moodVeryBad;
+        return useDarkColors ? darkMoodVeryBad : lightMoodVeryBad;
       case 2:
-        return moodBad;
+        return useDarkColors ? darkMoodBad : lightMoodBad;
       case 3:
-        return moodNeutral;
+        return useDarkColors ? darkMoodNeutral : lightMoodNeutral;
       case 4:
-        return moodGood;
+        return useDarkColors ? darkMoodGood : lightMoodGood;
       case 5:
-        return moodVeryGood;
+        return useDarkColors ? darkMoodVeryGood : lightMoodVeryGood;
       default:
-        return moodNeutral;
+        return useDarkColors ? darkMoodNeutral : lightMoodNeutral;
     }
+  }
+
+  // Helper para obter cores de humor baseada no contexto
+  static Color getMoodColorFromContext(BuildContext context, int moodLevel) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    return getMoodColor(moodLevel, isDarkMode: isDarkMode);
   }
 
   // Helper para obter cor de fundo do card baseada no tema

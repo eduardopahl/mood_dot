@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/mood_entry.dart';
+import '../theme/app_theme.dart';
 
 class DailyMoodCard extends StatelessWidget {
   final DateTime date;
@@ -35,8 +36,8 @@ class DailyMoodCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 12,
+            color: Colors.black.withOpacity(0.12),
+            blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
@@ -58,10 +59,14 @@ class DailyMoodCard extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: _getAverageMoodColor(averageMood).withOpacity(0.1),
+                      color: _getAverageMoodColor(
+                        context,
+                        averageMood,
+                      ).withOpacity(0.1),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: _getAverageMoodColor(
+                          context,
                           averageMood,
                         ).withOpacity(0.3),
                       ),
@@ -69,7 +74,7 @@ class DailyMoodCard extends StatelessWidget {
                     child: Text(
                       DateFormat('dd MMM', 'pt_BR').format(date),
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                        color: _getAverageMoodColor(averageMood),
+                        color: _getAverageMoodColor(context, averageMood),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -150,11 +155,13 @@ class DailyMoodCard extends StatelessWidget {
                           width: 36,
                           height: 36,
                           decoration: BoxDecoration(
-                            color: moodEntry.color,
+                            color: moodEntry.getColorFromContext(context),
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: moodEntry.color.withOpacity(0.3),
+                                color: moodEntry
+                                    .getColorFromContext(context)
+                                    .withOpacity(0.3),
                                 blurRadius: 4,
                                 spreadRadius: 1,
                               ),
@@ -198,10 +205,14 @@ class DailyMoodCard extends StatelessWidget {
                             vertical: 8,
                           ),
                           decoration: BoxDecoration(
-                            color: moodEntry.color.withOpacity(0.05),
+                            color: moodEntry
+                                .getColorFromContext(context)
+                                .withOpacity(0.05),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
-                              color: moodEntry.color.withOpacity(0.2),
+                              color: moodEntry
+                                  .getColorFromContext(context)
+                                  .withOpacity(0.2),
                             ),
                           ),
                           child: Column(
@@ -212,7 +223,7 @@ class DailyMoodCard extends StatelessWidget {
                                 style: Theme.of(
                                   context,
                                 ).textTheme.labelMedium?.copyWith(
-                                  color: moodEntry.color,
+                                  color: moodEntry.getColorFromContext(context),
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
@@ -246,13 +257,7 @@ class DailyMoodCard extends StatelessWidget {
     );
   }
 
-  Color _getAverageMoodColor(double averageMood) {
-    // Criar uma entrada temporária para obter a cor
-    final tempEntry = MoodEntry(
-      date: DateTime.now(),
-      moodLevel: averageMood.round(),
-      createdAt: DateTime.now(),
-    );
-    return tempEntry.color;
+  Color _getAverageMoodColor(BuildContext context, double averageMood) {
+    return AppTheme.getMoodColorFromContext(context, averageMood.round());
   }
 }
