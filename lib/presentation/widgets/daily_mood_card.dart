@@ -255,45 +255,50 @@ class DailyMoodCard extends StatelessWidget {
                         icon: Icon(
                           Icons.more_vert,
                           size: 16,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onSurface
-                              .withOpacity(0.6),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.6),
                         ),
                         onSelected: (value) {
                           if (value == 'edit' && onEntryTap != null) {
                             onEntryTap!(moodEntry);
-                          } else if (value == 'delete' && onEntryDelete != null) {
+                          } else if (value == 'delete' &&
+                              onEntryDelete != null) {
                             onEntryDelete!(moodEntry);
                           }
                         },
-                        itemBuilder: (context) => [
-                          if (onEntryTap != null)
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.edit, size: 18),
-                                  SizedBox(width: 8),
-                                  Text('Editar'),
-                                ],
-                              ),
-                            ),
-                          if (onEntryDelete != null)
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.delete, size: 18, color: Colors.red),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'Excluir',
-                                    style: TextStyle(color: Colors.red),
+                        itemBuilder:
+                            (context) => [
+                              if (onEntryTap != null)
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.edit, size: 18),
+                                      SizedBox(width: 8),
+                                      Text('Editar'),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ),
-                        ],
+                                ),
+                              if (onEntryDelete != null)
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.delete,
+                                        size: 18,
+                                        color: Colors.red,
+                                      ),
+                                      SizedBox(width: 8),
+                                      Text(
+                                        'Excluir',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                            ],
                       ),
                   ],
                 ),
