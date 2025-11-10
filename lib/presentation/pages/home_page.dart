@@ -5,6 +5,7 @@ import '../providers/mood_providers.dart';
 import '../../domain/entities/mood_entry.dart';
 import 'add_mood_page.dart';
 import '../widgets/daily_mood_card.dart';
+import '../widgets/app_snackbar.dart';
 import '../theme/app_theme.dart';
 
 // Provider para controlar se devemos mostrar histórico completo
@@ -413,9 +414,7 @@ class HomePage extends ConsumerWidget {
       ref.invalidate(moodEntriesProvider);
 
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Registro excluído com sucesso')),
-        );
+        AppSnackBar.showSuccess(context, 'Registro excluído com sucesso');
       }
     }
   }

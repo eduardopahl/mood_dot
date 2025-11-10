@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
 import '../providers/reminder_provider.dart';
+import '../widgets/app_snackbar.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -198,8 +199,9 @@ class SettingsPage extends ConsumerWidget {
       onTap: () async {
         debugPrint('Test button pressed');
         await ref.read(reminderStateProvider.notifier).testNotification();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Notificação de teste enviada!')),
+        AppSnackBar.showNotificationSuccess(
+          context,
+          'Notificação de teste enviada!',
         );
       },
     );
@@ -247,11 +249,9 @@ class SettingsPage extends ConsumerWidget {
           final notificationService = ref.read(notificationServiceProvider);
           await notificationService.resetLearningSystem();
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('🧠 Sistema inteligente resetado com sucesso!'),
-              backgroundColor: Colors.orange,
-            ),
+          AppSnackBar.showAISuccess(
+            context,
+            'Sistema inteligente resetado com sucesso!',
           );
         }
       },

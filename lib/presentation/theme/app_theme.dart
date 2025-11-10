@@ -20,6 +20,14 @@ class AppTheme {
   static const Color darkMoodGood = Color(0xFF90EE90); // Light Green
   static const Color darkMoodVeryGood = Color(0xFF228B22); // Forest Green
 
+  // Cores para SnackBar
+  static const Color successColor = Color(0xFF059669); // Emerald-600
+  static const Color errorColor = Color(0xFFDC2626); // Red-600
+  static const Color warningColor = Color(0xFFD97706); // Amber-600
+  static const Color infoColor = Color(0xFF2563EB); // Blue-600
+  static const Color aiColor = Color(0xFF7C3AED); // Violet-600
+  static const Color notificationColor = Color(0xFF4F46E5); // Indigo-600
+
   // Cores para o Light Theme
   static const Color lightSurface = Color(0xFFF5F6F7); // Mais escuro
   static const Color lightBackground = Color(

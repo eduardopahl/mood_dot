@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../domain/entities/mood_entry.dart';
 import '../providers/mood_providers.dart';
 import '../widgets/mood_selector.dart';
+import '../widgets/app_snackbar.dart';
 
 class AddMoodPage extends ConsumerStatefulWidget {
   final MoodEntry? existingEntry;
@@ -391,16 +392,11 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
 
       if (mounted) {
         // Mostrar feedback de sucesso
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              widget.existingEntry != null
-                  ? 'Humor atualizado com sucesso!'
-                  : 'Humor registrado com sucesso!',
-            ),
-            backgroundColor: Colors.green.shade600,
-            behavior: SnackBarBehavior.floating,
-          ),
+        AppSnackBar.showMoodSuccess(
+          context,
+          widget.existingEntry != null
+              ? 'Humor atualizado com sucesso!'
+              : 'Humor registrado com sucesso!',
         );
 
         // Voltar para a tela anterior
@@ -408,13 +404,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
       }
     } catch (error) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Erro ao salvar: $error'),
-            backgroundColor: Colors.red.shade600,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
+        AppSnackBar.showError(context, 'Erro ao salvar: $error');
       }
     }
   }
