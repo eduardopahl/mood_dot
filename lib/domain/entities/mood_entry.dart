@@ -82,15 +82,15 @@ class MoodEntry {
   String get moodDescription {
     switch (moodLevel) {
       case 1:
-        return 'Muito triste';
+        return 'Muito ruim';
       case 2:
-        return 'Triste';
+        return 'Ruim';
       case 3:
         return 'Neutro';
       case 4:
-        return 'Feliz';
+        return 'Bem';
       case 5:
-        return 'Muito feliz';
+        return 'Muito bem';
       default:
         return 'Neutro';
     }
