@@ -18,6 +18,17 @@ final moodEntriesProvider = FutureProvider<List<MoodEntry>>((ref) async {
   return await repository.getAllMoodEntries();
 });
 
+// Provider para home page com paginação - carrega apenas registros recentes
+final recentMoodEntriesProvider = FutureProvider<List<MoodEntry>>((ref) async {
+  final repository = ref.watch(moodRepositoryProvider);
+
+  // Carrega apenas os últimos 30 dias inicialmente
+  final thirtyDaysAgo = DateTime.now().subtract(const Duration(days: 30));
+  final now = DateTime.now();
+
+  return await repository.getMoodEntriesByDateRange(thirtyDaysAgo, now);
+});
+
 final moodStatisticsProvider = FutureProvider<Map<String, dynamic>>((
   ref,
 ) async {

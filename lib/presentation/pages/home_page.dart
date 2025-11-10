@@ -7,19 +7,28 @@ import 'add_mood_page.dart';
 import '../widgets/daily_mood_card.dart';
 import '../theme/app_theme.dart';
 
+// Provider para controlar se devemos mostrar histórico completo
+final showFullHistoryProvider = StateProvider<bool>((ref) => false);
+
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final moodEntriesAsync = ref.watch(moodEntriesProvider);
+    final showFullHistory = ref.watch(showFullHistoryProvider);
+    final moodEntriesAsync = ref.watch(
+      showFullHistory ? moodEntriesProvider : recentMoodEntriesProvider,
+    );
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return Scaffold(
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
-            ref.invalidate(moodEntriesProvider);
+            final showFullHistory = ref.read(showFullHistoryProvider);
+            ref.invalidate(
+              showFullHistory ? moodEntriesProvider : recentMoodEntriesProvider,
+            );
           },
           child: CustomScrollView(
             slivers: [
@@ -217,21 +226,75 @@ class HomePage extends ConsumerWidget {
                   // Agrupar entries por dia
                   final groupedEntries = _groupEntriesByDay(entries);
 
-                  return SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    sliver: SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final dayEntries = groupedEntries[index];
-                        final date = dayEntries.first.date;
+                  return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        // Items dos mood cards
+                        if (index < groupedEntries.length) {
+                          final dayEntries = groupedEntries[index];
+                          final date = dayEntries.first.date;
 
-                        return DailyMoodCard(
-                          date: date,
-                          entries: dayEntries,
-                          onEntryTap: (entry) => _editMoodEntry(context, entry),
-                          onEntryDelete:
-                              (entry) => _deleteMoodEntry(context, ref, entry),
-                        );
-                      }, childCount: groupedEntries.length),
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 24),
+                            child: DailyMoodCard(
+                              date: date,
+                              entries: dayEntries,
+                              onEntryTap:
+                                  (entry) => _editMoodEntry(context, entry),
+                              onEntryDelete:
+                                  (entry) =>
+                                      _deleteMoodEntry(context, ref, entry),
+                            ),
+                          );
+                        }
+                        // Botão "Ver histórico completo" ou "Mostrar recentes" no final
+                        else if (index == groupedEntries.length) {
+                          final showFullHistory = ref.watch(
+                            showFullHistoryProvider,
+                          );
+                          return Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              children: [
+                                OutlinedButton.icon(
+                                  onPressed: () => _toggleHistoryView(ref),
+                                  icon: Icon(
+                                    showFullHistory
+                                        ? Icons.access_time
+                                        : Icons.history,
+                                  ),
+                                  label: Text(
+                                    showFullHistory
+                                        ? 'Mostrar apenas recentes'
+                                        : 'Ver histórico completo',
+                                  ),
+                                  style: OutlinedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  showFullHistory
+                                      ? 'Mostrando histórico completo'
+                                      : 'Mostrando últimos 30 dias',
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color: AppTheme.getSecondaryTextColor(
+                                      context,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return null;
+                      },
+                      childCount: groupedEntries.length + 1, // +1 para o botão
                     ),
                   );
                 },
@@ -346,6 +409,9 @@ class HomePage extends ConsumerWidget {
       await ref
           .read(moodEntryNotifierProvider.notifier)
           .deleteMoodEntry(entry.id!);
+
+      // Invalidar ambos os providers para manter sincronização
+      ref.invalidate(recentMoodEntriesProvider);
       ref.invalidate(moodEntriesProvider);
 
       if (context.mounted) {
@@ -377,5 +443,10 @@ class HomePage extends ConsumerWidget {
       ); // Horários decrescentes dentro do dia (mais recente primeiro)
       return entry.value;
     }).toList();
+  }
+
+  void _toggleHistoryView(WidgetRef ref) {
+    final currentState = ref.read(showFullHistoryProvider);
+    ref.read(showFullHistoryProvider.notifier).state = !currentState;
   }
 }
