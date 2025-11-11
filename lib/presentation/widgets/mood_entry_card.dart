@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/mood_entry.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../../core/extensions/app_localizations_extension.dart';
+import '../providers/locale_provider.dart';
 
-class MoodEntryCard extends StatelessWidget {
+class MoodEntryCard extends ConsumerWidget {
   final MoodEntry entry;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
@@ -14,8 +18,27 @@ class MoodEntryCard extends StatelessWidget {
     this.onDelete,
   });
 
+  String getMoodDescription(int moodLevel, AppLocalizations l10n) {
+    switch (moodLevel) {
+      case 1:
+        return l10n.moodVerySad;
+      case 2:
+        return l10n.moodSad;
+      case 3:
+        return l10n.moodNeutral;
+      case 4:
+        return l10n.moodHappy;
+      case 5:
+        return l10n.moodVeryHappy;
+      default:
+        return l10n.moodNeutral;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final currentLocale = ref.watch(localeProvider);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
@@ -76,7 +99,7 @@ class MoodEntryCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              entry.moodDescription,
+                              getMoodDescription(entry.moodLevel, l10n),
                               style: Theme.of(
                                 context,
                               ).textTheme.titleMedium?.copyWith(
@@ -86,7 +109,7 @@ class MoodEntryCard extends StatelessWidget {
                             ),
                           ),
                           Text(
-                            _formatTime(entry.createdAt),
+                            _formatTime(entry.createdAt, currentLocale),
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall?.copyWith(
@@ -98,7 +121,7 @@ class MoodEntryCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        _formatDate(entry.date),
+                        _formatDate(entry.date, l10n, currentLocale),
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                           color: Theme.of(context).colorScheme.outline,
                         ),
@@ -150,17 +173,19 @@ class MoodEntryCard extends StatelessWidget {
                       },
                       itemBuilder:
                           (context) => [
-                            const PopupMenuItem(
+                            PopupMenuItem(
                               value: 'delete',
                               child: Row(
                                 children: [
-                                  Icon(
+                                  const Icon(
                                     Icons.delete_outline,
                                     color: Colors.red,
                                     size: 20,
                                   ),
-                                  SizedBox(width: 8),
-                                  Text('Excluir'),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    context.l10n.deleteAction,
+                                  ),
                                 ],
                               ),
                             ),
@@ -182,22 +207,28 @@ class MoodEntryCard extends StatelessWidget {
     );
   }
 
-  String _formatDate(DateTime date) {
+  String _formatDate(
+    DateTime date,
+    AppLocalizations l10n,
+    Locale currentLocale,
+  ) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
     final entryDate = DateTime(date.year, date.month, date.day);
 
     if (entryDate == today) {
-      return 'Hoje';
+      return l10n.today;
     } else if (entryDate == yesterday) {
-      return 'Ontem';
+      return l10n.yesterday;
     } else {
-      return DateFormat('dd/MM/yyyy').format(date);
+      final locale = currentLocale.languageCode == 'pt' ? 'pt_BR' : 'en_US';
+      return DateFormat('dd/MM/yyyy', locale).format(date);
     }
   }
 
-  String _formatTime(DateTime dateTime) {
-    return DateFormat('HH:mm').format(dateTime);
+  String _formatTime(DateTime dateTime, Locale currentLocale) {
+    final locale = currentLocale.languageCode == 'pt' ? 'pt_BR' : 'en_US';
+    return DateFormat('HH:mm', locale).format(dateTime);
   }
 }

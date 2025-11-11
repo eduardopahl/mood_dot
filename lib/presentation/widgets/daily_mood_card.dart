@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/mood_entry.dart';
 import '../theme/app_theme.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../../core/extensions/app_localizations_extension.dart';
+import '../providers/locale_provider.dart';
 
-class DailyMoodCard extends StatelessWidget {
+class DailyMoodCard extends ConsumerWidget {
   final DateTime date;
   final List<MoodEntry> entries;
   final VoidCallback? onTap;
@@ -19,9 +23,29 @@ class DailyMoodCard extends StatelessWidget {
     this.onEntryDelete,
   });
 
+  String getMoodDescription(int moodLevel, AppLocalizations l10n) {
+    switch (moodLevel) {
+      case 1:
+        return l10n.moodVerySad;
+      case 2:
+        return l10n.moodSad;
+      case 3:
+        return l10n.moodNeutral;
+      case 4:
+        return l10n.moodHappy;
+      case 5:
+        return l10n.moodVeryHappy;
+      default:
+        return l10n.moodNeutral;
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
-    // Usar as entradas já ordenadas (mais recente primeiro)
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
+    final currentLocale = ref.watch(
+      localeProvider,
+    ); // Usar as entradas já ordenadas (mais recente primeiro)
     final sortedEntries = entries;
 
     // Calcular humor médio do dia
@@ -72,7 +96,10 @@ class DailyMoodCard extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      DateFormat('dd MMM', 'pt_BR').format(date),
+                      DateFormat(
+                        'dd MMM',
+                        currentLocale.languageCode == 'pt' ? 'pt_BR' : 'en_US',
+                      ).format(date),
                       style: Theme.of(context).textTheme.labelMedium?.copyWith(
                         color: _getAverageMoodColor(context, averageMood),
                         fontWeight: FontWeight.w600,
@@ -85,12 +112,17 @@ class DailyMoodCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          DateFormat('EEEE', 'pt_BR').format(date),
+                          DateFormat(
+                            'EEEE',
+                            currentLocale.languageCode == 'pt'
+                                ? 'pt_BR'
+                                : 'en_US',
+                          ).format(date),
                           style: Theme.of(context).textTheme.titleMedium
                               ?.copyWith(fontWeight: FontWeight.w600),
                         ),
                         Text(
-                          '${entries.length} ${entries.length == 1 ? 'registro' : 'registros'}',
+                          '${entries.length} ${entries.length == 1 ? l10n.recordSingle : l10n.recordPlural}',
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(
@@ -219,7 +251,10 @@ class DailyMoodCard extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                moodEntry.moodDescription,
+                                getMoodDescription(
+                                  moodEntry.moodLevel,
+                                  context.l10n,
+                                ),
                                 style: Theme.of(
                                   context,
                                 ).textTheme.labelMedium?.copyWith(
@@ -270,30 +305,32 @@ class DailyMoodCard extends StatelessWidget {
                         itemBuilder:
                             (context) => [
                               if (onEntryTap != null)
-                                const PopupMenuItem(
+                                PopupMenuItem(
                                   value: 'edit',
                                   child: Row(
                                     children: [
-                                      Icon(Icons.edit, size: 18),
-                                      SizedBox(width: 8),
-                                      Text('Editar'),
+                                      const Icon(Icons.edit, size: 18),
+                                      const SizedBox(width: 8),
+                                      Text(context.l10n.editAction),
                                     ],
                                   ),
                                 ),
                               if (onEntryDelete != null)
-                                const PopupMenuItem(
+                                PopupMenuItem(
                                   value: 'delete',
                                   child: Row(
                                     children: [
-                                      Icon(
+                                      const Icon(
                                         Icons.delete,
                                         size: 18,
                                         color: Colors.red,
                                       ),
-                                      SizedBox(width: 8),
+                                      const SizedBox(width: 8),
                                       Text(
-                                        'Excluir',
-                                        style: TextStyle(color: Colors.red),
+                                        context.l10n.deleteAction,
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                        ),
                                       ),
                                     ],
                                   ),

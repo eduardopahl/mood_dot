@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../domain/entities/mood_entry.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../../core/extensions/app_localizations_extension.dart';
 import '../theme/app_theme.dart';
 
-class MoodSelector extends StatelessWidget {
+class MoodSelector extends ConsumerWidget {
   final int selectedMoodLevel;
   final Function(int) onMoodSelected;
 
@@ -13,7 +16,8 @@ class MoodSelector extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = context.l10n;
     return Column(
       children: [
         // Indicadores visuais dos humores - container fixo com animações internas
@@ -181,7 +185,7 @@ class MoodSelector extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  _getMoodDescription(selectedMoodLevel),
+                  _getMoodDescription(selectedMoodLevel, l10n),
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: AppTheme.getMoodColorFromContext(
                       context,
@@ -202,13 +206,13 @@ class MoodSelector extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Muito ruim',
+              l10n.moodVerySad,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
             ),
             Text(
-              'Muito bem',
+              l10n.moodVeryHappy,
               style: Theme.of(
                 context,
               ).textTheme.bodyMedium?.copyWith(color: Colors.grey.shade600),
@@ -219,12 +223,20 @@ class MoodSelector extends StatelessWidget {
     );
   }
 
-  String _getMoodDescription(int moodLevel) {
-    final tempEntry = MoodEntry(
-      date: DateTime.now(),
-      moodLevel: moodLevel,
-      createdAt: DateTime.now(),
-    );
-    return tempEntry.moodDescription;
+  String _getMoodDescription(int moodLevel, AppLocalizations l10n) {
+    switch (moodLevel) {
+      case 1:
+        return l10n.moodVerySad;
+      case 2:
+        return l10n.moodSad;
+      case 3:
+        return l10n.moodNeutral;
+      case 4:
+        return l10n.moodHappy;
+      case 5:
+        return l10n.moodVeryHappy;
+      default:
+        return l10n.moodNeutral;
+    }
   }
 }

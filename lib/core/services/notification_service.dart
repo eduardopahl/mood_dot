@@ -25,6 +25,22 @@ class NotificationService {
 
   bool _initialized = false;
 
+  /// Detecta o locale salvo pelo usuário para usar strings apropriados
+  Future<bool> _isPortuguese() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final localeString = prefs.getString('app_locale') ?? 'pt_BR';
+      // Extrai apenas o código do idioma (pt ou en)
+      final languageCode = localeString.split('_')[0];
+      debugPrint('🔍 Locale detectado: $localeString -> idioma: $languageCode');
+      return languageCode == 'pt';
+    } catch (e) {
+      // Fallback para português se não conseguir detectar
+      debugPrint('Erro ao detectar locale: $e');
+      return true;
+    }
+  }
+
   /// Inicializa o serviço de notificações (versão real)
   Future<void> initialize() async {
     if (_initialized) return;
@@ -398,18 +414,27 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    // Mensagens mais suaves
-    final messages = [
-      'Como você está se sentindo hoje? 😊',
-      'Que tal compartilhar seu humor? 💭',
-      'Um minutinho para refletir sobre seu dia? 🌟',
-    ];
+    // Detecta locale e usa mensagens apropriadas
+    final isPortuguese = await _isPortuguese();
+    final messages =
+        isPortuguese
+            ? [
+              'Como você está se sentindo hoje? 😊',
+              'Que tal compartilhar seu humor? 💭',
+              'Um minutinho para refletir sobre seu dia? 🌟',
+            ]
+            : [
+              'How are you feeling today? 😊',
+              'How about sharing your mood? 💭',
+              'Just a minute to reflect on your day? 🌟',
+            ];
 
     final message = messages[DateTime.now().day % messages.length];
+    final title = isPortuguese ? 'MoodDot 💙' : 'MoodDot 💙';
 
     await _notifications.periodicallyShow(
       1,
-      'MoodDot 💙',
+      title,
       message,
       RepeatInterval.daily,
       details,
@@ -442,19 +467,32 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    // Mensagens mais dinâmicas
-    final messages = [
-      'Hora de registrar seu humor! 🎯',
-      'Como está sua energia hoje? ⚡',
-      'Vamos refletir sobre este momento! 🤔',
-      'Que tal compartilhar como se sente? 🎭',
-    ];
+    // Detecta locale e usa mensagens apropriadas
+    final isPortuguese = await _isPortuguese();
+    final messages =
+        isPortuguese
+            ? [
+              'Hora de registrar seu humor! 🎯',
+              'Como está sua energia hoje? ⚡',
+              'Vamos refletir sobre este momento! 🤔',
+              'Que tal compartilhar como se sente? 🎭',
+            ]
+            : [
+              'Time to record your mood! 🎯',
+              'How\'s your energy today? ⚡',
+              'Let\'s reflect on this moment! 🤔',
+              'How about sharing how you feel? 🎭',
+            ];
 
     final message = messages[DateTime.now().day % messages.length];
+    final title =
+        isPortuguese
+            ? 'MoodDot - Check-in diário! 📊'
+            : 'MoodDot - Daily check-in! 📊';
 
     await _notifications.periodicallyShow(
       2,
-      'MoodDot - Check-in diário! 📊',
+      title,
       message,
       RepeatInterval.daily,
       details,
@@ -487,11 +525,16 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    final message = _getTimeBasedMessage(time);
+    final message = await _getTimeBasedMessage(time);
+    final isPortuguese = await _isPortuguese();
+    final title =
+        isPortuguese
+            ? 'Como você está se sentindo? 😊'
+            : 'How are you feeling? 😊';
 
     await _notifications.periodicallyShow(
       0,
-      'Como você está se sentindo? 😊',
+      title,
       message,
       RepeatInterval.daily,
       details,
@@ -501,17 +544,26 @@ class NotificationService {
   }
 
   /// Gera mensagem baseada no horário
-  String _getTimeBasedMessage(TimeOfDay time) {
+  Future<String> _getTimeBasedMessage(TimeOfDay time) async {
     final hour = time.hour;
+    final isPortuguese = await _isPortuguese();
 
     if (hour >= 6 && hour < 12) {
-      return 'Que tal registrar como você começou o dia?';
+      return isPortuguese
+          ? 'Que tal registrar como você começou o dia?'
+          : 'How about recording how you started the day?';
     } else if (hour >= 12 && hour < 17) {
-      return 'Como está sendo sua tarde? Registre seu humor!';
+      return isPortuguese
+          ? 'Como está sendo sua tarde? Registre seu humor!'
+          : 'How is your afternoon going? Record your mood!';
     } else if (hour >= 17 && hour < 21) {
-      return 'Como foi seu dia? Não esqueça de registrar seu humor!';
+      return isPortuguese
+          ? 'Como foi seu dia? Não esqueça de registrar seu humor!'
+          : 'How was your day? Don\'t forget to record your mood!';
     } else {
-      return 'Antes de dormir, que tal refletir sobre seu dia?';
+      return isPortuguese
+          ? 'Antes de dormir, que tal refletir sobre seu dia?'
+          : 'Before sleeping, how about reflecting on your day?';
     }
   }
 
@@ -580,12 +632,18 @@ class NotificationService {
       iOS: iosDetails,
     );
 
-    await _notifications.show(
-      999,
-      'Teste de Notificação 🧪',
-      'Esta é uma notificação de teste para verificar se está funcionando!',
-      details,
-    );
+    // Detecta locale e usa mensagens apropriadas
+    final isPortuguese = await _isPortuguese();
+    debugPrint('🌍 Locale detectado - Português: $isPortuguese');
+
+    final title =
+        isPortuguese ? 'Teste de Notificação 🧪' : 'Test Notification 🧪';
+    final body =
+        isPortuguese
+            ? 'Esta é uma notificação de teste para verificar se está funcionando!'
+            : 'This is a test notification to check if it\'s working!';
+
+    await _notifications.show(999, title, body, details);
 
     debugPrint('✅ Notificação de teste enviada com sucesso!');
   }

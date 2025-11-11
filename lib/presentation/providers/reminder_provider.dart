@@ -35,7 +35,8 @@ class ReminderState {
     );
   }
 
-  String get statusText => isEnabled ? 'Ativado' : 'Desativado';
+  String statusText(String enabledText, String disabledText) =>
+      isEnabled ? enabledText : disabledText;
 }
 
 class ReminderNotifier extends StateNotifier<ReminderState> {

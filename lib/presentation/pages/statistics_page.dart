@@ -6,15 +6,17 @@ import '../../domain/entities/mood_entry.dart';
 import '../theme/app_theme.dart';
 import '../widgets/ad_banner_widget.dart';
 import '../../core/services/ad_event_service.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../../core/extensions/app_localizations_extension.dart';
 
 enum StatisticsPeriod {
-  week7Days('Últimos 7 dias'),
-  month30Days('Últimos 30 dias'),
-  month90Days('Últimos 90 dias'),
-  allTime('Todo período');
+  week7Days('week7Days'),
+  month30Days('month30Days'),
+  month90Days('month90Days'),
+  allTime('allTime');
 
-  const StatisticsPeriod(this.label);
-  final String label;
+  const StatisticsPeriod(this.key);
+  final String key;
 }
 
 // Provider para gerenciar o período selecionado
@@ -28,9 +30,11 @@ class StatisticsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedPeriod = ref.watch(selectedPeriodProvider);
+    final l10n = context.l10n;
+
     // Usar o provider filtrado baseado no período selecionado
     final filteredStatsAsync = ref.watch(
-      filteredStatisticsProvider(selectedPeriod.name),
+      filteredStatisticsProvider(selectedPeriod.key),
     );
     final advancedStatsAsync = ref.watch(advancedStatsProvider);
     final moodEntriesAsync = ref.watch(moodEntriesProvider);
@@ -57,7 +61,7 @@ class StatisticsPage extends ConsumerWidget {
               children: [
                 // Header
                 Text(
-                  'Estatísticas',
+                  l10n.statistics,
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -104,6 +108,20 @@ class StatisticsPage extends ConsumerWidget {
 
   Widget _buildPeriodSelector(BuildContext context, WidgetRef ref) {
     final selectedPeriod = ref.watch(selectedPeriodProvider);
+    final l10n = context.l10n;
+
+    String getPeriodLabel(StatisticsPeriod period) {
+      switch (period) {
+        case StatisticsPeriod.week7Days:
+          return l10n.last7DaysLabel;
+        case StatisticsPeriod.month30Days:
+          return l10n.last30DaysLabel;
+        case StatisticsPeriod.month90Days:
+          return l10n.last90DaysLabel;
+        case StatisticsPeriod.allTime:
+          return l10n.allTimeLabel;
+      }
+    }
 
     return Container(
       padding: const EdgeInsets.all(4),
@@ -135,7 +153,7 @@ class StatisticsPage extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      period.label,
+                      getPeriodLabel(period),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color:
@@ -160,6 +178,8 @@ class StatisticsPage extends ConsumerWidget {
     AsyncValue<Map<String, dynamic>> filteredStatsAsync,
     AsyncValue<Map<String, dynamic>> advancedStatsAsync,
   ) {
+    final l10n = context.l10n;
+
     return filteredStatsAsync.when(
       data:
           (stats) => advancedStatsAsync.when(
@@ -174,7 +194,7 @@ class StatisticsPage extends ConsumerWidget {
                       Expanded(
                         child: _buildMetricCard(
                           context,
-                          'Humor Médio',
+                          l10n.averageMoodLabel,
                           '${average.toStringAsFixed(1)}/5',
                           _getAverageEmoji(average),
                           _getAverageColor(context, average),
@@ -184,7 +204,7 @@ class StatisticsPage extends ConsumerWidget {
                       Expanded(
                         child: _buildMetricCard(
                           context,
-                          'Total Registros',
+                          l10n.totalEntriesLabel,
                           totalEntries.toString(),
                           '�',
                           AppTheme.secondaryColor,
@@ -282,13 +302,13 @@ class StatisticsPage extends ConsumerWidget {
 
   // Método para escolher ícones mais elegantes
   IconData _getIconForCard(String title) {
-    switch (title) {
-      case 'Humor Médio':
-        return Icons.sentiment_satisfied_rounded;
-      case 'Total Registros':
-        return Icons.analytics_rounded;
-      default:
-        return Icons.info_rounded;
+    // Usar as chaves de tradução para identificar o ícone
+    if (title.contains('Médio') || title.contains('Average')) {
+      return Icons.sentiment_satisfied_rounded;
+    } else if (title.contains('Registros') || title.contains('Records')) {
+      return Icons.analytics_rounded;
+    } else {
+      return Icons.info_rounded;
     }
   }
 
@@ -296,6 +316,8 @@ class StatisticsPage extends ConsumerWidget {
     BuildContext context,
     AsyncValue<Map<String, dynamic>> filteredStatsAsync,
   ) {
+    final l10n = context.l10n;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -338,7 +360,7 @@ class StatisticsPage extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Distribuição de Humores',
+                    l10n.moodDistributionLabel,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -354,7 +376,7 @@ class StatisticsPage extends ConsumerWidget {
                     stats['countByLevel'] as List<Map<String, dynamic>>;
 
                 if (countByLevel.isEmpty) {
-                  return _buildEmptyState('Sem dados para exibir');
+                  return _buildEmptyState(l10n.noDataToDisplay);
                 }
 
                 // Ordenar do maior para o menor
@@ -516,7 +538,7 @@ class StatisticsPage extends ConsumerWidget {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        'registros',
+                                        l10n.records,
                                         style: Theme.of(
                                           context,
                                         ).textTheme.bodySmall?.copyWith(
@@ -538,13 +560,14 @@ class StatisticsPage extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    _buildMoodLegend(countByLevel, total, context),
+                    _buildMoodLegend(countByLevel, total, context, l10n),
                   ],
                 );
               },
-              loading: () => _buildLoadingState(),
+              loading: () => _buildLoadingState(l10n.loadingData),
               error:
-                  (error, stack) => _buildErrorState('Erro ao carregar dados'),
+                  (error, stack) =>
+                      _buildErrorState(l10n.errorGeneric(error.toString())),
             ),
           ],
         ),
@@ -556,6 +579,8 @@ class StatisticsPage extends ConsumerWidget {
     BuildContext context,
     AsyncValue<Map<String, dynamic>> advancedStatsAsync,
   ) {
+    final l10n = context.l10n;
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -602,7 +627,7 @@ class StatisticsPage extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Semana atual',
+                    l10n.currentWeek,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -618,7 +643,7 @@ class StatisticsPage extends ConsumerWidget {
                     stats['weeklyPattern'] as Map<String, double>;
 
                 if (weeklyPattern.isEmpty) {
-                  return _buildEmptyState('Sem dados para exibir');
+                  return _buildEmptyState(l10n.noDataToDisplay);
                 }
 
                 return Column(
@@ -882,7 +907,7 @@ class StatisticsPage extends ConsumerWidget {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Últimos 30 dias',
+                    context.l10n.last30DaysData,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.onSurface,
@@ -909,7 +934,7 @@ class StatisticsPage extends ConsumerWidget {
                         .toList();
 
                 if (recentEntries.isEmpty) {
-                  return _buildEmptyState('Sem dados dos últimos 30 dias');
+                  return _buildEmptyState(context.l10n.noDataLast30Days);
                 }
 
                 // Ordenar por data
@@ -1141,20 +1166,20 @@ class StatisticsPage extends ConsumerWidget {
   }
 
   // Métodos auxiliares
-  String _getMoodDescription(int moodLevel) {
+  String _getMoodDescription(int moodLevel, AppLocalizations l10n) {
     switch (moodLevel) {
       case 1:
-        return 'Muito Triste';
+        return l10n.veryBad;
       case 2:
-        return 'Triste';
+        return l10n.bad;
       case 3:
-        return 'Neutro';
+        return l10n.neutral;
       case 4:
-        return 'Feliz';
+        return l10n.good;
       case 5:
-        return 'Muito Feliz';
+        return l10n.veryGood;
       default:
-        return 'Desconhecido';
+        return l10n.moodLevelUnknown;
     }
   }
 
@@ -1172,6 +1197,27 @@ class StatisticsPage extends ConsumerWidget {
         return '😁';
       default:
         return '😐';
+    }
+  }
+
+  String _getWeekdayName(int weekday, AppLocalizations l10n) {
+    switch (weekday) {
+      case 1:
+        return l10n.monday;
+      case 2:
+        return l10n.tuesday;
+      case 3:
+        return l10n.wednesday;
+      case 4:
+        return l10n.thursday;
+      case 5:
+        return l10n.friday;
+      case 6:
+        return l10n.saturday;
+      case 7:
+        return l10n.sunday;
+      default:
+        return '';
     }
   }
 
@@ -1244,7 +1290,7 @@ class StatisticsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildLoadingState() {
+  Widget _buildLoadingState([String? loadingText]) {
     return Container(
       height: 200,
       decoration: BoxDecoration(
@@ -1267,7 +1313,7 @@ class StatisticsPage extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              'Carregando dados...',
+              loadingText ?? 'Carregando dados...',
               style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
             ),
           ],
@@ -1305,6 +1351,7 @@ class StatisticsPage extends ConsumerWidget {
     List<Map<String, dynamic>> countByLevel,
     int total,
     BuildContext context,
+    AppLocalizations l10n,
   ) {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -1331,7 +1378,7 @@ class StatisticsPage extends ConsumerWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'Distribuição por Humor',
+                l10n.moodDistributionLabel,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   color: Theme.of(context).colorScheme.onSurface,
@@ -1404,7 +1451,7 @@ class StatisticsPage extends ConsumerWidget {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      _getMoodDescription(moodLevel),
+                      _getMoodDescription(moodLevel, l10n),
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                         color: Theme.of(context).colorScheme.onSurface,
@@ -1651,7 +1698,7 @@ class StatisticsPage extends ConsumerWidget {
                   border: Border.all(color: Colors.blue.shade200, width: 1),
                 ),
                 child: Text(
-                  'Humor consistente nos últimos 30 dias. Variação: ${(bestDay.value - worstDay.value).abs().toStringAsFixed(1)}',
+                  '${context.l10n.consistentMood}${(bestDay.value - worstDay.value).abs().toStringAsFixed(1)}',
                   style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
               );
@@ -1664,17 +1711,7 @@ class StatisticsPage extends ConsumerWidget {
               int.parse(bestParts[1]),
               int.parse(bestParts[2]),
             );
-            final bestDayName =
-                [
-                  '',
-                  'Segunda',
-                  'Terça',
-                  'Quarta',
-                  'Quinta',
-                  'Sexta',
-                  'Sábado',
-                  'Domingo',
-                ][bestDate.weekday];
+            final bestDayName = _getWeekdayName(bestDate.weekday, context.l10n);
 
             final worstParts = worstDay.key.split('-');
             final worstDate = DateTime(
@@ -1682,17 +1719,10 @@ class StatisticsPage extends ConsumerWidget {
               int.parse(worstParts[1]),
               int.parse(worstParts[2]),
             );
-            final worstDayName =
-                [
-                  '',
-                  'Segunda',
-                  'Terça',
-                  'Quarta',
-                  'Quinta',
-                  'Sexta',
-                  'Sábado',
-                  'Domingo',
-                ][worstDate.weekday];
+            final worstDayName = _getWeekdayName(
+              worstDate.weekday,
+              context.l10n,
+            );
 
             return Container(
               padding: const EdgeInsets.all(16),
@@ -1719,7 +1749,7 @@ class StatisticsPage extends ConsumerWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Melhor dia',
+                              context.l10n.bestDay,
                               style: TextStyle(
                                 color: Colors.green.shade600,
                                 fontSize: 12,
@@ -1758,7 +1788,7 @@ class StatisticsPage extends ConsumerWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              'Dia mais difícil',
+                              context.l10n.hardestDay,
                               style: TextStyle(
                                 color: Colors.red.shade600,
                                 fontSize: 12,
@@ -1873,7 +1903,7 @@ Widget _buildTimelineSummary(List<MoodEntry> entries, BuildContext context) {
           children: [
             Expanded(
               child: _buildSummaryItem(
-                'Média Geral',
+                context.l10n.overallAverage,
                 '${overallAverage.toStringAsFixed(1)}/5',
                 Icons.analytics,
                 Colors.blue.shade600,
@@ -1883,7 +1913,7 @@ Widget _buildTimelineSummary(List<MoodEntry> entries, BuildContext context) {
             const SizedBox(width: 16),
             Expanded(
               child: _buildSummaryItem(
-                'Melhor Dia',
+                context.l10n.bestDay,
                 '$bestDayMonth (${bestDay.value.toStringAsFixed(1)})',
                 Icons.trending_up,
                 Colors.green.shade600,
@@ -1897,12 +1927,12 @@ Widget _buildTimelineSummary(List<MoodEntry> entries, BuildContext context) {
           children: [
             Expanded(
               child: _buildSummaryItem(
-                'Tendência',
+                context.l10n.trend,
                 trend > 0.3
-                    ? 'Melhorando'
+                    ? context.l10n.improving
                     : trend < -0.3
-                    ? 'Declinando'
-                    : 'Estável',
+                    ? context.l10n.declining
+                    : context.l10n.stable,
                 trend >= 0 ? Icons.trending_up : Icons.trending_down,
                 trend >= 0 ? Colors.green.shade600 : Colors.red.shade600,
                 context,
@@ -1911,7 +1941,7 @@ Widget _buildTimelineSummary(List<MoodEntry> entries, BuildContext context) {
             const SizedBox(width: 16),
             Expanded(
               child: _buildSummaryItem(
-                'Dia Mais Difícil',
+                context.l10n.hardestDay,
                 '$worstDayMonth (${worstDay.value.toStringAsFixed(1)})',
                 Icons.trending_down,
                 Colors.red.shade600,

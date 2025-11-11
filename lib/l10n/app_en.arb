@@ -1,0 +1,262 @@
+{
+  "@@locale": "en",
+  
+  "@_NAVEGACAO": {
+    "description": "Navigation related strings"
+  },
+  "homeTitle": "Home",
+  "home": "Home",
+  "stats": "Stats",
+  "calendar": "Calendar",
+  "settings": "Settings",
+  "statisticsTitle": "Statistics",
+  "calendarTitle": "Calendar",
+  "settingsTitle": "Settings",
+  
+  "@_HUMORES": {
+    "description": "Mood related strings"
+  },
+  "moodVeryHappy": "Very Good",
+  "moodHappy": "Good",
+  "moodNeutral": "Neutral",
+  "moodSad": "Bad",
+  "moodVerySad": "Very Bad",
+  "addMoodTitle": "Add Mood",
+  "editMoodTitle": "Edit Mood",
+  "moodSaved": "Mood saved successfully!",
+  "moodUpdated": "Mood updated successfully!",
+  "selectMood": "How are you feeling?",
+  "addNote": "Add a note (optional)",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  
+  "@_ESTATISTICAS": {
+    "description": "Statistics related strings"
+  },
+  "lastDays": "Last {days} days",
+  "@lastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "allTime": "All time",
+  "averageMood": "Average Mood",
+  "totalEntries": "Total Entries",
+  "bestDay": "Best Day",
+  "worstDay": "Worst Day",
+  "moodDistribution": "Mood Distribution",
+  "weeklyPattern": "Weekly Pattern",
+  "noDataAvailable": "No data available",
+  
+  "@_CONFIGURACOES": {
+    "description": "Settings related strings"
+  },
+  "appearance": "Appearance",
+  "notifications": "Notifications",
+  "about": "About",
+  "darkMode": "Dark Mode",
+  "enabled": "Enabled",
+  "disabled": "Disabled",
+  "dailyReminders": "Daily Reminders",
+  "sendTestNotification": "Send test notification",
+  "resetAI": "Reset AI",
+  "resetAIDescription": "Remove learned patterns of schedules and notification preferences",
+  "resetIntelligentSystem": "Reset Intelligent System?",
+  "resetConfirmation": "This will clear all learned data:\n\n• Preferred times for notifications\n• Identified mood patterns\n• AI personalization settings\n\nThis action cannot be undone.",
+  "reset": "Reset",
+  "lightMode": "Light Mode",
+  "language": "Language",
+  "portuguese": "Portuguese",
+  "english": "English",
+  "reminderNotifications": "Reminder Notifications",
+  "testNotification": "Test Notification",
+  "resetLearning": "Reset Learning",
+  "version": "Version",
+  "premiumUpgrade": "Premium Upgrade",
+  "removeAds": "Remove Ads - $0.99",
+  "premiumFeatures": "Premium Features",
+  "noAds": "No advertisements",
+  "unlimitedEntries": "Unlimited mood entries",
+  "advancedStatistics": "Advanced statistics",
+  "dataExport": "Export your data",
+  "buyPremium": "Buy Premium",
+  "restorePurchases": "Restore Purchases",
+  "alreadyPremium": "You already have Premium!",
+  
+  "@_NOTIFICACOES": {
+    "description": "Notification related strings"
+  },
+  "notificationTitle": "How are you feeling?",
+  "notificationBody": "Take a moment to record your mood",
+  "testNotificationTitle": "Test Notification",
+  "testNotificationBody": "This is a test notification!",
+  "testNotificationSent": "Test notification sent successfully!",
+  "permissionDenied": "Notification permission denied",
+  "permissionGranted": "Notification permission granted",
+  
+  "gentleNotificationMessage1": "How are you feeling today? 😊",
+  "gentleNotificationMessage2": "How about sharing your mood? 💭",
+  "gentleNotificationMessage3": "Just a minute to reflect on your day? 🌟",
+  
+  "activeNotificationTitle": "MoodDot - Daily check-in! 📊", 
+  "activeNotificationMessage1": "Time to record your mood! 🎯",
+  "activeNotificationMessage2": "How's your energy today? ⚡",
+  "activeNotificationMessage3": "Let's reflect on this moment! 🤔",
+  "activeNotificationMessage4": "How about sharing how you feel? 🎭",
+  
+  "standardNotificationTitle": "How are you feeling? 😊",
+  "morningNotificationMessage": "How about recording how you started the day?",
+  "afternoonNotificationMessage": "How is your afternoon going? Record your mood!",
+  "eveningNotificationMessage": "How was your day? Don't forget to record your mood!",
+  "nightNotificationMessage": "Before sleeping, how about reflecting on your day?",
+  
+  "gentleReminderTitle": "MoodDot 💙",
+  "testNotificationFinalTitle": "Test Notification 🧪",
+  "testNotificationFinalBody": "This is a test notification to check if it's working!",
+  
+  "@_GERAL": {
+    "description": "General strings"
+  },
+  "ok": "OK",
+  "yes": "Yes",
+  "no": "No",
+  "confirm": "Confirm",
+  "error": "Error",
+  "success": "Success",
+  "loading": "Loading...",
+  "retry": "Retry",
+  "close": "Close",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "thisWeek": "This week",
+  "lastWeek": "Last week",
+  "thisMonth": "This month",
+  "lastMonth": "Last month",
+  "hello": "Hello! 👋",
+  "howAreYouToday": "How are you today?",
+  "noRecordsYet": "No records yet",
+  "tapToAddFirstMood": "Tap + to record your first mood",
+  "showOnlyRecent": "Show only recent",
+  "viewFullHistory": "View full history",
+  "showingFullHistory": "Showing full history",
+  "showingLast30Days": "Showing last 30 days",
+  "errorOccurred": "Oops, something went wrong",
+  "howAreYouFeeling": "How are you feeling?",
+  "addNoteOptional": "Add a note (optional)",
+  "howWasYourDay": "How was your day? What happened?",
+  "editingRecord": "Editing record",
+  "createdAt": "Created on {date}",
+  "@createdAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMood": "Update Mood",
+  "saveMood": "Save Mood",
+  "update": "Update",
+  "date": "Date",
+  "time": "Time",
+  "errorLoadingData": "Error loading data: {error}",
+  "@errorLoadingData": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "weekdaysShort": "Sun,Mon,Tue,Wed,Thu,Fri,Sat",
+  "last7Days": "Last 7 days",
+  "last30Days": "Last 30 days",
+  "last90Days": "Last 90 days",
+  "noDataToShow": "No data to show",
+  "errorGeneric": "Error: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "statistics": "Statistics",
+  "last7DaysLabel": "Last 7 days",
+  "last30DaysLabel": "Last 30 days",
+  "last90DaysLabel": "Last 90 days",
+  "allTimeLabel": "All time",
+  "averageMoodLabel": "Average Mood",
+  "totalEntriesLabel": "Total Records",
+  "moodDistributionLabel": "Mood Distribution",
+  "weeklyPatternLabel": "Current Week",
+  "currentWeek": "Current Week",
+  "timeline30Days": "Last 30 days",
+  "veryBad": "Very Sad",
+  "bad": "Sad",
+  "neutral": "Neutral",
+  "good": "Happy",
+  "veryGood": "Very Happy",
+  "noDataToDisplay": "No data to display",
+  "loadingData": "Loading data...",
+  "moodLevelUnknown": "Unknown",
+
+  "moodDotPremium": "MoodDot Premium",
+  "supportDevelopment": "Support development",
+  "buyPremiumPrice": "Buy Premium - $0.99",
+  "premiumActivated": "Premium Activated!",
+  "thanksForSupport": "Thank you for supporting MoodDot!",
+  "premiumActivatedMessage": "All ads have been removed and you now have full premium access.",
+  "excellent": "Excellent!",
+  "purchaseError": "Purchase error. Please try again.",
+  "tryAgain": "Try again",
+  "unexpectedError": "Unexpected error: {error}",
+  "restoringPurchases": "Restoring purchases...",
+  "purchasesRestored": "Purchases Restored!",
+  "purchasesRestoredMessage": "Your purchases have been successfully restored!\n\nPremium access has been reactivated.",
+  "noPurchasesFound": "No previous purchases found.",
+  "restoreError": "Error restoring: {error}",
+  "youHavePremiumAccess": "You have active premium access!",
+  "resetIntelligentSystemMessage": "Intelligent system reset successfully!",
+  "aiResetSuccess": "Intelligent system reset successfully!",
+
+  "moodUpdatedSuccess": "Mood updated successfully!",
+  "moodSavedSuccess": "Mood saved successfully!",
+  "errorSaving": "Error saving: {error}",
+
+  "editAction": "Edit",
+  "deleteAction": "Delete",
+  "recordSingle": "record",
+  "recordPlural": "records",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "tryAgainLater": "Please try again in a few moments",
+  "deleteRecord": "Delete record",
+  "confirmDeleteRecord": "Are you sure you want to delete this mood record?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "recordDeletedSuccess": "Record deleted successfully",
+  
+  "@_STATISTICS_EXTRA": {
+    "description": "Additional statistics strings"  
+  },
+  "trend": "Trend",
+  "overallAverage": "Overall Average", 
+  "hardestDay": "Hardest Day",
+  "sunday": "Sunday",
+  "tuesday": "Tuesday", 
+  "records": "records",
+  "last30DaysData": "Last 30 days",
+  "noDataLast30Days": "No data from last 30 days",
+  "monday": "Monday",
+  "wednesday": "Wednesday",
+  "thursday": "Thursday", 
+  "friday": "Friday",
+  "saturday": "Saturday",
+  "improving": "Improving",
+  "declining": "Declining",
+  "stable": "Stable", 
+  "consistentMood": "Consistent mood in the last 30 days. Variation: "
+}

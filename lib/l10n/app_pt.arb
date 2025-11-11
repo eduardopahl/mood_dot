@@ -1,0 +1,262 @@
+{
+  "@@locale": "pt",
+  
+  "@_NAVEGACAO": {
+    "description": "Navigation related strings"
+  },
+  "homeTitle": "Início",
+  "home": "Home",
+  "stats": "Stats",
+  "calendar": "Calendário",
+  "settings": "Configurações",
+  "statisticsTitle": "Estatísticas",
+  "calendarTitle": "Calendário",
+  "settingsTitle": "Configurações",
+  
+  "@_HUMORES": {
+    "description": "Mood related strings"
+  },
+  "moodVeryHappy": "Muito Bem",
+  "moodHappy": "Bem",
+  "moodNeutral": "Neutro",
+  "moodSad": "Ruim",
+  "moodVerySad": "Muito Ruim",
+  "addMoodTitle": "Adicionar Humor",
+  "editMoodTitle": "Editar Humor",
+  "moodSaved": "Humor registrado com sucesso!",
+  "moodUpdated": "Humor atualizado com sucesso!",
+  "selectMood": "Como você está se sentindo?",
+  "addNote": "Adicionar observação (opcional)",
+  "save": "Salvar",
+  "cancel": "Cancelar",
+  "delete": "Excluir",
+  
+  "@_ESTATISTICAS": {
+    "description": "Statistics related strings"
+  },
+  "lastDays": "Últimos {days} dias",
+  "@lastDays": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "allTime": "Todo período",
+  "averageMood": "Humor Médio",
+  "totalEntries": "Total de Registros",
+  "bestDay": "Melhor Dia",
+  "worstDay": "Pior Dia",
+  "moodDistribution": "Distribuição de Humores",
+  "weeklyPattern": "Padrão Semanal",
+  "noDataAvailable": "Nenhum dado disponível",
+  
+  "@_CONFIGURACOES": {
+    "description": "Settings related strings"
+  },
+  "appearance": "Aparência",
+  "notifications": "Notificações",
+  "about": "Sobre",
+  "darkMode": "Modo Escuro",
+  "enabled": "Ativado",
+  "disabled": "Desativado",
+  "dailyReminders": "Lembretes diários",
+  "sendTestNotification": "Enviar notificação de teste",
+  "resetAI": "Resetar IA",
+  "resetAIDescription": "Remove padrões aprendidos de horários e preferências de notificação",
+  "resetIntelligentSystem": "Resetar Sistema Inteligente?",
+  "resetConfirmation": "Isso irá limpar todos os dados aprendidos:\n\n• Horários preferidos para notificações\n• Padrões de humor identificados\n• Configurações de personalização da IA\n\nEsta ação não pode ser desfeita.",
+  "reset": "Resetar",
+  "lightMode": "Modo Claro",
+  "language": "Idioma",
+  "portuguese": "Português",
+  "english": "Inglês",
+  "reminderNotifications": "Lembretes de Notificação",
+  "testNotification": "Testar Notificação",
+  "resetLearning": "Resetar Aprendizado",
+  "version": "Versão",
+  "premiumUpgrade": "Upgrade Premium",
+  "removeAds": "Remover Anúncios - $0,99",
+  "premiumFeatures": "Recursos Premium",
+  "noAds": "Sem anúncios",
+  "unlimitedEntries": "Registros ilimitados",
+  "advancedStatistics": "Estatísticas avançadas",
+  "dataExport": "Exportar seus dados",
+  "buyPremium": "Comprar Premium",
+  "restorePurchases": "Restaurar Compras",
+  "alreadyPremium": "Você já tem Premium!",
+  
+  "@_NOTIFICACOES": {
+    "description": "Notification related strings"
+  },
+  "notificationTitle": "Como você está se sentindo?",
+  "notificationBody": "Reserve um momento para registrar seu humor",
+  "testNotificationTitle": "Notificação de Teste",
+  "testNotificationBody": "Esta é uma notificação de teste!",
+  "testNotificationSent": "Notificação de teste enviada com sucesso!",
+  "permissionDenied": "Permissão de notificação negada",
+  "permissionGranted": "Permissão de notificação concedida",
+  
+  "gentleNotificationMessage1": "Como você está se sentindo hoje? 😊",
+  "gentleNotificationMessage2": "Que tal compartilhar seu humor? 💭", 
+  "gentleNotificationMessage3": "Um minutinho para refletir sobre seu dia? 🌟",
+  
+  "activeNotificationTitle": "MoodDot - Check-in diário! 📊",
+  "activeNotificationMessage1": "Hora de registrar seu humor! 🎯",
+  "activeNotificationMessage2": "Como está sua energia hoje? ⚡",
+  "activeNotificationMessage3": "Vamos refletir sobre este momento! 🤔",
+  "activeNotificationMessage4": "Que tal compartilhar como se sente? 🎭",
+  
+  "standardNotificationTitle": "Como você está se sentindo? 😊",
+  "morningNotificationMessage": "Que tal registrar como você começou o dia?",
+  "afternoonNotificationMessage": "Como está sendo sua tarde? Registre seu humor!",
+  "eveningNotificationMessage": "Como foi seu dia? Não esqueça de registrar seu humor!",
+  "nightNotificationMessage": "Antes de dormir, que tal refletir sobre seu dia?",
+  
+  "gentleReminderTitle": "MoodDot 💙",
+  "testNotificationFinalTitle": "Teste de Notificação 🧪",
+  "testNotificationFinalBody": "Esta é uma notificação de teste para verificar se está funcionando!",
+  
+  "@_GERAL": {
+    "description": "General strings"
+  },
+  "ok": "OK",
+  "yes": "Sim",
+  "no": "Não",
+  "confirm": "Confirmar",
+  "error": "Erro",
+  "success": "Sucesso",
+  "loading": "Carregando...",
+  "retry": "Tentar novamente",
+  "close": "Fechar",
+  "today": "Hoje",
+  "yesterday": "Ontem",
+  "thisWeek": "Esta semana",
+  "lastWeek": "Semana passada",
+  "thisMonth": "Este mês",
+  "lastMonth": "Mês passado",
+  "hello": "Olá! 👋",
+  "howAreYouToday": "Como você está hoje?",
+  "noRecordsYet": "Nenhum registro ainda",
+  "tapToAddFirstMood": "Toque no + para registrar seu primeiro humor",
+  "showOnlyRecent": "Mostrar apenas recentes",
+  "viewFullHistory": "Ver histórico completo",
+  "showingFullHistory": "Mostrando histórico completo",
+  "showingLast30Days": "Mostrando últimos 30 dias",
+  "errorOccurred": "Ops, algo deu errado",
+  "howAreYouFeeling": "Como você está se sentindo?",
+  "addNoteOptional": "Adicione uma nota (opcional)",
+  "howWasYourDay": "Como foi o seu dia? O que aconteceu?",
+  "editingRecord": "Editando registro",
+  "createdAt": "Criado em {date}",
+  "@createdAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "updateMood": "Atualizar Humor",
+  "saveMood": "Salvar Humor",
+  "update": "Atualizar",
+  "date": "Data",
+  "time": "Hora",
+  "errorLoadingData": "Erro ao carregar dados: {error}",
+  "@errorLoadingData": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "weekdaysShort": "Dom,Seg,Ter,Qua,Qui,Sex,Sáb",
+  "last7Days": "Últimos 7 dias",
+  "last30Days": "Últimos 30 dias",
+  "last90Days": "Últimos 90 dias",
+  "noDataToShow": "Sem dados para exibir",
+  "errorGeneric": "Erro: {error}",
+  "@errorGeneric": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+
+  "statistics": "Estatísticas",
+  "last7DaysLabel": "Últimos 7 dias",
+  "last30DaysLabel": "Últimos 30 dias",
+  "last90DaysLabel": "Últimos 90 dias",
+  "allTimeLabel": "Todo período",
+  "averageMoodLabel": "Humor Médio",
+  "totalEntriesLabel": "Total Registros",
+  "moodDistributionLabel": "Distribuição de Humores",
+  "weeklyPatternLabel": "Semana atual",
+  "currentWeek": "Semana atual",
+  "timeline30Days": "Últimos 30 dias",
+  "veryBad": "Muito Triste",
+  "bad": "Triste",
+  "neutral": "Neutro",
+  "good": "Feliz",
+  "veryGood": "Muito Feliz",
+  "noDataToDisplay": "Sem dados para exibir",
+  "loadingData": "Carregando dados...",
+  "moodLevelUnknown": "Desconhecido",
+
+  "moodDotPremium": "MoodDot Premium",
+  "supportDevelopment": "Apoie o desenvolvimento",
+  "buyPremiumPrice": "Comprar Premium - $0.99",
+  "premiumActivated": "Premium Ativado!",
+  "thanksForSupport": "Obrigado por apoiar o MoodDot!",
+  "premiumActivatedMessage": "Todos os anúncios foram removidos e você agora tem acesso premium completo.",
+  "excellent": "Excelente!",
+  "purchaseError": "Erro na compra. Tente novamente.",
+  "tryAgain": "Tente novamente",
+  "unexpectedError": "Erro inesperado: {error}",
+  "restoringPurchases": "Restaurando compras...",
+  "purchasesRestored": "Compras Restauradas!",
+  "purchasesRestoredMessage": "Suas compras foram restauradas com sucesso!\n\nO acesso premium foi reativado.",
+  "noPurchasesFound": "Nenhuma compra anterior encontrada.",
+  "restoreError": "Erro ao restaurar: {error}",
+  "youHavePremiumAccess": "Você tem acesso premium ativo!",
+  "resetIntelligentSystemMessage": "Sistema inteligente resetado com sucesso!",
+  "aiResetSuccess": "Sistema inteligente resetado com sucesso!",
+
+  "moodUpdatedSuccess": "Humor atualizado com sucesso!",
+  "moodSavedSuccess": "Humor registrado com sucesso!",
+  "errorSaving": "Erro ao salvar: {error}",
+
+  "editAction": "Editar",
+  "deleteAction": "Excluir",
+  "recordSingle": "registro",
+  "recordPlural": "registros",
+  "today": "Hoje",
+  "yesterday": "Ontem",
+  "tryAgainLater": "Tente novamente em alguns instantes",
+  "deleteRecord": "Excluir registro",
+  "confirmDeleteRecord": "Tem certeza que deseja excluir este registro de humor?",
+  "cancel": "Cancelar",
+  "delete": "Excluir",
+  "recordDeletedSuccess": "Registro excluído com sucesso",
+  
+  "@_STATISTICS_EXTRA": {
+    "description": "Additional statistics strings"  
+  },
+  "trend": "Tendência",
+  "overallAverage": "Média Geral",
+  "hardestDay": "Dia Mais Difícil",
+  "sunday": "Domingo",
+  "tuesday": "Terça",
+  "records": "registros",
+  "last30DaysData": "Últimos 30 dias",
+  "noDataLast30Days": "Sem dados dos últimos 30 dias",
+  "monday": "Segunda",
+  "wednesday": "Quarta", 
+  "thursday": "Quinta",
+  "friday": "Sexta",
+  "saturday": "Sábado",
+  "improving": "Melhorando",
+  "declining": "Declinando", 
+  "stable": "Estável",
+  "consistentMood": "Humor consistente nos últimos 30 dias. Variação: "
+}

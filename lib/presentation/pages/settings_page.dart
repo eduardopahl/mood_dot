@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../providers/premium_provider.dart';
+import '../providers/locale_provider.dart';
 import '../widgets/app_snackbar.dart';
 import '../../core/services/premium_service.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../../core/extensions/app_localizations_extension.dart';
 import '../theme/app_theme.dart';
 import '../../core/services/ad_event_service.dart';
 
@@ -21,6 +23,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(themeNotifierProvider);
     final reminderState = ref.watch(reminderStateProvider);
+    final currentLocale = ref.watch(localeProvider);
+    final l10n = context.l10n;
 
     // 🎬 Registrar abertura de configurações para intersticiais
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -28,27 +32,27 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Configurações')),
+      appBar: AppBar(title: Text(l10n.settingsTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           // Seção Premium
-          _buildPremiumSection(context),
+          _buildPremiumSection(context, l10n),
           const SizedBox(height: 24),
 
-          _buildSettingsSection(context, 'Aparência', [
-            _buildThemeToggleTile(context, ref, isDarkMode),
-            _buildSettingsTile(Icons.language, 'Idioma', 'Português', () {}),
+          _buildSettingsSection(context, l10n.appearance, [
+            _buildThemeToggleTile(context, ref, isDarkMode, l10n),
+            _buildLanguageTile(context, ref, currentLocale, l10n),
           ]),
           const SizedBox(height: 24),
-          _buildSettingsSection(context, 'Notificações', [
-            _buildReminderToggleTile(context, reminderState, ref),
-            _buildTestButton(context, ref),
-            _buildResetLearningButton(context, ref),
+          _buildSettingsSection(context, l10n.notifications, [
+            _buildReminderToggleTile(context, reminderState, ref, l10n),
+            _buildTestButton(context, ref, l10n),
+            _buildResetLearningButton(context, ref, l10n),
           ]),
           const SizedBox(height: 24),
-          _buildSettingsSection(context, 'Sobre', [
-            _buildSettingsTile(Icons.info, 'Versão', '1.0.0', () {}),
+          _buildSettingsSection(context, l10n.about, [
+            _buildSettingsTile(Icons.info, l10n.version, '1.0.0', () {}),
           ]),
         ],
       ),
@@ -59,14 +63,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     BuildContext context,
     WidgetRef ref,
     bool isDarkMode,
+    AppLocalizations l10n,
   ) {
     return ListTile(
       leading: Icon(
         isDarkMode ? Icons.dark_mode : Icons.light_mode,
         color: Theme.of(context).colorScheme.onSurface,
       ),
-      title: const Text('Modo escuro'),
-      subtitle: Text(isDarkMode ? 'Ativado' : 'Desativado'),
+      title: Text(l10n.darkMode),
+      subtitle: Text(isDarkMode ? l10n.enabled : l10n.disabled),
       trailing: Switch(
         value: isDarkMode,
         onChanged: (value) {
@@ -99,6 +104,80 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
+  Widget _buildLanguageTile(
+    BuildContext context,
+    WidgetRef ref,
+    Locale currentLocale,
+    AppLocalizations l10n,
+  ) {
+    String getCurrentLanguageName() {
+      return currentLocale.languageCode == 'pt'
+          ? l10n.portuguese
+          : l10n.english;
+    }
+
+    return ListTile(
+      leading: const Icon(Icons.language),
+      title: Text(l10n.language),
+      subtitle: Text(getCurrentLanguageName()),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => _showLanguageDialog(context, ref, l10n),
+    );
+  }
+
+  void _showLanguageDialog(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text(l10n.language),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Text('🇵🇹'),
+                  title: Text(l10n.portuguese),
+                  trailing:
+                      ref.watch(localeProvider).languageCode == 'pt'
+                          ? const Icon(Icons.check, color: Colors.green)
+                          : null,
+                  onTap: () {
+                    ref
+                        .read(localeProvider.notifier)
+                        .setLocale(const Locale('pt', 'BR'));
+                    Navigator.of(context).pop();
+                  },
+                ),
+                ListTile(
+                  leading: const Text('🇺🇸'),
+                  title: Text(l10n.english),
+                  trailing:
+                      ref.watch(localeProvider).languageCode == 'en'
+                          ? const Icon(Icons.check, color: Colors.green)
+                          : null,
+                  onTap: () {
+                    ref
+                        .read(localeProvider.notifier)
+                        .setLocale(const Locale('en', 'US'));
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.cancel),
+              ),
+            ],
+          ),
+    );
+  }
+
   Widget _buildSettingsTile(
     IconData icon,
     String title,
@@ -122,6 +201,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     BuildContext context,
     ReminderState reminderState,
     WidgetRef ref,
+    AppLocalizations l10n,
   ) {
     debugPrint(
       '🎨 Construindo switch - enabled: ${reminderState.isEnabled}, loading: ${reminderState.isLoading}, erro: ${reminderState.error}',
@@ -131,11 +211,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       children: [
         ListTile(
           leading: const Icon(Icons.notifications),
-          title: const Text('Lembretes diários'),
+          title: Text(l10n.dailyReminders),
           subtitle:
               reminderState.isLoading
-                  ? const Text('Carregando...')
-                  : Text(reminderState.statusText),
+                  ? Text(l10n.loading)
+                  : Text(reminderState.statusText(l10n.enabled, l10n.disabled)),
           trailing: Switch(
             value: reminderState.isEnabled,
             onChanged:
@@ -182,7 +262,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                   onPressed:
                       () =>
                           ref.read(reminderStateProvider.notifier).clearError(),
-                  child: const Text('OK'),
+                  child: Text(l10n.ok),
                 ),
               ],
             ),
@@ -191,30 +271,33 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  Widget _buildTestButton(BuildContext context, WidgetRef ref) {
+  Widget _buildTestButton(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     return ListTile(
       leading: const Icon(Icons.bug_report),
-      title: const Text('Testar Notificação'),
-      subtitle: const Text('Enviar notificação de teste'),
+      title: Text(l10n.testNotification),
+      subtitle: Text(l10n.sendTestNotification),
       trailing: const Icon(Icons.send),
       onTap: () async {
         debugPrint('Test button pressed');
         await ref.read(reminderStateProvider.notifier).testNotification();
-        AppSnackBar.showNotificationSuccess(
-          context,
-          'Notificação de teste enviada!',
-        );
+        AppSnackBar.showNotificationSuccess(context, l10n.testNotificationSent);
       },
     );
   }
 
-  Widget _buildResetLearningButton(BuildContext context, WidgetRef ref) {
+  Widget _buildResetLearningButton(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     return ListTile(
       leading: const Icon(Icons.psychology, color: Colors.orange),
-      title: const Text('Resetar IA'),
-      subtitle: const Text(
-        'Remove padrões aprendidos de horários e preferências de notificação',
-      ),
+      title: Text(l10n.resetAI),
+      subtitle: Text(l10n.resetAIDescription),
       trailing: const Icon(Icons.refresh),
       onTap: () async {
         // Mostra diálogo de confirmação
@@ -222,22 +305,16 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: const Text('Resetar Sistema Inteligente?'),
-                content: const Text(
-                  'Isso irá limpar todos os dados aprendidos:\n\n'
-                  '• Horários preferidos de notificação\n'
-                  '• Score de engajamento personalizado\n'
-                  '• Padrões de uso identificados\n\n'
-                  'O sistema voltará a usar configurações padrão e precisará reaprender seus hábitos.',
-                ),
+                title: Text(l10n.resetIntelligentSystem),
+                content: Text(l10n.resetConfirmation),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancelar'),
+                    child: Text(l10n.cancel),
                   ),
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(true),
-                    child: const Text('Resetar'),
+                    child: Text(l10n.reset),
                   ),
                 ],
               ),
@@ -250,16 +327,13 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           final notificationService = ref.read(notificationServiceProvider);
           await notificationService.resetLearningSystem();
 
-          AppSnackBar.showAISuccess(
-            context,
-            'Sistema inteligente resetado com sucesso!',
-          );
+          AppSnackBar.showAISuccess(context, l10n.aiResetSuccess);
         }
       },
     );
   }
 
-  Widget _buildPremiumSection(BuildContext context) {
+  Widget _buildPremiumSection(BuildContext context, AppLocalizations l10n) {
     return Consumer(
       builder: (context, ref, child) {
         // Usa o provider para status reativo
@@ -309,9 +383,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isPremium
-                              ? 'MoodDot Premium'
-                              : 'Upgrade para Premium',
+                          isPremium ? l10n.moodDotPremium : l10n.premiumUpgrade,
                           style: Theme.of(
                             context,
                           ).textTheme.titleLarge?.copyWith(
@@ -323,9 +395,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           ),
                         ),
                         Text(
-                          isPremium
-                              ? 'Obrigado por apoiar o MoodDot!'
-                              : 'Remova anúncios e ajude no desenvolvimento',
+                          isPremium ? l10n.alreadyPremium : l10n.removeAds,
                           style: Theme.of(
                             context,
                           ).textTheme.bodyMedium?.copyWith(
@@ -344,11 +414,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
               if (!isPremium) ...[
                 // Benefícios do Premium
-                _buildPremiumBenefit(context, 'Sem anúncios', Icons.block),
+                _buildPremiumBenefit(context, l10n.noAds, Icons.block),
                 const SizedBox(height: 8),
                 _buildPremiumBenefit(
                   context,
-                  'Apoie o desenvolvimento',
+                  l10n.supportDevelopment,
                   Icons.favorite,
                 ),
 
@@ -367,9 +437,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    child: const Text(
-                      'Comprar Premium - \$0.99',
-                      style: TextStyle(
+                    child: Text(
+                      l10n.buyPremiumPrice,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
                       ),
@@ -388,7 +458,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       padding: const EdgeInsets.symmetric(vertical: 12),
                     ),
                     child: Text(
-                      'Restaurar Compras',
+                      l10n.restorePurchases,
                       style: TextStyle(
                         fontSize: 14,
                         color: Theme.of(context).colorScheme.primary,
@@ -410,7 +480,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Você tem acesso premium ativo!',
+                          l10n.youHavePremiumAccess,
                           style: TextStyle(
                             color: AppTheme.primaryColor,
                             fontWeight: FontWeight.w600,
@@ -449,6 +519,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   /// Processa a compra do premium
   Future<void> _purchasePremium(BuildContext context) async {
+    final l10n = context.l10n;
+
     // Mostrar loading
     showDialog(
       context: context,
@@ -472,15 +544,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: const Text('🏆 Premium Ativado!'),
-                content: const Text(
-                  'Obrigado por apoiar o MoodDot!\n\n'
-                  'Todos os anúncios foram removidos e você agora tem acesso premium completo.',
+                title: Text('🏆 ${l10n.premiumActivated}'),
+                content: Text(
+                  '${l10n.thanksForSupport}\n\n'
+                  '${l10n.premiumActivatedMessage}',
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('Excelente!'),
+                    child: Text(l10n.excellent),
                   ),
                 ],
               ),
@@ -488,8 +560,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       } else if (context.mounted) {
         // Erro na compra
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Erro na compra. Tente novamente.'),
+          SnackBar(
+            content: Text(l10n.purchaseError),
             backgroundColor: Colors.red,
           ),
         );
@@ -499,7 +571,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro inesperado: $e'),
+            content: Text(l10n.unexpectedError(e.toString())),
             backgroundColor: Colors.red,
           ),
         );
@@ -509,18 +581,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
   /// Restaura compras anteriores
   Future<void> _restorePurchases(BuildContext context) async {
+    final l10n = context.l10n;
+
     // Mostrar loading
     showDialog(
       context: context,
       barrierDismissible: false,
       builder:
-          (context) => const AlertDialog(
+          (context) => AlertDialog(
             content: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
-                SizedBox(width: 16),
-                Text('Restaurando compras...'),
+                const CircularProgressIndicator(),
+                const SizedBox(width: 16),
+                Text(l10n.restoringPurchases),
               ],
             ),
           ),
@@ -537,15 +611,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: const Text('✅ Compras Restauradas!'),
-                content: const Text(
-                  'Suas compras foram restauradas com sucesso!\n\n'
-                  'O acesso premium foi reativado.',
-                ),
+                title: Text('✅ ${l10n.purchasesRestored}'),
+                content: Text(l10n.purchasesRestoredMessage),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(),
-                    child: const Text('OK'),
+                    child: Text(l10n.ok),
                   ),
                 ],
               ),
@@ -553,8 +624,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       } else if (context.mounted) {
         // Nenhuma compra encontrada
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Nenhuma compra anterior encontrada.'),
+          SnackBar(
+            content: Text(l10n.noPurchasesFound),
             backgroundColor: Colors.orange,
           ),
         );
@@ -564,7 +635,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Erro ao restaurar: $e'),
+            content: Text(l10n.restoreError(e.toString())),
             backgroundColor: Colors.red,
           ),
         );

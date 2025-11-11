@@ -6,6 +6,7 @@ import 'add_mood_page.dart';
 import 'calendar_page.dart';
 import 'settings_page.dart';
 import '../providers/mood_providers.dart';
+import '../../core/extensions/app_localizations_extension.dart';
 
 final navigationIndexProvider = StateProvider<int>((ref) => 0);
 
@@ -15,6 +16,7 @@ class MainNavigationPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final currentIndex = ref.watch(navigationIndexProvider);
+    final l10n = context.l10n;
 
     return Scaffold(
       body: IndexedStack(
@@ -44,13 +46,13 @@ class MainNavigationPage extends ConsumerWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildNavItem(context, ref, 0, Icons.home_rounded, 'Home'),
+                _buildNavItem(context, ref, 0, Icons.home_rounded, l10n.home),
                 _buildNavItem(
                   context,
                   ref,
                   1,
                   Icons.bar_chart_rounded,
-                  'Stats',
+                  l10n.stats,
                 ),
                 _buildAddButton(context, ref),
                 _buildNavItem(
@@ -58,14 +60,14 @@ class MainNavigationPage extends ConsumerWidget {
                   ref,
                   2,
                   Icons.calendar_month_rounded,
-                  'Calendar',
+                  l10n.calendar,
                 ),
                 _buildNavItem(
                   context,
                   ref,
                   3,
                   Icons.settings_rounded,
-                  'Settings',
+                  l10n.settings,
                 ),
               ],
             ),

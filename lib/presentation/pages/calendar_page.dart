@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/mood_providers.dart';
+import '../providers/locale_provider.dart';
 import '../theme/app_theme.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../../core/extensions/app_localizations_extension.dart';
 
 // Provider para o mês/ano selecionado no calendário
 final selectedCalendarDateProvider = StateProvider<DateTime>((ref) {
@@ -47,6 +50,8 @@ class CalendarPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedDate = ref.watch(selectedCalendarDateProvider);
     final calendarDataAsync = ref.watch(calendarDataProvider(selectedDate));
+    final l10n = context.l10n;
+    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -65,7 +70,13 @@ class CalendarPage extends ConsumerWidget {
                   ],
                 ),
               ),
-              child: _buildCalendarHeader(context, ref, selectedDate),
+              child: _buildCalendarHeader(
+                context,
+                ref,
+                selectedDate,
+                l10n,
+                currentLocale,
+              ),
             ),
 
             // Calendário com animação e sombra melhorada
@@ -91,7 +102,7 @@ class CalendarPage extends ConsumerWidget {
                 child: Column(
                   children: [
                     // Dias da semana
-                    _buildWeekdaysHeader(context),
+                    _buildWeekdaysHeader(context, l10n, currentLocale),
 
                     // Grid do calendário
                     Expanded(
@@ -108,7 +119,9 @@ class CalendarPage extends ConsumerWidget {
                             ),
                         error:
                             (error, stack) => Center(
-                              child: Text('Erro ao carregar dados: $error'),
+                              child: Text(
+                                l10n.errorLoadingData(error.toString()),
+                              ),
                             ),
                       ),
                     ),
@@ -126,6 +139,8 @@ class CalendarPage extends ConsumerWidget {
     BuildContext context,
     WidgetRef ref,
     DateTime selectedDate,
+    AppLocalizations l10n,
+    Locale currentLocale,
   ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
@@ -187,7 +202,10 @@ class CalendarPage extends ConsumerWidget {
                 child: Column(
                   children: [
                     Text(
-                      DateFormat('MMMM', 'pt_BR').format(selectedDate),
+                      DateFormat(
+                        'MMMM',
+                        currentLocale.languageCode == 'pt' ? 'pt_BR' : 'en_US',
+                      ).format(selectedDate),
                       style: Theme.of(
                         context,
                       ).textTheme.headlineMedium?.copyWith(
@@ -258,8 +276,12 @@ class CalendarPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildWeekdaysHeader(BuildContext context) {
-    const weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+  Widget _buildWeekdaysHeader(
+    BuildContext context,
+    AppLocalizations l10n,
+    Locale currentLocale,
+  ) {
+    final weekdays = l10n.weekdaysShort.split(',');
 
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),

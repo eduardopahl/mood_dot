@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../providers/mood_providers.dart';
+import '../providers/locale_provider.dart';
 import '../../domain/entities/mood_entry.dart';
 import 'add_mood_page.dart';
 import '../widgets/daily_mood_card.dart';
 import '../widgets/app_snackbar.dart';
 import '../theme/app_theme.dart';
+import '../../core/extensions/app_localizations_extension.dart';
 
 // Provider para controlar se devemos mostrar histórico completo
 final showFullHistoryProvider = StateProvider<bool>((ref) => false);
@@ -17,6 +19,8 @@ class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final showFullHistory = ref.watch(showFullHistoryProvider);
+    final l10n = context.l10n;
+    final currentLocale = ref.watch(localeProvider);
     final moodEntriesAsync = ref.watch(
       showFullHistory ? moodEntriesProvider : recentMoodEntriesProvider,
     );
@@ -69,7 +73,7 @@ class HomePage extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Olá! 👋',
+                                l10n.hello,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleLarge?.copyWith(
@@ -81,7 +85,7 @@ class HomePage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                'Como você está hoje?',
+                                l10n.howAreYouToday,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.headlineSmall?.copyWith(
@@ -114,7 +118,9 @@ class HomePage extends ConsumerWidget {
                                 Text(
                                   DateFormat(
                                     'dd',
-                                    'pt_BR',
+                                    currentLocale.languageCode == 'pt'
+                                        ? 'pt_BR'
+                                        : 'en_US',
                                   ).format(DateTime.now()),
                                   style: Theme.of(
                                     context,
@@ -127,7 +133,9 @@ class HomePage extends ConsumerWidget {
                                 Text(
                                   DateFormat(
                                     'MMM',
-                                    'pt_BR',
+                                    currentLocale.languageCode == 'pt'
+                                        ? 'pt_BR'
+                                        : 'en_US',
                                   ).format(DateTime.now()),
                                   style: Theme.of(
                                     context,
@@ -156,7 +164,12 @@ class HomePage extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          DateFormat('EEEE', 'pt_BR').format(DateTime.now()),
+                          DateFormat(
+                            'EEEE',
+                            currentLocale.languageCode == 'pt'
+                                ? 'pt_BR'
+                                : 'en_US',
+                          ).format(DateTime.now()),
                           style: Theme.of(
                             context,
                           ).textTheme.bodyMedium?.copyWith(
@@ -197,7 +210,7 @@ class HomePage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                'Nenhum registro ainda',
+                                l10n.noRecordsYet,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleLarge?.copyWith(
@@ -207,7 +220,7 @@ class HomePage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Toque no + para registrar seu primeiro humor',
+                                l10n.tapToAddFirstMood,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodyMedium?.copyWith(
@@ -266,8 +279,8 @@ class HomePage extends ConsumerWidget {
                                   ),
                                   label: Text(
                                     showFullHistory
-                                        ? 'Mostrar apenas recentes'
-                                        : 'Ver histórico completo',
+                                        ? l10n.showOnlyRecent
+                                        : l10n.viewFullHistory,
                                   ),
                                   style: OutlinedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
@@ -279,8 +292,8 @@ class HomePage extends ConsumerWidget {
                                 const SizedBox(height: 8),
                                 Text(
                                   showFullHistory
-                                      ? 'Mostrando histórico completo'
-                                      : 'Mostrando últimos 30 dias',
+                                      ? l10n.showingFullHistory
+                                      : l10n.showingLast30Days,
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
@@ -331,7 +344,7 @@ class HomePage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 24),
                               Text(
-                                'Ops, algo deu errado',
+                                l10n.errorOccurred,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.titleLarge?.copyWith(
@@ -341,7 +354,7 @@ class HomePage extends ConsumerWidget {
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Tente novamente em alguns instantes',
+                                l10n.tryAgainLater,
                                 style: Theme.of(
                                   context,
                                 ).textTheme.bodyMedium?.copyWith(
@@ -388,19 +401,17 @@ class HomePage extends ConsumerWidget {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Excluir registro'),
-            content: const Text(
-              'Tem certeza que deseja excluir este registro de humor?',
-            ),
+            title: Text(context.l10n.deleteRecord),
+            content: Text(context.l10n.confirmDeleteRecord),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancelar'),
+                child: Text(context.l10n.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: TextButton.styleFrom(foregroundColor: Colors.red),
-                child: const Text('Excluir'),
+                child: Text(context.l10n.delete),
               ),
             ],
           ),
@@ -414,7 +425,7 @@ class HomePage extends ConsumerWidget {
       ref.invalidate(moodEntriesProvider);
 
       if (context.mounted) {
-        AppSnackBar.showSuccess(context, 'Registro excluído com sucesso');
+        AppSnackBar.showSuccess(context, context.l10n.recordDeletedSuccess);
       }
     }
   }

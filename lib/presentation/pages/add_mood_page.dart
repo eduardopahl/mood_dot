@@ -3,8 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/mood_entry.dart';
 import '../providers/mood_providers.dart';
+import '../providers/locale_provider.dart';
 import '../widgets/mood_selector.dart';
 import '../widgets/app_snackbar.dart';
+import '../../generated/l10n/app_localizations.dart';
+import '../../core/extensions/app_localizations_extension.dart';
 import '../../core/services/ad_event_service.dart';
 
 class AddMoodPage extends ConsumerStatefulWidget {
@@ -46,15 +49,17 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
   Widget build(BuildContext context) {
     final moodNotifier = ref.watch(moodEntryProvider);
     final isEditing = widget.existingEntry != null;
+    final l10n = context.l10n;
+    final currentLocale = ref.watch(localeProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? 'Editar Humor' : 'Como você está?'),
+        title: Text(isEditing ? l10n.editMoodTitle : l10n.howAreYouFeeling),
         actions: [
           TextButton(
             onPressed: moodNotifier.isLoading ? null : _saveMoodEntry,
             child: Text(
-              isEditing ? 'Atualizar' : 'Salvar',
+              isEditing ? l10n.update : l10n.save,
               style: TextStyle(
                 color:
                     moodNotifier.isLoading
@@ -95,7 +100,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Editando registro',
+                              l10n.editingRecord,
                               style: Theme.of(
                                 context,
                               ).textTheme.titleSmall?.copyWith(
@@ -108,7 +113,16 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Criado em ${DateFormat('dd/MM/yyyy \'às\' HH:mm').format(widget.existingEntry!.createdAt)}',
+                              l10n.createdAt(
+                                DateFormat(
+                                  currentLocale.languageCode == 'pt'
+                                      ? 'dd/MM/yyyy \'às\' HH:mm'
+                                      : 'MM/dd/yyyy \'at\' HH:mm',
+                                  currentLocale.languageCode == 'pt'
+                                      ? 'pt_BR'
+                                      : 'en_US',
+                                ).format(widget.existingEntry!.createdAt),
+                              ),
                               style: Theme.of(
                                 context,
                               ).textTheme.bodySmall?.copyWith(
@@ -125,13 +139,13 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                     ],
 
                     // Seleção de data
-                    _buildDateSelector(),
+                    _buildDateSelector(l10n, currentLocale),
 
                     const SizedBox(height: 32),
 
                     // Seletor de humor
                     Text(
-                      'Como você está se sentindo?',
+                      l10n.howAreYouFeeling,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
 
@@ -150,7 +164,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
 
                     // Campo de nota
                     Text(
-                      'Adicione uma nota (opcional)',
+                      l10n.addNoteOptional,
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
 
@@ -161,9 +175,9 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                       focusNode: noteFocusNode,
                       maxLines: 4,
                       maxLength: 200,
-                      decoration: const InputDecoration(
-                        hintText: 'Como foi o seu dia? O que aconteceu?',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText: l10n.howWasYourDay,
+                        border: const OutlineInputBorder(),
                       ),
                     ),
 
@@ -188,9 +202,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                                   ),
                                 )
                                 : Text(
-                                  isEditing
-                                      ? 'Atualizar Humor'
-                                      : 'Salvar Humor',
+                                  isEditing ? l10n.updateMood : l10n.saveMood,
                                   style: const TextStyle(fontSize: 16),
                                 ),
                       ),
@@ -201,7 +213,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
     );
   }
 
-  Widget _buildDateSelector() {
+  Widget _buildDateSelector(AppLocalizations l10n, Locale currentLocale) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -223,9 +235,17 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
           Expanded(
             child: _buildDateTimeCard(
               icon: Icons.calendar_today_outlined,
-              label: 'Data',
-              value: DateFormat('dd/MM/yyyy').format(selectedDate),
-              subtitle: DateFormat('EEEE', 'pt_BR').format(selectedDate),
+              label: l10n.date,
+              value: DateFormat(
+                currentLocale.languageCode == 'pt'
+                    ? 'dd/MM/yyyy'
+                    : 'MM/dd/yyyy',
+                currentLocale.languageCode == 'pt' ? 'pt_BR' : 'en_US',
+              ).format(selectedDate),
+              subtitle: DateFormat(
+                'EEEE',
+                currentLocale.languageCode == 'pt' ? 'pt_BR' : 'en_US',
+              ).format(selectedDate),
               onTap: _selectDate,
               color: Theme.of(context).colorScheme.primary,
             ),
@@ -240,9 +260,9 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
           Expanded(
             child: _buildDateTimeCard(
               icon: Icons.access_time_outlined,
-              label: 'Hora',
+              label: l10n.time,
               value: DateFormat('HH:mm').format(selectedDate),
-              subtitle: 'Horário',
+              subtitle: l10n.time,
               onTap: _selectTime,
               color: Theme.of(context).colorScheme.secondary,
             ),
@@ -313,12 +333,17 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
   }
 
   Future<void> _selectDate() async {
+    final currentLocale = ref.read(localeProvider);
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: selectedDate,
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
-      locale: const Locale('pt', 'BR'),
+      locale:
+          currentLocale.languageCode == 'pt'
+              ? const Locale('pt', 'BR')
+              : const Locale('en', 'US'),
     );
 
     if (picked != null && picked != selectedDate) {
@@ -360,6 +385,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
     noteFocusNode.unfocus();
 
     final moodNotifier = ref.read(moodEntryProvider.notifier);
+    final l10n = context.l10n;
 
     try {
       if (widget.existingEntry != null) {
@@ -396,8 +422,8 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
         AppSnackBar.showMoodSuccess(
           context,
           widget.existingEntry != null
-              ? 'Humor atualizado com sucesso!'
-              : 'Humor registrado com sucesso!',
+              ? l10n.moodUpdatedSuccess
+              : l10n.moodSavedSuccess,
         );
 
         // 🎬 Registrar evento para mostrar intersticial estratégico
@@ -411,7 +437,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
       }
     } catch (error) {
       if (mounted) {
-        AppSnackBar.showError(context, 'Erro ao salvar: $error');
+        AppSnackBar.showError(context, l10n.errorSaving(error.toString()));
       }
     }
   }
