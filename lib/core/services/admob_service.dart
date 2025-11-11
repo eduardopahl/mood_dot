@@ -32,7 +32,15 @@ class AdMobService {
 
   /// Verifica se deve mostrar anúncios
   bool get shouldShowAds {
-    return Platform.isAndroid && !PremiumService.instance.isPremium;
+    // Verifica em tempo real o status premium
+    final isPremium = PremiumService.instance.isPremium;
+    final shouldShow = Platform.isAndroid && !isPremium;
+
+    if (!shouldShow && isPremium) {
+      debugPrint('🏆 Anúncios desativados - Usuário Premium');
+    }
+
+    return shouldShow;
   }
 
   /// Cria um banner ad
