@@ -82,8 +82,10 @@ class StatisticsPage extends ConsumerWidget {
 
                 const SizedBox(height: 24),
 
-                // Banner de anúncio
-                const AdBannerWidget(),
+                // Banner de anúncio centralizado
+                const Center(child: AdBannerWidget()),
+
+                const SizedBox(height: 24),
 
                 // Padrão semanal
                 _buildWeeklyPattern(context, advancedStatsAsync),
