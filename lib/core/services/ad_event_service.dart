@@ -106,29 +106,8 @@ class AdEventService {
 
     debugPrint('🎬 Exibindo intersticial: $message');
 
-    // Mostra mensagem motivacional antes do ad (opcional)
-    _showMotivationalSnackbar(context, message);
-
-    // Pequeno delay para melhorar UX
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    // Mostra o intersticial
+    // Mostra o intersticial sem snackbar irritante
     await admobService.showInterstitialAd();
-  }
-
-  /// Mostra uma mensagem motivacional antes do ad
-  void _showMotivationalSnackbar(BuildContext context, String message) {
-    if (!context.mounted) return;
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        duration: const Duration(seconds: 2),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-    );
   }
 
   /// Reseta todos os contadores (útil para testes)
