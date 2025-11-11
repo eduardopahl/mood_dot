@@ -58,7 +58,7 @@ class StatisticsPage extends ConsumerWidget {
                 const SizedBox(height: 16),
 
                 // Seletor de período
-                _buildPeriodSelector(ref),
+                _buildPeriodSelector(context, ref),
                 const SizedBox(height: 24),
 
                 // Cards de métricas principais
@@ -90,15 +90,15 @@ class StatisticsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildPeriodSelector(WidgetRef ref) {
+  Widget _buildPeriodSelector(BuildContext context, WidgetRef ref) {
     final selectedPeriod = ref.watch(selectedPeriodProvider);
 
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.grey.shade100,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300, width: 1),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
       ),
       child: Row(
         children:
@@ -118,7 +118,7 @@ class StatisticsPage extends ConsumerWidget {
                     decoration: BoxDecoration(
                       color:
                           isSelected
-                              ? Colors.blue.shade600
+                              ? Theme.of(context).colorScheme.primary
                               : Colors.transparent,
                       borderRadius: BorderRadius.circular(8),
                     ),
@@ -126,7 +126,10 @@ class StatisticsPage extends ConsumerWidget {
                       period.label,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.grey.shade700,
+                        color:
+                            isSelected
+                                ? Colors.white
+                                : Theme.of(context).colorScheme.onSurface,
                         fontWeight:
                             isSelected ? FontWeight.w600 : FontWeight.w500,
                         fontSize: 12,
@@ -151,9 +154,6 @@ class StatisticsPage extends ConsumerWidget {
             data: (advancedStats) {
               final average = stats['average'] as double;
               final totalEntries = stats['totalEntries'] as int;
-              final streak =
-                  stats['streak'] as int; // Agora vem das stats filtradas
-              final bestTimeOfDay = stats['bestTimeOfDay'] as String?;
               return Column(
                 children: [
                   // Primeira linha de cards
@@ -165,44 +165,17 @@ class StatisticsPage extends ConsumerWidget {
                           'Humor Médio',
                           '${average.toStringAsFixed(1)}/5',
                           _getAverageEmoji(average),
-                          _getAverageColor(average),
+                          _getAverageColor(context, average),
                         ),
                       ),
                       const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildMetricCard(
-                          context,
-                          'Sequência',
-                          '$streak dias',
-                          '🔥',
-                          streak >= 7
-                              ? Colors.deepOrange.shade500
-                              : Colors.grey.shade500,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  // Segunda linha de cards
-                  Row(
-                    children: [
                       Expanded(
                         child: _buildMetricCard(
                           context,
                           'Total Registros',
                           totalEntries.toString(),
-                          '📊',
-                          Colors.indigo.shade500,
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildMetricCard(
-                          context,
-                          'Período Mais Ativo',
-                          bestTimeOfDay ?? 'N/A',
-                          '⭐',
-                          Colors.amber.shade600,
+                          '�',
+                          AppTheme.secondaryColor,
                         ),
                       ),
                     ],
@@ -225,20 +198,15 @@ class StatisticsPage extends ConsumerWidget {
     String emoji,
     Color color,
   ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey[850] : Colors.white,
+        color: Theme.of(context).cardTheme.color,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: isDark ? Colors.grey[700]! : Colors.grey[200]!,
-          width: 1,
-        ),
+        border: Border.all(color: Theme.of(context).dividerColor, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -263,7 +231,7 @@ class StatisticsPage extends ConsumerWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: isDark ? Colors.grey[400] : Colors.grey[600],
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
               fontWeight: FontWeight.w500,
               fontSize: 12,
               letterSpacing: 0.5,
@@ -279,7 +247,7 @@ class StatisticsPage extends ConsumerWidget {
             value,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : Colors.grey[800],
+              color: Theme.of(context).colorScheme.onSurface,
               fontSize: 20,
             ),
             textAlign: TextAlign.center,
@@ -305,12 +273,8 @@ class StatisticsPage extends ConsumerWidget {
     switch (title) {
       case 'Humor Médio':
         return Icons.sentiment_satisfied_rounded;
-      case 'Sequência':
-        return Icons.local_fire_department_rounded;
       case 'Total Registros':
         return Icons.analytics_rounded;
-      case 'Período Mais Ativo':
-        return Icons.access_time_rounded;
       default:
         return Icons.info_rounded;
     }
@@ -325,12 +289,15 @@ class StatisticsPage extends ConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.white, Colors.purple.shade50],
+          colors: [
+            Theme.of(context).cardTheme.color ?? Colors.white,
+            Theme.of(context).colorScheme.primary.withOpacity(0.05),
+          ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -347,7 +314,10 @@ class StatisticsPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.purple.shade400, Colors.purple.shade600],
+                      colors: [
+                        AppTheme.secondaryColor,
+                        AppTheme.secondaryColor.withOpacity(0.8),
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -363,7 +333,7 @@ class StatisticsPage extends ConsumerWidget {
                     'Distribuição de Humores',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -489,12 +459,15 @@ class StatisticsPage extends ConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.white, Colors.blue.shade50],
+          colors: [
+            Theme.of(context).cardTheme.color ?? Colors.white,
+            AppTheme.primaryColor.withOpacity(0.05),
+          ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -511,7 +484,10 @@ class StatisticsPage extends ConsumerWidget {
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [Colors.blue.shade400, Colors.blue.shade600],
+                      colors: [
+                        AppTheme.primaryColor,
+                        AppTheme.primaryColor.withOpacity(0.8),
+                      ],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1064,12 +1040,17 @@ class StatisticsPage extends ConsumerWidget {
     return '😁';
   }
 
-  Color _getAverageColor(double average) {
-    if (average <= 1.5) return Colors.red.shade400;
-    if (average <= 2.5) return Colors.orange.shade400;
-    if (average <= 3.5) return Colors.amber.shade500;
-    if (average <= 4.5) return Colors.lightGreen.shade500;
-    return Colors.green.shade500;
+  Color _getAverageColor(BuildContext context, double average) {
+    final moodLevel = _getMoodLevel(average);
+    return AppTheme.getMoodColorFromContext(context, moodLevel);
+  }
+
+  int _getMoodLevel(double average) {
+    if (average <= 1.5) return 1;
+    if (average <= 2.5) return 2;
+    if (average <= 3.5) return 3;
+    if (average <= 4.5) return 4;
+    return 5;
   }
 
   // Métodos auxiliares para os novos gráficos
