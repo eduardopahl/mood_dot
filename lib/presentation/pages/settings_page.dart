@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
 import '../providers/reminder_provider.dart';
 import '../widgets/app_snackbar.dart';
+import '../../core/services/premium_service.dart';
+import '../theme/app_theme.dart';
+import '../../core/services/ad_event_service.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -12,11 +15,20 @@ class SettingsPage extends ConsumerWidget {
     final isDarkMode = ref.watch(themeNotifierProvider);
     final reminderState = ref.watch(reminderStateProvider);
 
+    // 🎬 Registrar abertura de configurações para intersticiais
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdEventService.instance.onSettingsOpen(context);
+    });
+
     return Scaffold(
       appBar: AppBar(title: const Text('Configurações')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Seção Premium
+          _buildPremiumSection(context),
+          const SizedBox(height: 24),
+
           _buildSettingsSection(context, 'Aparência', [
             _buildThemeToggleTile(context, ref, isDarkMode),
             _buildSettingsTile(Icons.language, 'Idioma', 'Português', () {}),
@@ -28,26 +40,8 @@ class SettingsPage extends ConsumerWidget {
             _buildResetLearningButton(context, ref),
           ]),
           const SizedBox(height: 24),
-          _buildSettingsSection(context, 'Dados', [
-            _buildSettingsTile(Icons.backup, 'Backup', 'Fazer backup', () {}),
-            _buildSettingsTile(
-              Icons.restore,
-              'Restaurar',
-              'Restaurar dados',
-              () {},
-            ),
-            _buildSettingsTile(
-              Icons.delete_forever,
-              'Limpar dados',
-              'Excluir tudo',
-              () {},
-              isDestructive: true,
-            ),
-          ]),
-          const SizedBox(height: 24),
           _buildSettingsSection(context, 'Sobre', [
             _buildSettingsTile(Icons.info, 'Versão', '1.0.0', () {}),
-            _buildSettingsTile(Icons.help, 'Ajuda', 'Central de ajuda', () {}),
           ]),
         ],
       ),
@@ -255,6 +249,195 @@ class SettingsPage extends ConsumerWidget {
           );
         }
       },
+    );
+  }
+
+  Widget _buildPremiumSection(BuildContext context) {
+    final isPremium = PremiumService.instance.isPremium;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors:
+              isPremium
+                  ? [
+                    AppTheme.primaryColor.withOpacity(0.1),
+                    AppTheme.primaryColor.withOpacity(0.05),
+                  ]
+                  : [
+                    Colors.amber.withOpacity(0.1),
+                    Colors.orange.withOpacity(0.05),
+                  ],
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color:
+              isPremium
+                  ? AppTheme.primaryColor.withOpacity(0.3)
+                  : Colors.amber.withOpacity(0.3),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                isPremium ? Icons.verified : Icons.star,
+                color:
+                    isPremium ? AppTheme.primaryColor : Colors.amber.shade700,
+                size: 28,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isPremium ? 'MoodDot Premium' : 'Upgrade para Premium',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color:
+                            isPremium
+                                ? AppTheme.primaryColor
+                                : Colors.amber.shade700,
+                      ),
+                    ),
+                    Text(
+                      isPremium
+                          ? 'Obrigado por apoiar o MoodDot!'
+                          : 'Remova anúncios e ajude no desenvolvimento',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 16),
+
+          if (!isPremium) ...[
+            // Benefícios do Premium
+            _buildPremiumBenefit(context, 'Sem anúncios', Icons.block),
+            const SizedBox(height: 8),
+            _buildPremiumBenefit(
+              context,
+              'Apoie o desenvolvimento',
+              Icons.favorite,
+            ),
+
+            const SizedBox(height: 20),
+
+            // Botão de compra
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: () => _showPremiumDialog(context),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.amber.shade600,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                child: const Text(
+                  'Comprar Premium - \$0.99',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+            ),
+          ] else ...[
+            // Status Premium Ativo
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryColor.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.check_circle, color: AppTheme.primaryColor),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      'Você tem acesso premium ativo!',
+                      style: TextStyle(
+                        color: AppTheme.primaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPremiumBenefit(
+    BuildContext context,
+    String text,
+    IconData icon,
+  ) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.amber.shade700),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showPremiumDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Premium'),
+            content: const Text(
+              'Em desenvolvimento!\n\n'
+              'Em breve você poderá comprar o Premium e remover todos os anúncios do app.\n\n'
+              'Por enquanto, os anúncios nos ajudam a manter o desenvolvimento do app.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text('OK'),
+              ),
+              // Botão para simular compra (apenas em debug)
+              TextButton(
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  await PremiumService.instance.setPremium(true);
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Premium ativado (simulação)!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Simular Compra (Debug)'),
+              ),
+            ],
+          ),
     );
   }
 }

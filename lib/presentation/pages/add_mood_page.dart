@@ -5,6 +5,7 @@ import '../../domain/entities/mood_entry.dart';
 import '../providers/mood_providers.dart';
 import '../widgets/mood_selector.dart';
 import '../widgets/app_snackbar.dart';
+import '../../core/services/ad_event_service.dart';
 
 class AddMoodPage extends ConsumerStatefulWidget {
   final MoodEntry? existingEntry;
@@ -398,6 +399,12 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
               ? 'Humor atualizado com sucesso!'
               : 'Humor registrado com sucesso!',
         );
+
+        // 🎬 Registrar evento para mostrar intersticial estratégico
+        if (widget.existingEntry == null) {
+          // Apenas para novos registros
+          AdEventService.instance.onMoodEntry(context);
+        }
 
         // Voltar para a tela anterior
         Navigator.of(context).pop(true);

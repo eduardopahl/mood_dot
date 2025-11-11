@@ -4,6 +4,8 @@ import 'package:fl_chart/fl_chart.dart';
 import '../providers/mood_providers.dart';
 import '../../domain/entities/mood_entry.dart';
 import '../theme/app_theme.dart';
+import '../widgets/ad_banner_widget.dart';
+import '../../core/services/ad_event_service.dart';
 
 enum StatisticsPeriod {
   week7Days('Últimos 7 dias'),
@@ -32,6 +34,11 @@ class StatisticsPage extends ConsumerWidget {
     );
     final advancedStatsAsync = ref.watch(advancedStatsProvider);
     final moodEntriesAsync = ref.watch(moodEntriesProvider);
+
+    // 🎬 Registrar visualização de estatísticas para intersticiais
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      AdEventService.instance.onStatisticsView(context);
+    });
 
     return Scaffold(
       body: SafeArea(
@@ -74,6 +81,9 @@ class StatisticsPage extends ConsumerWidget {
                 _buildMoodDistribution(context, filteredStatsAsync),
 
                 const SizedBox(height: 24),
+
+                // Banner de anúncio
+                const AdBannerWidget(),
 
                 // Padrão semanal
                 _buildWeeklyPattern(context, advancedStatsAsync),
@@ -435,7 +445,11 @@ class StatisticsPage extends ConsumerWidget {
                                       FlTouchEvent event,
                                       pieTouchResponse,
                                     ) {
-                                      // Adiciona interatividade ao gráfico
+                                      // 🎬 Registrar interação com gráfico para intersticiais
+                                      if (event is FlTapUpEvent) {
+                                        AdEventService.instance
+                                            .onChartInteraction(context);
+                                      }
                                     },
                                   ),
                                 ),
