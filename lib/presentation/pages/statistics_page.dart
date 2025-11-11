@@ -321,11 +321,7 @@ class StatisticsPage extends ConsumerWidget {
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.pie_chart,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  child: Icon(Icons.pie_chart, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -361,78 +357,168 @@ class StatisticsPage extends ConsumerWidget {
 
                 return Column(
                   children: [
-                    SizedBox(
-                      height: 240,
-                      child: Stack(
-                        children: [
-                          PieChart(
-                            PieChartData(
-                              sections:
-                                  countByLevel.map((item) {
-                                    final moodLevel = item['mood_level'] as int;
-                                    final count = item['count'] as int;
-                                    final percentage =
-                                        (count / total * 100).round();
-
-                                    return PieChartSectionData(
-                                      value: count.toDouble(),
-                                      title: '$percentage%',
-                                      color: _getModernMoodColor(
-                                        moodLevel,
-                                        context,
-                                      ),
-                                      radius: 70,
-                                      titleStyle: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
-                                      borderSide: BorderSide(
-                                        color: Colors.white,
-                                        width: 3,
-                                      ),
-                                    );
-                                  }).toList(),
-                              centerSpaceRadius: 50,
-                              sectionsSpace: 4,
-                            ),
-                          ),
-                          Center(
-                            child: Container(
-                              width: 100,
-                              height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.1),
-                                    blurRadius: 10,
-                                  ),
-                                ],
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    '$total',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.headlineSmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.grey[800],
-                                    ),
-                                  ),
-                                  Text(
-                                    'registros',
-                                    style: Theme.of(context).textTheme.bodySmall
-                                        ?.copyWith(color: Colors.grey[600]),
-                                  ),
-                                ],
-                              ),
-                            ),
+                    Container(
+                      height: 320,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Theme.of(context).colorScheme.surface,
+                            Theme.of(
+                              context,
+                            ).colorScheme.primary.withOpacity(0.02),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Theme.of(
+                              context,
+                            ).shadowColor.withOpacity(0.08),
+                            blurRadius: 24,
+                            offset: const Offset(0, 12),
                           ),
                         ],
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          height: 240,
+                          width: 240,
+                          child: Stack(
+                            children: [
+                              PieChart(
+                                PieChartData(
+                                  sections:
+                                      countByLevel.map((item) {
+                                        final moodLevel =
+                                            item['mood_level'] as int;
+                                        final count = item['count'] as int;
+                                        final percentage =
+                                            (count / total * 100).round();
+
+                                        final sectionColor =
+                                            _getModernMoodColor(
+                                              moodLevel,
+                                              context,
+                                            );
+
+                                        return PieChartSectionData(
+                                          value: count.toDouble(),
+                                          title:
+                                              percentage >= 5
+                                                  ? '$percentage%'
+                                                  : '',
+                                          color: sectionColor,
+                                          radius: 75,
+                                          titleStyle: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.black87,
+                                            shadows: [
+                                              Shadow(
+                                                color: Colors.white.withOpacity(
+                                                  0.8,
+                                                ),
+                                                blurRadius: 3,
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                  centerSpaceRadius: 50,
+                                  sectionsSpace: 3,
+                                  pieTouchData: PieTouchData(
+                                    touchCallback: (
+                                      FlTouchEvent event,
+                                      pieTouchResponse,
+                                    ) {
+                                      // Adiciona interatividade ao gráfico
+                                    },
+                                  ),
+                                ),
+                              ),
+                              Center(
+                                child: Container(
+                                  width: 100,
+                                  height: 100,
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        Theme.of(context).cardColor,
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.primary.withOpacity(0.05),
+                                      ],
+                                    ),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Theme.of(
+                                          context,
+                                        ).shadowColor.withOpacity(0.15),
+                                        blurRadius: 16,
+                                        offset: const Offset(0, 4),
+                                      ),
+                                    ],
+                                    border: Border.all(
+                                      color: Theme.of(
+                                        context,
+                                      ).dividerColor.withOpacity(0.1),
+                                      width: 1,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppTheme.primaryColor
+                                              .withOpacity(0.1),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '$total',
+                                          style: Theme.of(
+                                            context,
+                                          ).textTheme.headlineSmall?.copyWith(
+                                            fontWeight: FontWeight.w700,
+                                            color: AppTheme.primaryColor,
+                                            letterSpacing: -0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        'registros',
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.bodySmall?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.6),
+                                          fontWeight: FontWeight.w500,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -491,7 +577,7 @@ class StatisticsPage extends ConsumerWidget {
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.calendar_view_week,
                     color: Colors.white,
                     size: 24,
@@ -503,7 +589,7 @@ class StatisticsPage extends ConsumerWidget {
                     'Semana atual',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                   ),
                 ),
@@ -530,7 +616,8 @@ class StatisticsPage extends ConsumerWidget {
                           barTouchData: BarTouchData(
                             enabled: true,
                             touchTooltipData: BarTouchTooltipData(
-                              tooltipBgColor: Colors.black87,
+                              tooltipBgColor:
+                                  Theme.of(context).colorScheme.inverseSurface,
                               tooltipRoundedRadius: 8,
                               getTooltipItem: (
                                 group,
@@ -550,8 +637,11 @@ class StatisticsPage extends ConsumerWidget {
                                         : '$day\n${originalValue.toStringAsFixed(1)}';
                                 return BarTooltipItem(
                                   displayText,
-                                  const TextStyle(
-                                    color: Colors.white,
+                                  TextStyle(
+                                    color:
+                                        Theme.of(
+                                          context,
+                                        ).colorScheme.onInverseSurface,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 12,
                                   ),
@@ -578,7 +668,10 @@ class StatisticsPage extends ConsumerWidget {
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.grey[700],
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.7),
                                         ),
                                       ),
                                     );
@@ -603,7 +696,10 @@ class StatisticsPage extends ConsumerWidget {
                                         value.toInt().toString(),
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Colors.grey[600],
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.6),
                                         ),
                                       ),
                                     );
@@ -622,8 +718,12 @@ class StatisticsPage extends ConsumerWidget {
                           borderData: FlBorderData(
                             show: true,
                             border: Border(
-                              left: BorderSide(color: Colors.grey.shade300),
-                              bottom: BorderSide(color: Colors.grey.shade300),
+                              left: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                              bottom: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
                             ),
                           ),
                           gridData: FlGridData(
@@ -633,7 +733,9 @@ class StatisticsPage extends ConsumerWidget {
                             horizontalInterval: 1,
                             getDrawingHorizontalLine: (value) {
                               return FlLine(
-                                color: Colors.grey.shade200,
+                                color: Theme.of(
+                                  context,
+                                ).dividerColor.withOpacity(0.5),
                                 strokeWidth: 1,
                               );
                             },
@@ -662,8 +764,12 @@ class StatisticsPage extends ConsumerWidget {
                                             colors:
                                                 isNotLaunched
                                                     ? [
-                                                      Colors.grey[300]!,
-                                                      Colors.grey[400]!,
+                                                      Theme.of(context)
+                                                          .disabledColor
+                                                          .withOpacity(0.3),
+                                                      Theme.of(context)
+                                                          .disabledColor
+                                                          .withOpacity(0.5),
                                                     ]
                                                     : [
                                                       _getModernMoodColor(
@@ -689,7 +795,10 @@ class StatisticsPage extends ConsumerWidget {
                                               BackgroundBarChartRodData(
                                                 show: true,
                                                 toY: 5,
-                                                color: Colors.grey.shade100,
+                                                color:
+                                                    Theme.of(context)
+                                                        .colorScheme
+                                                        .surfaceVariant,
                                               ),
                                         ),
                                       ],
@@ -723,12 +832,15 @@ class StatisticsPage extends ConsumerWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Colors.white, Colors.green.shade50],
+          colors: [
+            Theme.of(context).cardColor,
+            Theme.of(context).colorScheme.primary.withOpacity(0.05),
+          ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -749,11 +861,7 @@ class StatisticsPage extends ConsumerWidget {
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
-                    Icons.timeline,
-                    color: Colors.white,
-                    size: 24,
-                  ),
+                  child: Icon(Icons.timeline, color: Colors.white, size: 24),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -761,7 +869,7 @@ class StatisticsPage extends ConsumerWidget {
                     'Últimos 30 dias',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey[800],
+                      color: Theme.of(context).colorScheme.onSurface,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
@@ -828,7 +936,9 @@ class StatisticsPage extends ConsumerWidget {
                             horizontalInterval: 1,
                             getDrawingHorizontalLine: (value) {
                               return FlLine(
-                                color: Colors.grey.shade200,
+                                color: Theme.of(
+                                  context,
+                                ).dividerColor.withOpacity(0.5),
                                 strokeWidth: 1,
                               );
                             },
@@ -850,7 +960,10 @@ class StatisticsPage extends ConsumerWidget {
                                         '0',
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Colors.grey[600],
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.6),
                                         ),
                                       ),
                                     );
@@ -860,10 +973,13 @@ class StatisticsPage extends ConsumerWidget {
                                         right: 8.0,
                                       ),
                                       child: Text(
-                                        '${_getMoodEmoji(value.toInt())} ${value.toInt()}',
+                                        '${value.toInt()}',
                                         style: TextStyle(
                                           fontSize: 11,
-                                          color: Colors.grey[600],
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.6),
                                         ),
                                       ),
                                     );
@@ -891,7 +1007,10 @@ class StatisticsPage extends ConsumerWidget {
                                         '$day/$month',
                                         style: TextStyle(
                                           fontSize: 10,
-                                          color: Colors.grey[600],
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurface
+                                              .withOpacity(0.6),
                                         ),
                                       ),
                                     );
@@ -910,8 +1029,12 @@ class StatisticsPage extends ConsumerWidget {
                           borderData: FlBorderData(
                             show: true,
                             border: Border(
-                              left: BorderSide(color: Colors.grey.shade300),
-                              bottom: BorderSide(color: Colors.grey.shade300),
+                              left: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
+                              bottom: BorderSide(
+                                color: Theme.of(context).dividerColor,
+                              ),
                             ),
                           ),
                           minX: 0,
@@ -921,7 +1044,8 @@ class StatisticsPage extends ConsumerWidget {
                           lineTouchData: LineTouchData(
                             enabled: true,
                             touchTooltipData: LineTouchTooltipData(
-                              tooltipBgColor: Colors.black87,
+                              tooltipBgColor:
+                                  Theme.of(context).colorScheme.inverseSurface,
                               tooltipRoundedRadius: 8,
                               getTooltipItems: (
                                 List<LineBarSpot> touchedSpots,
@@ -937,9 +1061,12 @@ class StatisticsPage extends ConsumerWidget {
                                   final month = parts[1];
                                   final avgValue = dayEntry.value;
                                   return LineTooltipItem(
-                                    '$day/$month\n${_getMoodEmoji(avgValue.round())} Média: ${avgValue.toStringAsFixed(1)}',
-                                    const TextStyle(
-                                      color: Colors.white,
+                                    '$day/$month\nMédia: ${avgValue.toStringAsFixed(1)}',
+                                    TextStyle(
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.onInverseSurface,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 12,
                                     ),
@@ -983,7 +1110,7 @@ class StatisticsPage extends ConsumerWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildTimelineSummary(recentEntries),
+                    _buildTimelineSummary(recentEntries, context),
                   ],
                 );
               },
@@ -1163,9 +1290,41 @@ class StatisticsPage extends ConsumerWidget {
     int total,
     BuildContext context,
   ) {
-    return Column(
-      children:
-          countByLevel.map((item) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(context).cardColor,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).shadowColor.withOpacity(0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.legend_toggle_rounded,
+                color: AppTheme.primaryColor,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Distribuição por Humor',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ...countByLevel.map((item) {
             final moodLevel = item['mood_level'] as int;
             final count = item['count'] as int;
             final percentage = (count / total * 100);
@@ -1174,61 +1333,112 @@ class StatisticsPage extends ConsumerWidget {
               margin: const EdgeInsets.only(bottom: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: _getModernMoodColor(moodLevel, context).withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
+                gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [
+                    _getModernMoodColor(moodLevel, context).withOpacity(0.08),
+                    _getModernMoodColor(moodLevel, context).withOpacity(0.02),
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: _getModernMoodColor(
                     moodLevel,
                     context,
-                  ).withOpacity(0.3),
+                  ).withOpacity(0.2),
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
                   Container(
-                    width: 20,
-                    height: 20,
+                    width: 16,
+                    height: 16,
                     decoration: BoxDecoration(
-                      color: _getModernMoodColor(moodLevel, context),
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          _getModernMoodColor(moodLevel, context),
+                          _getModernMoodColor(
+                            moodLevel,
+                            context,
+                          ).withOpacity(0.8),
+                        ],
+                      ),
                       shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: _getModernMoodColor(
+                            moodLevel,
+                            context,
+                          ).withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(width: 12),
                   Text(
                     _getMoodEmoji(moodLevel),
-                    style: const TextStyle(fontSize: 20),
+                    style: const TextStyle(fontSize: 18),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       _getMoodDescription(moodLevel),
-                      style: const TextStyle(
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w600,
-                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ),
                   Text(
-                    '$count registros',
-                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    '$count',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onSurface.withOpacity(0.6),
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 4,
+                      horizontal: 10,
+                      vertical: 5,
                     ),
                     decoration: BoxDecoration(
-                      color: _getModernMoodColor(moodLevel, context),
-                      borderRadius: BorderRadius.circular(8),
+                      gradient: LinearGradient(
+                        colors: [
+                          _getModernMoodColor(moodLevel, context),
+                          _getModernMoodColor(
+                            moodLevel,
+                            context,
+                          ).withOpacity(0.8),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: _getModernMoodColor(
+                            moodLevel,
+                            context,
+                          ).withOpacity(0.3),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
                     ),
                     child: Text(
                       '${percentage.toStringAsFixed(1)}%',
                       style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
@@ -1236,6 +1446,8 @@ class StatisticsPage extends ConsumerWidget {
               ),
             );
           }).toList(),
+        ],
+      ),
     );
   }
 
@@ -1469,9 +1681,12 @@ class StatisticsPage extends ConsumerWidget {
             return Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.shade200, width: 1),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  width: 1,
+                ),
               ),
               child: Row(
                 children: [
@@ -1499,15 +1714,20 @@ class StatisticsPage extends ConsumerWidget {
                         ),
                         Text(
                           '$bestDayName (${bestDay.value.toStringAsFixed(1)})',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  Container(width: 1, height: 30, color: Colors.blue.shade300),
+                  Container(
+                    width: 1,
+                    height: 30,
+                    color: Theme.of(context).dividerColor,
+                  ),
                   const SizedBox(width: 16),
                   Expanded(
                     child: Column(
@@ -1533,9 +1753,10 @@ class StatisticsPage extends ConsumerWidget {
                         ),
                         Text(
                           '$worstDayName (${worstDay.value.toStringAsFixed(1)})',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 14,
+                            color: Theme.of(context).colorScheme.onSurface,
                           ),
                         ),
                       ],
@@ -1577,7 +1798,7 @@ class StatisticsPage extends ConsumerWidget {
   }
 }
 
-Widget _buildTimelineSummary(List<MoodEntry> entries) {
+Widget _buildTimelineSummary(List<MoodEntry> entries, BuildContext context) {
   // Agrupar por dia e calcular médias diárias (igual ao gráfico de evolução)
   final Map<String, List<int>> dailyMoods = {};
   for (final entry in entries) {
@@ -1623,9 +1844,12 @@ Widget _buildTimelineSummary(List<MoodEntry> entries) {
   return Container(
     padding: const EdgeInsets.all(16),
     decoration: BoxDecoration(
-      color: Colors.green.shade50,
+      color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(12),
-      border: Border.all(color: Colors.green.shade200, width: 1),
+      border: Border.all(
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+        width: 1,
+      ),
     ),
     child: Column(
       children: [
@@ -1637,6 +1861,7 @@ Widget _buildTimelineSummary(List<MoodEntry> entries) {
                 '${overallAverage.toStringAsFixed(1)}/5',
                 Icons.analytics,
                 Colors.blue.shade600,
+                context,
               ),
             ),
             const SizedBox(width: 16),
@@ -1646,6 +1871,7 @@ Widget _buildTimelineSummary(List<MoodEntry> entries) {
                 '$bestDayMonth (${bestDay.value.toStringAsFixed(1)})',
                 Icons.trending_up,
                 Colors.green.shade600,
+                context,
               ),
             ),
           ],
@@ -1663,6 +1889,7 @@ Widget _buildTimelineSummary(List<MoodEntry> entries) {
                     : 'Estável',
                 trend >= 0 ? Icons.trending_up : Icons.trending_down,
                 trend >= 0 ? Colors.green.shade600 : Colors.red.shade600,
+                context,
               ),
             ),
             const SizedBox(width: 16),
@@ -1672,6 +1899,7 @@ Widget _buildTimelineSummary(List<MoodEntry> entries) {
                 '$worstDayMonth (${worstDay.value.toStringAsFixed(1)})',
                 Icons.trending_down,
                 Colors.red.shade600,
+                context,
               ),
             ),
           ],
@@ -1686,6 +1914,7 @@ Widget _buildSummaryItem(
   String value,
   IconData icon,
   Color color,
+  BuildContext context,
 ) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1706,7 +1935,11 @@ Widget _buildSummaryItem(
       ),
       Text(
         value,
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
       ),
     ],
   );
