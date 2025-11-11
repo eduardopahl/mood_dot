@@ -53,21 +53,38 @@ class CalendarPage extends ConsumerWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header com navegação
-            _buildCalendarHeader(context, ref, selectedDate),
+            // Header com navegação (com gradiente sutil)
+            Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).scaffoldBackgroundColor,
+                    Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+                  ],
+                ),
+              ),
+              child: _buildCalendarHeader(context, ref, selectedDate),
+            ),
 
-            // Calendário
+            // Calendário com animação e sombra melhorada
             Expanded(
               child: Container(
-                margin: const EdgeInsets.all(16),
+                margin: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: Theme.of(context).cardTheme.color,
-                  borderRadius: BorderRadius.circular(20),
+                  borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).shadowColor.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
+                      color: Theme.of(context).shadowColor.withOpacity(0.08),
+                      blurRadius: 30,
+                      offset: const Offset(0, 10),
+                    ),
+                    BoxShadow(
+                      color: Theme.of(context).shadowColor.withOpacity(0.05),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
@@ -111,76 +128,129 @@ class CalendarPage extends ConsumerWidget {
     DateTime selectedDate,
   ) {
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
       child: Row(
         children: [
-          // Botão mês anterior
-          IconButton(
-            onPressed: () {
-              final prevMonth = DateTime(
-                selectedDate.year,
-                selectedDate.month - 1,
-                1,
-              );
-              ref.read(selectedCalendarDateProvider.notifier).state = prevMonth;
-            },
-            icon: const Icon(Icons.chevron_left, size: 28),
-            style: IconButton.styleFrom(
-              backgroundColor: Theme.of(context).cardTheme.color,
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-              elevation: 2,
-              shadowColor: Theme.of(context).shadowColor.withOpacity(0.1),
+          // Botão mês anterior com estilo melhorado
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
             ),
-          ),
-
-          // Título do mês/ano
-          Expanded(
-            child: Center(
-              child: Column(
-                children: [
-                  Text(
-                    DateFormat('MMMM', 'pt_BR').format(selectedDate),
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  Text(
-                    selectedDate.year.toString(),
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).textTheme.bodyMedium?.color,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
+            child: IconButton(
+              onPressed: () {
+                final prevMonth = DateTime(
+                  selectedDate.year,
+                  selectedDate.month - 1,
+                  1,
+                );
+                ref.read(selectedCalendarDateProvider.notifier).state =
+                    prevMonth;
+              },
+              icon: Icon(
+                Icons.chevron_left_rounded,
+                size: 28,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                padding: const EdgeInsets.all(12),
               ),
             ),
           ),
 
-          // Botão próximo mês (apenas se não for futuro)
-          IconButton(
-            onPressed: () {
-              final nextMonth = DateTime(
-                selectedDate.year,
-                selectedDate.month + 1,
-                1,
-              );
-              final now = DateTime.now();
-              final currentMonth = DateTime(now.year, now.month, 1);
+          // Título do mês/ano com gradiente e animação
+          Expanded(
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  vertical: 8,
+                  horizontal: 16,
+                ),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                      Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Column(
+                  children: [
+                    Text(
+                      DateFormat('MMMM', 'pt_BR').format(selectedDate),
+                      style: Theme.of(
+                        context,
+                      ).textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      selectedDate.year.toString(),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
 
-              // Só permite navegar até o mês atual
-              if (nextMonth.isBefore(currentMonth) ||
-                  nextMonth.isAtSameMomentAs(currentMonth)) {
-                ref.read(selectedCalendarDateProvider.notifier).state =
-                    nextMonth;
-              }
-            },
-            icon: const Icon(Icons.chevron_right, size: 28),
-            style: IconButton.styleFrom(
-              backgroundColor: Theme.of(context).cardTheme.color,
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-              elevation: 2,
-              shadowColor: Theme.of(context).shadowColor.withOpacity(0.1),
+          // Botão próximo mês com estilo melhorado
+          Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).cardTheme.color,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: Theme.of(context).shadowColor.withOpacity(0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: IconButton(
+              onPressed: () {
+                final nextMonth = DateTime(
+                  selectedDate.year,
+                  selectedDate.month + 1,
+                  1,
+                );
+                final now = DateTime.now();
+                final currentMonth = DateTime(now.year, now.month, 1);
+
+                // Só permite navegar até o mês atual
+                if (nextMonth.isBefore(currentMonth) ||
+                    nextMonth.isAtSameMomentAs(currentMonth)) {
+                  ref.read(selectedCalendarDateProvider.notifier).state =
+                      nextMonth;
+                }
+              },
+              icon: Icon(
+                Icons.chevron_right_rounded,
+                size: 28,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              style: IconButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                padding: const EdgeInsets.all(12),
+              ),
             ),
           ),
         ],
@@ -237,15 +307,15 @@ class CalendarPage extends ConsumerWidget {
 
     return Flexible(
       child: Padding(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(12),
         child: GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 7,
             childAspectRatio: 1,
-            crossAxisSpacing: 2,
-            mainAxisSpacing: 2,
+            crossAxisSpacing: 4,
+            mainAxisSpacing: 4,
           ),
           itemCount: totalCells,
           itemBuilder: (context, index) {
@@ -283,42 +353,66 @@ class CalendarPage extends ConsumerWidget {
     final isFuture = _isFuture(day, monthDate);
 
     return Container(
+      margin: const EdgeInsets.all(1),
       decoration: BoxDecoration(
         color: _getDayCellColor(context, average, hasData, isToday, isFuture),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(12),
         border:
             isToday
                 ? Border.all(
                   color: Theme.of(context).colorScheme.primary,
-                  width: 2,
+                  width: 2.5,
                 )
-                : Border.all(color: Theme.of(context).dividerColor, width: 1),
-        boxShadow:
+                : null,
+        boxShadow: [
+          if (hasData) ...[
+            BoxShadow(
+              color: _getMoodColor(context, average!).withOpacity(0.25),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+            BoxShadow(
+              color: _getMoodColor(context, average).withOpacity(0.1),
+              blurRadius: 15,
+              offset: const Offset(0, 6),
+            ),
+          ],
+          if (isToday && !hasData) ...[
+            BoxShadow(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ],
+        gradient:
             hasData
-                ? [
-                  BoxShadow(
-                    color: _getMoodColor(context, average!).withOpacity(0.3),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                ]
+                ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    _getMoodColor(context, average!),
+                    _getMoodColor(context, average).withOpacity(0.8),
+                  ],
+                )
                 : null,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(2),
+        padding: const EdgeInsets.all(6),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            // Número do dia
+            // Número do dia com estilo melhorado
             Flexible(
+              flex: 2,
               child: Center(
                 child: FittedBox(
                   child: Text(
                     day.toString(),
                     style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isToday ? FontWeight.bold : FontWeight.w600,
+                      fontSize: 16,
+                      fontWeight: isToday ? FontWeight.w800 : FontWeight.w600,
                       color: _getDayTextColor(
                         context,
                         average,
@@ -326,25 +420,26 @@ class CalendarPage extends ConsumerWidget {
                         isToday,
                         isFuture,
                       ),
+                      letterSpacing: 0.5,
                     ),
                   ),
                 ),
               ),
             ),
 
-            // Indicador de humor (valor numérico)
+            // Indicador de humor (valor numérico) com estilo melhorado
             if (hasData && !isFuture) ...[
+              const SizedBox(height: 2),
               Flexible(
+                flex: 2,
                 child: Center(
-                  child: FittedBox(
-                    child: Text(
-                      average!.toStringAsFixed(1),
-                      style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w600,
-                        color: _getContrastingTextColor(
-                          _getMoodColor(context, average),
-                        ),
+                  child: Text(
+                    average!.toStringAsFixed(1),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: _getContrastingTextColor(
+                        _getMoodColor(context, average),
                       ),
                     ),
                   ),
