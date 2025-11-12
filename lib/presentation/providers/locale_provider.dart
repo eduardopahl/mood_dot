@@ -5,9 +5,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 const String _localeKey = 'app_locale';
 
 /// Provider para gerenciar o idioma do app
+
 class LocaleNotifier extends StateNotifier<Locale> {
-  LocaleNotifier() : super(const Locale('pt', 'BR')) {
+  LocaleNotifier() : super(_getInitialLocale()) {
     _loadLocale();
+  }
+
+  static Locale _getInitialLocale() {
+    final systemLocale = WidgetsBinding.instance.platformDispatcher.locale;
+    if (systemLocale.languageCode == 'pt') {
+      return const Locale('pt', 'BR');
+    }
+    return const Locale('en', 'US');
   }
 
   Future<void> _loadLocale() async {
@@ -23,9 +32,10 @@ class LocaleNotifier extends StateNotifier<Locale> {
           state = Locale(parts[0]);
         }
       }
+      // Se não houver escolha do usuário, mantém o detectado do sistema
     } catch (e) {
       debugPrint('Erro ao carregar locale: $e');
-      // Mantém o padrão (português)
+      // Mantém o padrão detectado
     }
   }
 
@@ -35,7 +45,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(
         _localeKey,
-        '${locale.languageCode}_${locale.countryCode}',
+        '${locale.languageCode}_${locale.countryCode ?? ''}',
       );
     } catch (e) {
       debugPrint('Erro ao salvar locale: $e');

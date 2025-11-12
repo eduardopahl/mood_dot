@@ -139,7 +139,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ListTile(
-                  leading: const Text('🇵🇹'),
+                  leading: const Text('🇧🇷'),
                   title: Text(l10n.portuguese),
                   trailing:
                       ref.watch(localeProvider).languageCode == 'pt'

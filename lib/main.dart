@@ -9,7 +9,8 @@ import 'app.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initializeDateFormatting('pt_BR', null);
+  final locale = WidgetsBinding.instance.platformDispatcher.locale;
+  await initializeDateFormatting(locale.toString(), null);
 
   await MoodLocalDataSourceImpl.instance.init();
 
