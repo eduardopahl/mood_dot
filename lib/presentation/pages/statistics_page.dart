@@ -1432,38 +1432,6 @@ class StatisticsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildLoadingState([String? loadingText]) {
-    return Container(
-      height: 200,
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SizedBox(
-              width: 32,
-              height: 32,
-              child: CircularProgressIndicator(
-                strokeWidth: 3,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.purple.shade400,
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              loadingText ?? 'Carregando dados...',
-              style: TextStyle(color: Colors.grey.shade600, fontSize: 14),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
   Widget _buildErrorState(String message) {
     return Container(
       height: 200,

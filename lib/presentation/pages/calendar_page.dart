@@ -78,6 +78,39 @@ class CalendarPage extends ConsumerWidget {
                 currentLocale,
               ),
             ),
+            // Média do humor do mês atual
+            calendarDataAsync.when(
+              data: (dailyAverages) {
+                if (dailyAverages.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8, bottom: 8),
+                    child: Text(
+                      l10n.noDataAvailable,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                      ),
+                    ),
+                  );
+                }
+                final monthAverage =
+                    dailyAverages.values.reduce((a, b) => a + b) /
+                    dailyAverages.length;
+                return Padding(
+                  padding: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: Text(
+                    '${l10n.averageMood}: ${monthAverage.toStringAsFixed(1)}',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                );
+              },
+              loading: () => const SizedBox(height: 32),
+              error: (error, stack) => const SizedBox(height: 32),
+            ),
 
             // Calendário com animação e sombra melhorada
             Expanded(

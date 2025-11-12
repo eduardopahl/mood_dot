@@ -387,6 +387,13 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
     final moodNotifier = ref.read(moodEntryProvider.notifier);
     final l10n = context.l10n;
 
+    // Exibir modal de loading
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
     try {
       if (widget.existingEntry != null) {
         // Atualizar entrada existente
@@ -432,11 +439,14 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
           AdEventService.instance.onMoodEntry(context);
         }
 
-        // Voltar para a tela anterior
-        Navigator.of(context).pop(true);
+        // Pequeno delay para suavizar a transição
+        await Future.delayed(const Duration(milliseconds: 600));
+        Navigator.of(context).pop(); // Fecha o modal de loading
+        Navigator.of(context).pop(true); // Volta para tela anterior
       }
     } catch (error) {
       if (mounted) {
+        Navigator.of(context).pop(); // Fecha o modal de loading
         AppSnackBar.showError(context, l10n.errorSaving(error.toString()));
       }
     }
