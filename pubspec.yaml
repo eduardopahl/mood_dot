@@ -75,6 +75,8 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   image_path: "assets/images/moods/mood_4.png"
+  adaptive_icon_foreground: "assets/images/moods/mood_4.png"
+  adaptive_icon_background: "#00000000"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
