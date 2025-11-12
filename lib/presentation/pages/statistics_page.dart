@@ -372,8 +372,13 @@ class StatisticsPage extends ConsumerWidget {
             const SizedBox(height: 24),
             filteredStatsAsync.when(
               data: (stats) {
-                final countByLevel =
-                    stats['countByLevel'] as List<Map<String, dynamic>>;
+                final countByLevelRaw = stats['countByLevel'];
+                final countByLevel = countByLevelRaw is List
+                    ? countByLevelRaw
+                        .where((item) => item is Map<String, dynamic>)
+                        .cast<Map<String, dynamic>>()
+                        .toList()
+                    : <Map<String, dynamic>>[];
 
                 if (countByLevel.isEmpty) {
                   return _buildEmptyState(l10n.noDataToDisplay);

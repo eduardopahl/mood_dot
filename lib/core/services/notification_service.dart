@@ -438,6 +438,7 @@ class NotificationService {
       message,
       RepeatInterval.daily,
       details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
 
     debugPrint('😊 Lembrete gentil agendado para repetir diariamente');
@@ -496,6 +497,7 @@ class NotificationService {
       message,
       RepeatInterval.daily,
       details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
 
     debugPrint('🚀 Lembrete dinâmico agendado para repetir diariamente');
@@ -538,6 +540,7 @@ class NotificationService {
       message,
       RepeatInterval.daily,
       details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
 
     debugPrint('📱 Lembrete padrão agendado para repetir diariamente');

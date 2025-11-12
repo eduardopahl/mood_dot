@@ -1,5 +1,5 @@
 name: mooddot
-description: "A new Flutter project."
+description: "MoodDot - seu diário de humor inteligente."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -10,6 +10,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # Both the version and the builder number may be overridden in flutter
 # build by specifying --build-name and --build-number, respectively.
 # In Android, build-name is used as versionName while build-number used as versionCode.
+# O nome do app será exibido como MoodDot nas lojas e dispositivos.
 # Read more about Android versioning at https://developer.android.com/studio/publish/versioning
 # In iOS, build-name is used as CFBundleShortVersionString while build-number is used as CFBundleVersion.
 # Read more about iOS versioning at
@@ -41,7 +42,7 @@ dependencies:
   hive_flutter: ^1.1.0
   
   # Date/Time utilities
-  intl: ^0.19.0
+  intl: ^0.20.2
   
   # Chart for statistics
   fl_chart: ^0.66.0
@@ -65,17 +66,15 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
-  # The "flutter_lints" package below contains a set of recommended lints to
-  # encourage good coding practices. The lint set provided by the package is
-  # activated in the `analysis_options.yaml` file located at the root of your
-  # package. See that file for information about deactivating specific lint
-  # rules and activating additional ones.
+  flutter_launcher_icons: ^0.13.1
   flutter_lints: ^5.0.0
-  
-  # Code generation for Hive
   build_runner: ^2.4.7
   hive_generator: ^2.0.1
+
+# Configuração para geração de ícones
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/images/moods/mood_4.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

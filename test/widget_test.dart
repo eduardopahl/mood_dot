@@ -15,7 +15,10 @@ void main() {
     // Build our app and trigger a frame.
     await tester.pumpWidget(const ProviderScope(child: MoodDotApp()));
 
-    // Verify that the app loads without crashing
-    expect(find.text('MoodDot'), findsOneWidget);
+    // Aguarda o frame inicial
+    await tester.pumpAndSettle();
+
+    // Verifica se o texto do primeiro item da navegação está presente
+    expect(find.text('Home'), findsOneWidget);
   });
 }
