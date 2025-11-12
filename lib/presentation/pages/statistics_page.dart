@@ -186,39 +186,80 @@ class StatisticsPage extends ConsumerWidget {
             data: (advancedStats) {
               final average = stats['average'] as double;
               final totalEntries = stats['totalEntries'] as int;
-              return Column(
+              return Row(
                 children: [
-                  // Primeira linha de cards
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildMetricCard(
-                          context,
-                          l10n.averageMoodLabel,
-                          '${average.toStringAsFixed(1)}/5',
-                          _getAverageEmoji(average),
-                          _getAverageColor(context, average),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: _buildMetricCard(
-                          context,
-                          l10n.totalEntriesLabel,
-                          totalEntries.toString(),
-                          '�',
-                          AppTheme.secondaryColor,
-                        ),
-                      ),
-                    ],
+                  Expanded(
+                    child: _buildMetricCard(
+                      context,
+                      l10n.averageMoodLabel,
+                      '${average.toStringAsFixed(1)}/5',
+                      _getAverageEmoji(average),
+                      _getAverageColor(context, average),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildMetricCard(
+                      context,
+                      l10n.totalEntriesLabel,
+                      totalEntries.toString(),
+                      '�',
+                      AppTheme.secondaryColor,
+                    ),
                   ),
                 ],
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading:
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: _buildMetricCard(
+                        context,
+                        l10n.averageMoodLabel,
+                        '...',
+                        '⏳',
+                        Colors.grey.shade300,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _buildMetricCard(
+                        context,
+                        l10n.totalEntriesLabel,
+                        '...',
+                        '⏳',
+                        Colors.grey.shade300,
+                      ),
+                    ),
+                  ],
+                ),
             error: (error, stack) => Text('Erro: $error'),
           ),
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading:
+          () => Row(
+            children: [
+              Expanded(
+                child: _buildMetricCard(
+                  context,
+                  l10n.averageMoodLabel,
+                  '...',
+                  '⏳',
+                  Colors.grey.shade300,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: _buildMetricCard(
+                  context,
+                  l10n.totalEntriesLabel,
+                  '...',
+                  '⏳',
+                  Colors.grey.shade300,
+                ),
+              ),
+            ],
+          ),
       error: (error, stack) => Text('Erro: $error'),
     );
   }
@@ -228,9 +269,11 @@ class StatisticsPage extends ConsumerWidget {
     String title,
     String value,
     String emoji,
-    Color color,
-  ) {
+    Color color, {
+    Key? key,
+  }) {
     return Container(
+      key: key,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: Theme.of(context).cardTheme.color,
@@ -570,7 +613,54 @@ class StatisticsPage extends ConsumerWidget {
                   ],
                 );
               },
-              loading: () => _buildLoadingState(l10n.loadingData),
+              loading:
+                  () => Column(
+                    children: [
+                      Container(
+                        height: 320,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Theme.of(context).colorScheme.surface,
+                              Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.02),
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Theme.of(
+                                context,
+                              ).shadowColor.withOpacity(0.08),
+                              blurRadius: 24,
+                              offset: const Offset(0, 12),
+                            ),
+                          ],
+                        ),
+                        child: Center(
+                          child: Icon(
+                            Icons.pie_chart,
+                            size: 64,
+                            color: Colors.grey.shade300,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Container(
+                        height: 48,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
               error:
                   (error, stack) =>
                       _buildErrorState(l10n.errorGeneric(error.toString())),
@@ -860,7 +950,30 @@ class StatisticsPage extends ConsumerWidget {
                   ],
                 );
               },
-              loading: () => _buildLoadingState(),
+              loading:
+                  () => Column(
+                    children: [
+                      SizedBox(
+                        height: 220,
+                        child: Center(
+                          child: Icon(
+                            Icons.bar_chart,
+                            size: 64,
+                            color: Colors.grey.shade300,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 48,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
               error:
                   (error, stack) => _buildErrorState('Erro ao carregar dados'),
             ),
@@ -1161,7 +1274,30 @@ class StatisticsPage extends ConsumerWidget {
                   ],
                 );
               },
-              loading: () => _buildLoadingState(),
+              loading:
+                  () => Column(
+                    children: [
+                      SizedBox(
+                        height: 240,
+                        child: Center(
+                          child: Icon(
+                            Icons.timeline,
+                            size: 64,
+                            color: Colors.grey.shade300,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Container(
+                        height: 48,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
               error:
                   (error, stack) => _buildErrorState('Erro ao carregar dados'),
             ),
@@ -1826,9 +1962,14 @@ class StatisticsPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade200, width: 1),
                 ),
-                child: const Text(
-                  'Carregando insights...',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                child: Row(
+                  children: [
+                    Icon(Icons.insights, color: Colors.grey.shade300, size: 32),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Container(height: 16, color: Colors.grey.shade200),
+                    ),
+                  ],
                 ),
               ),
           error:
