@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/theme_provider.dart';
 import '../providers/reminder_provider.dart';
@@ -283,6 +284,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       trailing: const Icon(Icons.send),
       onTap: () async {
         debugPrint('Test button pressed');
+        final status = await Permission.notification.status;
+        if (!status.isGranted) {
+          final result = await Permission.notification.request();
+          if (!result.isGranted) {
+            AppSnackBar.showError(context, l10n.testNotificationSent);
+            return;
+          }
+        }
         await ref.read(reminderStateProvider.notifier).testNotification();
         AppSnackBar.showNotificationSuccess(context, l10n.testNotificationSent);
       },
