@@ -9,7 +9,7 @@ class AdBannerWidget extends StatefulWidget {
   const AdBannerWidget({
     Key? key,
     this.size = AdSize.banner,
-    this.margin = const EdgeInsets.symmetric(vertical: 16),
+    this.margin = const EdgeInsets.symmetric(vertical: 4),
   }) : super(key: key);
 
   @override
