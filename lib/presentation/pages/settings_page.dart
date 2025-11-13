@@ -37,8 +37,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          //TODO Ativar seção premium depois
           // Seção Premium
-          _buildPremiumSection(context, l10n),
+          // _buildPremiumSection(context, l10n),
           const SizedBox(height: 24),
 
           _buildSettingsSection(context, l10n.appearance, [

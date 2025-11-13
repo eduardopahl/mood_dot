@@ -47,3 +47,7 @@ app.*.map.json
 # AdMob Configuration (sensitive IDs)
 /lib/config/admob_config.dart
 /android/app/src/main/res/values/admob_config.xml
+
+# Keystore files
+/keystore/keystore.jks
+/keystore.properties
