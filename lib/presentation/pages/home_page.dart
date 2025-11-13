@@ -183,6 +183,8 @@ class HomePage extends ConsumerWidget {
                 ),
               ),
 
+              const SliverToBoxAdapter(child: SizedBox(height: 24)),
+
               moodEntriesAsync.when(
                 data: (entries) {
                   if (entries.isEmpty) {

@@ -70,10 +70,11 @@ class StatisticsPage extends ConsumerWidget {
 
                 // Seletor de período
                 _buildPeriodSelector(context, ref),
-                // const SizedBox(height: 24),
+                const SizedBox(height: 12),
+
                 // Banner de anúncio centralizado com margens top e bottom
                 Center(child: AdBannerWidget()),
-
+                const SizedBox(height: 12),
                 // Cards de métricas principais
                 _buildMetricsCards(
                   context,

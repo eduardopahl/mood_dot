@@ -50,4 +50,4 @@ app.*.map.json
 
 # Keystore files
 /keystore/keystore.jks
-/keystore.properties
+/key.properties
