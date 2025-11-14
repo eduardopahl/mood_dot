@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import '../app_logger.dart';
 import 'dart:io';
 import '../../domain/repositories/mood_repository.dart';
 import '../navigation.dart';
@@ -34,11 +35,13 @@ class NotificationService {
       final localeString = prefs.getString('app_locale') ?? 'pt_BR';
       // Extrai apenas o código do idioma (pt ou en)
       final languageCode = localeString.split('_')[0];
-      debugPrint('🔍 Locale detectado: $localeString -> idioma: $languageCode');
+      AppLogger.d(
+        '🔍 Locale detectado: $localeString -> idioma: $languageCode',
+      );
       return languageCode == 'pt';
     } catch (e) {
       // Fallback para português se não conseguir detectar
-      debugPrint('Erro ao detectar locale: $e');
+      AppLogger.e('Erro ao detectar locale', e);
       return true;
     }
   }
@@ -47,7 +50,7 @@ class NotificationService {
   Future<void> initialize() async {
     if (_initialized) return;
 
-    debugPrint('🚀 Inicializando serviço real de notificações...');
+    AppLogger.d('🚀 Inicializando serviço real de notificações...');
 
     const androidSettings = AndroidInitializationSettings(
       '@mipmap/ic_launcher',
@@ -69,12 +72,12 @@ class NotificationService {
     );
 
     _initialized = result ?? false;
-    debugPrint('✅ Serviço de notificações inicializado: $_initialized');
+    AppLogger.d('✅ Serviço de notificações inicializado: $_initialized');
   }
 
   /// Callback quando usuário toca na notificação
   void _onNotificationResponse(NotificationResponse response) {
-    debugPrint('📱 Notificação tocada - abrindo app para registrar humor');
+    AppLogger.d('📱 Notificação tocada - abrindo app para registrar humor');
 
     try {
       appNavigatorKey.currentState?.push(
@@ -83,13 +86,13 @@ class NotificationService {
         ),
       );
     } catch (e) {
-      debugPrint('Erro ao navegar após toque na notificação: $e');
+      AppLogger.e('Erro ao navegar após toque na notificação', e);
     }
   }
 
   /// Solicita permissão para notificações (real)
   Future<bool> requestPermission() async {
-    debugPrint('🔐 Solicitando permissões reais de notificação...');
+    AppLogger.d('🔐 Solicitando permissões reais de notificação...');
 
     if (Platform.isAndroid) {
       final androidImplementation =
@@ -101,7 +104,7 @@ class NotificationService {
       // Para Android 13+ precisa de permissão de notificação
       final granted =
           await androidImplementation?.requestNotificationsPermission();
-      debugPrint('🤖 Android - Permissão concedida: $granted');
+      AppLogger.d('🤖 Android - Permissão concedida: $granted');
       return granted ?? false;
     } else if (Platform.isIOS) {
       final iosImplementation =
@@ -115,7 +118,7 @@ class NotificationService {
         badge: true,
         sound: true,
       );
-      debugPrint('🍎 iOS - Permissão concedida: $granted');
+      AppLogger.d('🍎 iOS - Permissão concedida: $granted');
       return granted ?? false;
     }
 
@@ -126,13 +129,13 @@ class NotificationService {
   Future<bool> areNotificationsEnabled() async {
     final prefs = await SharedPreferences.getInstance();
     final enabled = prefs.getBool(_reminderEnabledKey) ?? false;
-    debugPrint('Notificações habilitadas: $enabled');
+    AppLogger.d('Notificações habilitadas: $enabled');
     return enabled;
   }
 
   /// Habilita ou desabilita lembretes
   Future<void> setRemindersEnabled(bool enabled) async {
-    debugPrint('Alterando estado dos lembretes para: $enabled');
+    AppLogger.d('Alterando estado dos lembretes para: $enabled');
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_reminderEnabledKey, enabled);
@@ -145,28 +148,28 @@ class NotificationService {
       await cancelAllReminders();
     }
 
-    debugPrint('Estado dos lembretes alterado com sucesso');
+    AppLogger.d('Estado dos lembretes alterado com sucesso');
   }
 
   /// Agenda o próximo lembrete de forma inteligente
   Future<void> _scheduleReminder() async {
-    debugPrint('🧠 Iniciando lógica inteligente de notificações...');
+    AppLogger.d('🧠 Iniciando lógica inteligente de notificações...');
 
     // 1. Verifica se já registrou humor hoje
     if (await _hasRegisteredTodaysMood()) {
-      debugPrint('✅ Usuário já registrou humor hoje - pulando notificação');
+      AppLogger.d('✅ Usuário já registrou humor hoje - pulando notificação');
       return;
     }
 
     // 2. Analisa o melhor horário baseado no histórico
     final optimalTime = await _getOptimalNotificationTime();
-    debugPrint(
+    AppLogger.d(
       '⏰ Horário ótimo calculado: ${optimalTime.hour}:${optimalTime.minute}',
     );
 
     // 3. Verifica o nível de engajamento do usuário
     final engagementScore = await _getUserEngagementScore();
-    debugPrint('📊 Score de engajamento: $engagementScore');
+    AppLogger.d('📊 Score de engajamento: $engagementScore');
 
     // 4. Ajusta a estratégia baseada no engajamento
     if (engagementScore < 0.3) {
@@ -180,13 +183,13 @@ class NotificationService {
       await _scheduleStandardReminder(optimalTime);
     }
 
-    debugPrint('🎯 Lembrete inteligente agendado com sucesso');
+    AppLogger.d('🎯 Lembrete inteligente agendado com sucesso');
   }
 
   /// Verifica se o usuário já registrou humor hoje baseado nos dados reais
   Future<bool> _hasRegisteredTodaysMood() async {
     try {
-      debugPrint('🔍 Verificando se já registrou humor hoje...');
+      AppLogger.d('🔍 Verificando se já registrou humor hoje...');
 
       // Busca todos os mood entries de hoje
       final allEntries = await _moodRepository.getAllMoodEntries();
@@ -202,13 +205,13 @@ class NotificationService {
           }).toList();
 
       final hasRegisteredToday = todayEntries.isNotEmpty;
-      debugPrint(
+      AppLogger.d(
         '📊 Entries hoje: ${todayEntries.length} - Já registrou: $hasRegisteredToday',
       );
 
       return hasRegisteredToday;
     } catch (e) {
-      debugPrint('❌ Erro ao verificar mood entries: $e');
+      AppLogger.e('❌ Erro ao verificar mood entries', e);
       // Em caso de erro, assume que não registrou (fallback)
       return false;
     }
@@ -217,7 +220,7 @@ class NotificationService {
   /// Calcula o horário ótimo baseado no histórico real do usuário
   Future<TimeOfDay> _getOptimalNotificationTime() async {
     try {
-      debugPrint('⏰ Calculando horário ótimo baseado em dados reais...');
+      AppLogger.d('⏰ Calculando horário ótimo baseado em dados reais...');
 
       final prefs = await SharedPreferences.getInstance();
 
@@ -226,7 +229,7 @@ class NotificationService {
       if (savedTime != null) {
         final hour = savedTime ~/ 100;
         final minute = savedTime % 100;
-        debugPrint('💾 Usando horário preferido salvo: ${hour}:${minute}');
+        AppLogger.d('💾 Usando horário preferido salvo: ${hour}:${minute}');
         return TimeOfDay(hour: hour, minute: minute);
       }
 
@@ -259,8 +262,8 @@ class NotificationService {
         if (optimalHour < 8) optimalHour = 8;
         if (optimalHour > 22) optimalHour = 20;
 
-        debugPrint('📈 Horário mais comum de registro: ${mostCommonHour}h');
-        debugPrint('🎯 Horário ótimo calculado: ${optimalHour}:00');
+        AppLogger.d('📈 Horário mais comum de registro: ${mostCommonHour}h');
+        AppLogger.d('🎯 Horário ótimo calculado: ${optimalHour}:00');
 
         return TimeOfDay(hour: optimalHour, minute: 0);
       }
@@ -279,7 +282,7 @@ class NotificationService {
         return const TimeOfDay(hour: 9, minute: 0);
       }
     } catch (e) {
-      debugPrint('❌ Erro ao calcular horário ótimo: $e');
+      AppLogger.e('❌ Erro ao calcular horário ótimo', e);
       // Fallback para horário padrão
       return const TimeOfDay(hour: 20, minute: 0);
     }
@@ -288,7 +291,7 @@ class NotificationService {
   /// Calcula o score de engajamento baseado em dados reais (0.0 a 1.0)
   Future<double> _getUserEngagementScore() async {
     try {
-      debugPrint(
+      AppLogger.d(
         '📊 Calculando score de engajamento baseado em dados reais...',
       );
 
@@ -296,7 +299,7 @@ class NotificationService {
       final allEntries = await _moodRepository.getAllMoodEntries();
 
       if (allEntries.isEmpty) {
-        debugPrint('📊 Nenhum entry encontrado - score inicial: 0.1');
+        AppLogger.d('📊 Nenhum entry encontrado - score inicial: 0.1');
         return 0.1; // Usuário novo
       }
 
@@ -313,7 +316,7 @@ class NotificationService {
       double frequencyScore = (recentEntries.length / 30.0).clamp(0.0, 1.0);
       totalScore += frequencyScore;
       factors++;
-      debugPrint(
+      AppLogger.d(
         '📈 Frequência (30 dias): ${recentEntries.length}/30 = $frequencyScore',
       );
 
@@ -333,7 +336,7 @@ class NotificationService {
       double consistencyScore = (uniqueDays.length / 14.0).clamp(0.0, 1.0);
       totalScore += consistencyScore;
       factors++;
-      debugPrint(
+      AppLogger.d(
         '📅 Consistência (14 dias): ${uniqueDays.length}/14 = $consistencyScore',
       );
 
@@ -348,7 +351,7 @@ class NotificationService {
         ); // 6 meses = score máximo
         totalScore += longevityScore;
         factors++;
-        debugPrint(
+        AppLogger.d(
           '⏳ Tempo de uso: ${monthsUsing.toStringAsFixed(1)} meses = $longevityScore',
         );
       }
@@ -361,7 +364,7 @@ class NotificationService {
       ); // 10 níveis máximo
       totalScore += varietyScore;
       factors++;
-      debugPrint(
+      AppLogger.d(
         '🎭 Variedade de humores: ${uniqueMoods.length}/10 = $varietyScore',
       );
 
@@ -378,7 +381,7 @@ class NotificationService {
       );
       totalScore += notesScore;
       factors++;
-      debugPrint(
+      AppLogger.d(
         '📝 Uso de notas: $entriesWithNotes/${allEntries.length} = $notesScore',
       );
 
@@ -388,12 +391,12 @@ class NotificationService {
       // Salva o score calculado
       await prefs.setDouble(_userEngagementKey, finalScore);
 
-      debugPrint(
+      AppLogger.d(
         '🎯 Score final de engajamento: ${finalScore.toStringAsFixed(2)}',
       );
       return finalScore;
     } catch (e) {
-      debugPrint('❌ Erro ao calcular engajamento: $e');
+      AppLogger.e('❌ Erro ao calcular engajamento', e);
       // Fallback para score padrão
       final prefs = await SharedPreferences.getInstance();
       return prefs.getDouble(_userEngagementKey) ?? 0.5;
@@ -402,7 +405,7 @@ class NotificationService {
 
   /// Estratégia para usuários pouco engajados
   Future<void> _scheduleGentleReminder(TimeOfDay time) async {
-    debugPrint('😊 Aplicando estratégia gentil - usuário pouco engajado');
+    AppLogger.d('😊 Aplicando estratégia gentil - usuário pouco engajado');
 
     await cancelAllReminders();
 
@@ -450,12 +453,12 @@ class NotificationService {
       details,
     );
 
-    debugPrint('😊 Lembrete gentil agendado para repetir diariamente');
+    AppLogger.d('😊 Lembrete gentil agendado para repetir diariamente');
   }
 
   /// Estratégia para usuários muito engajados
   Future<void> _scheduleActiveReminder(TimeOfDay time) async {
-    debugPrint('🚀 Aplicando estratégia ativa - usuário muito engajado');
+    AppLogger.d('🚀 Aplicando estratégia ativa - usuário muito engajado');
 
     await cancelAllReminders();
 
@@ -508,12 +511,12 @@ class NotificationService {
       details,
     );
 
-    debugPrint('🚀 Lembrete dinâmico agendado para repetir diariamente');
+    AppLogger.d('🚀 Lembrete dinâmico agendado para repetir diariamente');
   }
 
   /// Estratégia padrão para usuários moderadamente engajados
   Future<void> _scheduleStandardReminder(TimeOfDay time) async {
-    debugPrint('📱 Aplicando estratégia padrão');
+    AppLogger.d('📱 Aplicando estratégia padrão');
 
     await cancelAllReminders();
 
@@ -550,7 +553,7 @@ class NotificationService {
       details,
     );
 
-    debugPrint('📱 Lembrete padrão agendado para repetir diariamente');
+    AppLogger.d('📱 Lembrete padrão agendado para repetir diariamente');
   }
 
   /// Gera mensagem baseada no horário
@@ -582,7 +585,7 @@ class NotificationService {
     required bool respondedToNotification,
     required TimeOfDay responseTime,
   }) async {
-    debugPrint('🎓 Aprendendo com comportamento do usuário...');
+    AppLogger.d('🎓 Aprendendo com comportamento do usuário...');
 
     final prefs = await SharedPreferences.getInstance();
 
@@ -596,8 +599,8 @@ class NotificationService {
       final timeInt = responseTime.hour * 100 + responseTime.minute;
       await prefs.setInt(_preferredTimeKey, timeInt);
 
-      debugPrint('📈 Engajamento aumentado para: $newScore');
-      debugPrint(
+      AppLogger.d('📈 Engajamento aumentado para: $newScore');
+      AppLogger.d(
         '⏰ Horário preferido atualizado: ${responseTime.hour}:${responseTime.minute}',
       );
     }
@@ -610,9 +613,9 @@ class NotificationService {
 
   /// Cancela todos os lembretes (real)
   Future<void> cancelAllReminders() async {
-    debugPrint('🚫 Cancelando todas as notificações...');
+    AppLogger.d('🚫 Cancelando todas as notificações...');
     await _notifications.cancelAll();
-    debugPrint('✅ Todas as notificações canceladas');
+    AppLogger.d('✅ Todas as notificações canceladas');
   }
 
   /// Obtém o status atual dos lembretes
@@ -624,7 +627,7 @@ class NotificationService {
 
   /// Testa uma notificação imediatamente (real)
   Future<void> testNotification() async {
-    debugPrint('🧪 Enviando notificação de teste real...');
+    AppLogger.d('🧪 Enviando notificação de teste real...');
 
     const androidDetails = AndroidNotificationDetails(
       'test',
@@ -644,7 +647,7 @@ class NotificationService {
 
     // Detecta locale e usa mensagens apropriadas
     final isPortuguese = await _isPortuguese();
-    debugPrint('🌍 Locale detectado - Português: $isPortuguese');
+    AppLogger.d('🌍 Locale detectado - Português: $isPortuguese');
 
     final title =
         isPortuguese ? 'Teste de Notificação 🧪' : 'Test Notification 🧪';
@@ -655,12 +658,12 @@ class NotificationService {
 
     await _notifications.show(999, title, body, details);
 
-    debugPrint('✅ Notificação de teste enviada com sucesso!');
+    AppLogger.d('✅ Notificação de teste enviada com sucesso!');
   }
 
   /// Chamado quando o usuário registra um humor - usado para aprendizado
   Future<void> onMoodRegistered({bool respondedToNotification = false}) async {
-    debugPrint('🎭 Humor registrado - atualizando sistema inteligente');
+    AppLogger.d('🎭 Humor registrado - atualizando sistema inteligente');
 
     final now = TimeOfDay.now();
     await learnFromUserBehavior(
@@ -677,13 +680,13 @@ class NotificationService {
 
   /// Reseta o sistema de aprendizado (para testes ou novo usuário)
   Future<void> resetLearningSystem() async {
-    debugPrint('🔄 Resetando sistema de aprendizado');
+    AppLogger.d('🔄 Resetando sistema de aprendizado');
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_userEngagementKey);
     await prefs.remove(_preferredTimeKey);
     await prefs.remove(_lastNotificationKey);
 
-    debugPrint('✅ Sistema resetado - voltando aos padrões');
+    AppLogger.d('✅ Sistema resetado - voltando aos padrões');
   }
 }

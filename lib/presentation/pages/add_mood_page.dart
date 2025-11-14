@@ -10,6 +10,7 @@ import '../widgets/app_snackbar.dart';
 import '../../generated/l10n/app_localizations.dart';
 import '../../core/extensions/app_localizations_extension.dart';
 import '../../core/services/ad_event_service.dart';
+import '../../core/app_logger.dart';
 
 class AddMoodPage extends ConsumerStatefulWidget {
   final MoodEntry? existingEntry;
@@ -455,7 +456,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                 .read(reminderStateProvider.notifier)
                 .onMoodRegistered(respondedToNotification: true);
           } catch (e) {
-            debugPrint('Erro ao notificar reminderProvider: $e');
+            AppLogger.e('Erro ao notificar reminderProvider', e);
           }
         }
 

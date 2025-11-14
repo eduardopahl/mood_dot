@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import '../../core/app_logger.dart';
 import '../providers/mood_providers.dart';
 import '../../domain/entities/mood_entry.dart';
 import '../theme/app_theme.dart';
@@ -1744,21 +1745,21 @@ class StatisticsPage extends ConsumerWidget {
             );
 
             // Debug: imprimir dados para verificação
-            print('=== DEBUG DAILY AVERAGES ===');
-            print('Total de dias: ${dailyAverages.length}');
+            AppLogger.d('=== DEBUG DAILY AVERAGES ===');
+            AppLogger.d('Total de dias: ${dailyAverages.length}');
             for (final day in dailyAverages) {
-              print('${day.key}: ${day.value.toStringAsFixed(2)}');
+              AppLogger.d('${day.key}: ${day.value.toStringAsFixed(2)}');
             }
-            print(
+            AppLogger.d(
               'Melhor calculado: ${bestDay.key} (${bestDay.value.toStringAsFixed(2)})',
             );
-            print(
+            AppLogger.d(
               'Pior calculado: ${worstDay.key} (${worstDay.value.toStringAsFixed(2)})',
             );
-            print(
+            AppLogger.d(
               'Diferença: ${(bestDay.value - worstDay.value).abs().toStringAsFixed(2)}',
             );
-            print('São iguais? ${bestDay.key == worstDay.key}');
+            AppLogger.d('São iguais? ${bestDay.key == worstDay.key}');
 
             // Vamos verificar manualmente qual é realmente o melhor e pior
             double maxValue = dailyAverages.first.value;
@@ -1777,9 +1778,9 @@ class StatisticsPage extends ConsumerWidget {
               }
             }
 
-            print('Manual - Melhor: $maxDay ($maxValue)');
-            print('Manual - Pior: $minDay ($minValue)');
-            print('========================');
+            AppLogger.d('Manual - Melhor: $maxDay ($maxValue)');
+            AppLogger.d('Manual - Pior: $minDay ($minValue)');
+            AppLogger.d('========================');
 
             // Se apenas um dia ou se melhor e pior são o mesmo dia, tratamento especial
             if (dailyAverages.length == 1 || bestDay.key == worstDay.key) {

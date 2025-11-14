@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/foundation.dart';
+import '../../core/app_logger.dart';
 import '../../domain/entities/mood_entry.dart';
 import '../../domain/repositories/mood_repository.dart';
 import '../../data/repositories/mood_repository_impl.dart';
@@ -423,7 +423,7 @@ class MoodEntryNotifier extends StateNotifier<AsyncValue<void>> {
       state = const AsyncValue.data(null);
 
       // 🧠 Sistema inteligente será notificado através do mecanismo de aprendizado
-      debugPrint('🎭 Mood salvo - dados disponíveis para sistema inteligente');
+      AppLogger.d('🎭 Mood salvo - dados disponíveis para sistema inteligente');
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
     }

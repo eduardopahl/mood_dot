@@ -11,6 +11,7 @@ import '../../generated/l10n/app_localizations.dart';
 import '../../core/extensions/app_localizations_extension.dart';
 import '../theme/app_theme.dart';
 import '../../core/services/ad_event_service.dart';
+import '../../core/app_logger.dart';
 
 class SettingsPage extends ConsumerStatefulWidget {
   const SettingsPage({super.key});
@@ -205,7 +206,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     WidgetRef ref,
     AppLocalizations l10n,
   ) {
-    debugPrint(
+    AppLogger.d(
       '🎨 Construindo switch - enabled: ${reminderState.isEnabled}, loading: ${reminderState.isLoading}, erro: ${reminderState.error}',
     );
 
@@ -224,7 +225,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 reminderState.isLoading
                     ? null
                     : (value) async {
-                      debugPrint(
+                      AppLogger.d(
                         '🔘 Switch tocado! Valor atual: ${reminderState.isEnabled}, novo valor: $value',
                       );
                       try {
@@ -233,9 +234,11 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                         await ref
                             .read(reminderStateProvider.notifier)
                             .toggleReminders();
-                        debugPrint('✅ toggleReminders() executado com sucesso');
+                        AppLogger.d(
+                          '✅ toggleReminders() executado com sucesso',
+                        );
                       } catch (e) {
-                        debugPrint('💥 Erro ao executar toggleReminders(): $e');
+                        AppLogger.e('Erro ao executar toggleReminders', e);
                       }
                     },
           ),
@@ -284,7 +287,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       subtitle: Text(l10n.sendTestNotification),
       trailing: const Icon(Icons.send),
       onTap: () async {
-        debugPrint('Test button pressed');
+        AppLogger.d('Test button pressed');
         final status = await Permission.notification.status;
         if (!status.isGranted) {
           final result = await Permission.notification.request();
@@ -331,7 +334,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         );
 
         if (confirmed == true) {
-          debugPrint('Resetando sistema de aprendizado...');
+          AppLogger.d('Resetando sistema de aprendizado...');
 
           // Acessa o serviço diretamente
           final notificationService = ref.read(notificationServiceProvider);

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mooddot/core/app_logger.dart';
 import 'admob_service.dart';
 
 /// Serviço que gerencia quando mostrar anúncios intersticiais
@@ -23,7 +24,7 @@ class AdEventService {
   /// Registra entrada de humor - mostra ad a cada X entradas
   Future<void> onMoodEntry(BuildContext context) async {
     _moodEntriesCount++;
-    debugPrint('📊 Humor registrado #$_moodEntriesCount');
+    AppLogger.d('📊 Humor registrado #$_moodEntriesCount');
 
     if (_moodEntriesCount >= _moodsUntilAd) {
       _moodEntriesCount = 0; // Reset contador
@@ -37,7 +38,7 @@ class AdEventService {
   /// Registra visualização de estatísticas
   Future<void> onStatisticsView(BuildContext context) async {
     _statisticsViewCount++;
-    debugPrint('📈 Estatísticas visualizada #$_statisticsViewCount');
+    AppLogger.d('📈 Estatísticas visualizada #$_statisticsViewCount');
 
     if (_statisticsViewCount >= _statisticsUntilAd) {
       _statisticsViewCount = 0;
@@ -51,7 +52,7 @@ class AdEventService {
   /// Registra abertura de configurações
   Future<void> onSettingsOpen(BuildContext context) async {
     _settingsOpenCount++;
-    debugPrint('⚙️ Configurações aberta #$_settingsOpenCount');
+    AppLogger.d('⚙️ Configurações aberta #$_settingsOpenCount');
 
     if (_settingsOpenCount >= _settingsUntilAd) {
       _settingsOpenCount = 0;
@@ -100,11 +101,11 @@ class AdEventService {
     final admobService = AdMobService.instance;
 
     if (!admobService.canShowInterstitial()) {
-      debugPrint('⏰ Intersticial em cooldown, pulando...');
+      AppLogger.d('⏰ Intersticial em cooldown, pulando...');
       return;
     }
 
-    debugPrint('🎬 Exibindo intersticial: $message');
+    AppLogger.d('🎬 Exibindo intersticial: $message');
 
     // Mostra o intersticial sem snackbar irritante
     await admobService.showInterstitialAd();
@@ -115,7 +116,7 @@ class AdEventService {
     _moodEntriesCount = 0;
     _statisticsViewCount = 0;
     _settingsOpenCount = 0;
-    debugPrint('🔄 Contadores de ads resetados');
+    AppLogger.d('🔄 Contadores de ads resetados');
   }
 
   /// Obtém estatísticas dos contadores (para debug)

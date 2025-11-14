@@ -1,5 +1,6 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:mooddot/core/app_logger.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:async';
 
@@ -28,7 +29,7 @@ class PremiumService {
     _subscription = _inAppPurchase.purchaseStream.listen(
       _onPurchaseUpdate,
       onDone: () => _subscription?.cancel(),
-      onError: (error) => debugPrint('Erro no stream de compras: $error'),
+      onError: (error) => AppLogger.e('Erro no stream de compras: $error'),
     );
 
     // Verificar compras pendentes na inicialização
@@ -47,7 +48,7 @@ class PremiumService {
   /// Define o status premium do usuário
   Future<void> setPremium(bool isPremium) async {
     await _prefs?.setBool(_premiumKey, isPremium);
-    debugPrint('🏆 Status Premium atualizado: $isPremium');
+    AppLogger.d('🏆 Status Premium atualizado: $isPremium');
 
     // Notifica mudança de status se callback estiver definido
     _onStatusChanged?.call(isPremium);
@@ -75,7 +76,7 @@ class PremiumService {
         // Verificar e finalizar a compra
         if (await _verifyPurchase(purchase)) {
           await setPremium(true);
-          debugPrint('✅ Premium ativado via compra/restauração');
+          AppLogger.d('✅ Premium ativado via compra/restauração');
         }
 
         // Completar a transação
@@ -83,7 +84,7 @@ class PremiumService {
           await _inAppPurchase.completePurchase(purchase);
         }
       } else if (purchase.status == PurchaseStatus.error) {
-        debugPrint('❌ Erro na compra: ${purchase.error}');
+        AppLogger.e('❌ Erro na compra: ${purchase.error}');
       }
     }
   }
@@ -113,7 +114,7 @@ class PremiumService {
       // Verificar se o serviço está disponível
       final bool available = await _inAppPurchase.isAvailable();
       if (!available) {
-        debugPrint('❌ In-App Purchase não disponível');
+        AppLogger.e('❌ In-App Purchase não disponível');
         return false;
       }
 
@@ -123,12 +124,12 @@ class PremiumService {
           .queryProductDetails(productIds);
 
       if (response.notFoundIDs.isNotEmpty) {
-        debugPrint('❌ Produto não encontrado: ${response.notFoundIDs}');
+        AppLogger.e('❌ Produto não encontrado: ${response.notFoundIDs}');
         return false;
       }
 
       if (response.productDetails.isEmpty) {
-        debugPrint('❌ Nenhum produto disponível');
+        AppLogger.e('❌ Nenhum produto disponível');
         return false;
       }
 
@@ -138,14 +139,14 @@ class PremiumService {
         productDetails: productDetails,
       );
 
-      debugPrint('🛒 Iniciando compra do produto: ${productDetails.title}');
+      AppLogger.d('🛒 Iniciando compra do produto: ${productDetails.title}');
       final success = await _inAppPurchase.buyNonConsumable(
         purchaseParam: purchaseParam,
       );
 
       return success;
     } catch (e) {
-      debugPrint('❌ Erro na compra premium: $e');
+      AppLogger.e('❌ Erro na compra premium: $e');
       return false;
     }
   }
@@ -153,11 +154,11 @@ class PremiumService {
   /// Restaura compras anteriores
   Future<bool> restorePurchases() async {
     try {
-      debugPrint('🔄 Iniciando restauração de compras...');
+      AppLogger.d('🔄 Iniciando restauração de compras...');
 
       final bool available = await _inAppPurchase.isAvailable();
       if (!available) {
-        debugPrint('❌ In-App Purchase não disponível para restauração');
+        AppLogger.e('❌ In-App Purchase não disponível para restauração');
         return false;
       }
 
@@ -167,14 +168,14 @@ class PremiumService {
       await Future.delayed(const Duration(seconds: 2));
 
       if (isPremium) {
-        debugPrint('✅ Compras restauradas com sucesso!');
+        AppLogger.d('✅ Compras restauradas com sucesso!');
         return true;
       } else {
-        debugPrint('ℹ️ Nenhuma compra encontrada para restaurar');
+        AppLogger.d('ℹ️ Nenhuma compra encontrada para restaurar');
         return false;
       }
     } catch (e) {
-      debugPrint('❌ Erro ao restaurar compras: $e');
+      AppLogger.e('❌ Erro ao restaurar compras: $e');
       return false;
     }
   }
@@ -190,7 +191,7 @@ class PremiumService {
         return response.productDetails.first;
       }
     } catch (e) {
-      debugPrint('❌ Erro ao buscar detalhes do produto: $e');
+      AppLogger.e('❌ Erro ao buscar detalhes do produto: $e');
     }
     return null;
   }
@@ -199,7 +200,7 @@ class PremiumService {
   Future<void> removePremium() async {
     if (kDebugMode) {
       await setPremium(false);
-      debugPrint('🧪 Premium removido (modo debug)');
+      AppLogger.d('🧪 Premium removido (modo debug)');
     }
   }
 }

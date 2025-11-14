@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../core/app_logger.dart';
 
 const String _localeKey = 'app_locale';
 
@@ -34,7 +35,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
       }
       // Se não houver escolha do usuário, mantém o detectado do sistema
     } catch (e) {
-      debugPrint('Erro ao carregar locale: $e');
+      AppLogger.e('Erro ao carregar locale', e);
       // Mantém o padrão detectado
     }
   }
@@ -48,7 +49,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
         '${locale.languageCode}_${locale.countryCode ?? ''}',
       );
     } catch (e) {
-      debugPrint('Erro ao salvar locale: $e');
+      AppLogger.e('Erro ao salvar locale', e);
     }
   }
 

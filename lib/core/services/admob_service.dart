@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart';
+import 'package:mooddot/core/app_logger.dart';
 import '../services/premium_service.dart';
 import '../../config/admob_config.dart';
 
@@ -37,7 +38,7 @@ class AdMobService {
     final shouldShow = Platform.isAndroid && !isPremium;
 
     if (!shouldShow && isPremium) {
-      debugPrint('🏆 Anúncios desativados - Usuário Premium');
+      AppLogger.d('🏆 Anúncios desativados - Usuário Premium');
     }
 
     return shouldShow;
@@ -58,8 +59,8 @@ class AdMobService {
       listener: BannerAdListener(
         onAdLoaded: onAdLoaded,
         onAdFailedToLoad: onAdFailedToLoad,
-        onAdOpened: (ad) => debugPrint('Banner ad opened'),
-        onAdClosed: (ad) => debugPrint('Banner ad closed'),
+        onAdOpened: (ad) => AppLogger.d('Banner ad opened'),
+        onAdClosed: (ad) => AppLogger.d('Banner ad closed'),
       ),
     );
   }
@@ -76,10 +77,10 @@ class AdMobService {
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
           interstitialAd = ad;
-          debugPrint('✅ Intersticial carregado com sucesso');
+          AppLogger.d('✅ Intersticial carregado com sucesso');
         },
         onAdFailedToLoad: (error) {
-          debugPrint('❌ Erro ao carregar intersticial: $error');
+          AppLogger.e('❌ Erro ao carregar intersticial: $error');
         },
       ),
     );
@@ -97,7 +98,7 @@ class AdMobService {
         _lastInterstitialShown!,
       );
       if (timeSinceLastAd < _interstitialCooldown) {
-        debugPrint(
+        AppLogger.d(
           '⏰ Intersticial em cooldown. Faltam ${_interstitialCooldown - timeSinceLastAd}',
         );
         return;
@@ -110,15 +111,15 @@ class AdMobService {
         // Configura callbacks
         interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
           onAdShowedFullScreenContent: (ad) {
-            debugPrint('🎬 Intersticial exibido');
+            AppLogger.d('🎬 Intersticial exibido');
             _lastInterstitialShown = DateTime.now();
           },
           onAdDismissedFullScreenContent: (ad) {
-            debugPrint('❌ Intersticial fechado');
+            AppLogger.d('❌ Intersticial fechado');
             ad.dispose();
           },
           onAdFailedToShowFullScreenContent: (ad, error) {
-            debugPrint('💥 Erro ao exibir intersticial: $error');
+            AppLogger.e('💥 Erro ao exibir intersticial: $error');
             ad.dispose();
           },
         );
@@ -127,7 +128,7 @@ class AdMobService {
         await interstitialAd.show();
       }
     } catch (e) {
-      debugPrint('💥 Erro geral no intersticial: $e');
+      AppLogger.e('💥 Erro geral no intersticial: $e');
     }
   }
 

@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter/material.dart';
+import '../../core/app_logger.dart';
 import '../../core/services/notification_service.dart';
 import 'mood_providers.dart';
 
@@ -49,26 +49,26 @@ class ReminderNotifier extends StateNotifier<ReminderState> {
 
   /// Carrega o estado atual das configurações
   Future<void> _loadState() async {
-    debugPrint('🚀 ReminderNotifier: Iniciando carregamento do estado...');
+    AppLogger.d('🚀 ReminderNotifier: Iniciando carregamento do estado...');
     state = state.copyWith(isLoading: true);
 
     try {
-      debugPrint('🔧 Inicializando serviço de notificações...');
+      AppLogger.d('🔧 Inicializando serviço de notificações...');
       await _notificationService.initialize();
-      debugPrint('✅ Serviço inicializado com sucesso');
+      AppLogger.d('✅ Serviço inicializado com sucesso');
 
-      debugPrint('📊 Carregando status das notificações...');
+      AppLogger.d('📊 Carregando status das notificações...');
       final status = await _notificationService.getReminderStatus();
-      debugPrint('📊 Status carregado: $status');
+      AppLogger.d('📊 Status carregado: $status');
 
       state = ReminderState(
         isEnabled: status['enabled'] ?? false,
         isLoading: false,
       );
 
-      debugPrint('🎉 Estado carregado: enabled=${state.isEnabled}');
+      AppLogger.d('🎉 Estado carregado: enabled=${state.isEnabled}');
     } catch (e) {
-      debugPrint('💥 Erro ao carregar estado: $e');
+      AppLogger.e('Erro ao carregar estado', e);
       state = state.copyWith(
         isLoading: false,
         error: 'Erro ao carregar configurações: $e',
@@ -78,25 +78,25 @@ class ReminderNotifier extends StateNotifier<ReminderState> {
 
   /// Alterna o estado dos lembretes
   Future<void> toggleReminders() async {
-    debugPrint(
+    AppLogger.d(
       '🔄 toggleReminders() chamado - estado atual: enabled=${state.isEnabled}',
     );
 
     state = state.copyWith(isLoading: true, error: null);
-    debugPrint('💭 Estado alterado para loading=true');
+    AppLogger.d('💭 Estado alterado para loading=true');
 
     try {
       final newState = !state.isEnabled;
-      debugPrint('🎯 Novo estado será: enabled=$newState');
+      AppLogger.d('🎯 Novo estado será: enabled=$newState');
 
       if (newState) {
         // Solicita permissão antes de ativar
-        debugPrint('🔐 Solicitando permissão...');
+        AppLogger.d('🔐 Solicitando permissão...');
         final hasPermission = await _notificationService.requestPermission();
-        debugPrint('🔐 Permissão concedida: $hasPermission');
+        AppLogger.d('🔐 Permissão concedida: $hasPermission');
 
         if (!hasPermission) {
-          debugPrint('❌ Permissão negada');
+          AppLogger.w('❌ Permissão negada');
           state = state.copyWith(
             isLoading: false,
             error: 'Permissão de notificação necessária',
@@ -105,16 +105,16 @@ class ReminderNotifier extends StateNotifier<ReminderState> {
         }
       }
 
-      debugPrint('⚙️ Configurando notificações para: $newState');
+      AppLogger.d('⚙️ Configurando notificações para: $newState');
       await _notificationService.setRemindersEnabled(newState);
-      debugPrint('✅ Configuração concluída');
+      AppLogger.d('✅ Configuração concluída');
 
       state = state.copyWith(isEnabled: newState, isLoading: false);
-      debugPrint(
+      AppLogger.d(
         '🎉 Estado final: enabled=${state.isEnabled}, loading=${state.isLoading}',
       );
     } catch (e) {
-      debugPrint('💥 Erro em toggleReminders: $e');
+      AppLogger.e('Erro em toggleReminders', e);
       state = state.copyWith(
         isLoading: false,
         error:
@@ -135,14 +135,14 @@ class ReminderNotifier extends StateNotifier<ReminderState> {
   /// Chamado quando um humor é registrado - para sistema de aprendizado
   Future<void> onMoodRegistered({bool respondedToNotification = false}) async {
     try {
-      debugPrint(
+      AppLogger.d(
         '🎭 Notificando sistema sobre registro de humor (responded=$respondedToNotification)',
       );
       await _notificationService.onMoodRegistered(
         respondedToNotification: respondedToNotification,
       );
     } catch (e) {
-      debugPrint('Erro ao processar registro de humor: $e');
+      AppLogger.e('Erro ao processar registro de humor', e);
     }
   }
 
