@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../app_logger.dart';
 import 'dart:io';
+import 'package:flutter/services.dart';
+import 'package:timezone/data/latest_all.dart' as tzdata;
+import 'package:timezone/timezone.dart' as tz;
 import '../../domain/repositories/mood_repository.dart';
 import '../navigation.dart';
 import '../../presentation/pages/add_mood_page.dart';
@@ -19,8 +22,6 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
   final MoodRepository _moodRepository;
-
-  // Chaves para SharedPreferences
   static const String _reminderEnabledKey = 'reminder_enabled';
   static const String _lastNotificationKey = 'last_notification_date';
   static const String _userEngagementKey = 'user_engagement_score';
@@ -72,6 +73,23 @@ class NotificationService {
     );
 
     _initialized = result ?? false;
+    // Inicializa timezone para uso com zonedSchedule (fallback para UTC caso não identifique)
+    try {
+      tzdata.initializeTimeZones();
+      try {
+        final name = DateTime.now().timeZoneName;
+        tz.setLocalLocation(tz.getLocation(name));
+        AppLogger.d('🌐 Timezone local definida: $name');
+      } catch (e) {
+        // fallback para UTC
+        tz.setLocalLocation(tz.getLocation('UTC'));
+        AppLogger.w(
+          '⚠️ Não foi possível definir timezone local - usando UTC como fallback',
+        );
+      }
+    } catch (e) {
+      AppLogger.w('⚠️ Falha ao inicializar dados de timezone: $e');
+    }
     AppLogger.d('✅ Serviço de notificações inicializado: $_initialized');
   }
 
@@ -406,7 +424,6 @@ class NotificationService {
   /// Estratégia para usuários pouco engajados
   Future<void> _scheduleGentleReminder(TimeOfDay time) async {
     AppLogger.d('😊 Aplicando estratégia gentil - usuário pouco engajado');
-
     await cancelAllReminders();
 
     const androidDetails = AndroidNotificationDetails(
@@ -445,21 +462,22 @@ class NotificationService {
     final message = messages[DateTime.now().day % messages.length];
     final title = isPortuguese ? 'MoodDot 💙' : 'MoodDot 💙';
 
-    await _notifications.periodicallyShow(
-      1,
-      title,
-      message,
-      RepeatInterval.daily,
-      details,
+    // Agenda notificações pontuais para os próximos 7 dias, respeitando janela 08:00-21:00
+    await _scheduleNextNDays(
+      idBase: 1000,
+      days: 7,
+      title: title,
+      message: message,
+      details: details,
+      preferredTime: time,
     );
 
-    AppLogger.d('😊 Lembrete gentil agendado para repetir diariamente');
+    AppLogger.d('😊 Lembrete gentil agendado para os próximos 7 dias');
   }
 
   /// Estratégia para usuários muito engajados
   Future<void> _scheduleActiveReminder(TimeOfDay time) async {
     AppLogger.d('🚀 Aplicando estratégia ativa - usuário muito engajado');
-
     await cancelAllReminders();
 
     const androidDetails = AndroidNotificationDetails(
@@ -503,21 +521,21 @@ class NotificationService {
             ? 'MoodDot - Check-in diário! 📊'
             : 'MoodDot - Daily check-in! 📊';
 
-    await _notifications.periodicallyShow(
-      2,
-      title,
-      message,
-      RepeatInterval.daily,
-      details,
+    await _scheduleNextNDays(
+      idBase: 2000,
+      days: 7,
+      title: title,
+      message: message,
+      details: details,
+      preferredTime: time,
     );
 
-    AppLogger.d('🚀 Lembrete dinâmico agendado para repetir diariamente');
+    AppLogger.d('🚀 Lembrete dinâmico agendado para os próximos 7 dias');
   }
 
   /// Estratégia padrão para usuários moderadamente engajados
   Future<void> _scheduleStandardReminder(TimeOfDay time) async {
     AppLogger.d('📱 Aplicando estratégia padrão');
-
     await cancelAllReminders();
 
     const androidDetails = AndroidNotificationDetails(
@@ -545,15 +563,124 @@ class NotificationService {
             ? 'Como você está se sentindo? 😊'
             : 'How are you feeling? 😊';
 
-    await _notifications.periodicallyShow(
-      0,
-      title,
-      message,
-      RepeatInterval.daily,
-      details,
+    await _scheduleNextNDays(
+      idBase: 3000,
+      days: 7,
+      title: title,
+      message: message,
+      details: details,
+      preferredTime: time,
     );
 
-    AppLogger.d('📱 Lembrete padrão agendado para repetir diariamente');
+    AppLogger.d('📱 Lembrete padrão agendado para os próximos 7 dias');
+  }
+
+  /// Agenda notificações pontuais para os próximos N dias, respeitando janela 08:00-21:00
+  Future<void> _scheduleNextNDays({
+    required int idBase,
+    required int days,
+    required String title,
+    required String message,
+    required NotificationDetails details,
+    required TimeOfDay preferredTime,
+  }) async {
+    final now = DateTime.now();
+
+    // Garante horário dentro da janela 08:00 - 21:00
+    final int clampedHour = preferredTime.hour.clamp(8, 21);
+    final int minute = preferredTime.minute;
+
+    for (int i = 0; i < days; i++) {
+      DateTime scheduled = DateTime(
+        now.year,
+        now.month,
+        now.day,
+        clampedHour,
+        minute,
+      ).add(Duration(days: i));
+
+      // Se a data calculada for no passado (para o dia 0), agenda para o próximo dia
+      if (scheduled.isBefore(now.add(const Duration(minutes: 1)))) {
+        scheduled = scheduled.add(const Duration(days: 1));
+      }
+
+      try {
+        final tzScheduled = tz.TZDateTime(
+          tz.local,
+          scheduled.year,
+          scheduled.month,
+          scheduled.day,
+          scheduled.hour,
+          scheduled.minute,
+        );
+
+        await _notifications.zonedSchedule(
+          idBase + i,
+          title,
+          message,
+          tzScheduled,
+          details,
+          androidAllowWhileIdle: false,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+        );
+        AppLogger.d(
+          '📆 Notificação agendada: ${scheduled.toIso8601String()} (id=${idBase + i})',
+        );
+        try {
+          final pending = await _notifications.pendingNotificationRequests();
+          AppLogger.d('🔎 Pending notifications count: ${pending.length}');
+        } catch (e) {
+          AppLogger.w(
+            '⚠️ Não foi possível obter pendingNotificationRequests(): $e',
+          );
+        }
+      } on PlatformException catch (pe) {
+        AppLogger.e('ERROR: ❌ Falha ao agendar notificação pontual - $pe');
+
+        if (pe.code == 'exact_alarms_not_permitted') {
+          AppLogger.w(
+            '⚠️ Exact alarms não permitidos — aplicando fallback não-exato',
+          );
+
+          try {
+            await cancelAllReminders();
+
+            await _notifications.periodicallyShow(
+              idBase,
+              title,
+              message,
+              RepeatInterval.daily,
+              details,
+            );
+
+            AppLogger.d(
+              '🔁 Fallback agendado: periodic daily via periodicallyShow (id=$idBase)',
+            );
+
+            try {
+              final pending =
+                  await _notifications.pendingNotificationRequests();
+              AppLogger.d(
+                '🔎 Pending notifications after fallback: ${pending.length}',
+              );
+            } catch (e3) {
+              AppLogger.w(
+                '⚠️ Não foi possível obter pendingNotificationRequests() após fallback: $e3',
+              );
+            }
+          } catch (e2) {
+            AppLogger.e('❌ Falha ao aplicar fallback diariamente', e2);
+          }
+
+          return;
+        }
+
+        AppLogger.e('❌ Falha ao agendar notificação pontual', pe);
+      } catch (e) {
+        AppLogger.e('❌ Falha ao agendar notificação pontual', e);
+      }
+    }
   }
 
   /// Gera mensagem baseada no horário
