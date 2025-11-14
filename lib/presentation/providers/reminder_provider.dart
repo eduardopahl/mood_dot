@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import '../../core/app_logger.dart';
 import '../../core/services/notification_service.dart';
 import 'mood_providers.dart';
@@ -106,15 +107,46 @@ class ReminderNotifier extends StateNotifier<ReminderState> {
       }
 
       AppLogger.d('⚙️ Configurando notificações para: $newState');
-      await _notificationService.setRemindersEnabled(newState);
-      AppLogger.d('✅ Configuração concluída');
+      try {
+        await _notificationService.setRemindersEnabled(newState);
+        AppLogger.d('✅ Configuração concluída');
 
-      state = state.copyWith(isEnabled: newState, isLoading: false);
-      AppLogger.d(
-        '🎉 Estado final: enabled=${state.isEnabled}, loading=${state.isLoading}',
-      );
-    } catch (e) {
+        state = state.copyWith(isEnabled: newState, isLoading: false);
+        AppLogger.d(
+          '🎉 Estado final: enabled=${state.isEnabled}, loading=${state.isLoading}',
+        );
+      } on PlatformException catch (pe, st) {
+        // Tratamento específico para PlatformException (ex.: problemas nativos)
+        AppLogger.e(
+          'PlatformException ao alterar lembretes: ${pe.message}',
+          pe,
+        );
+        AppLogger.e('StackTrace:', st);
+
+        // Se estivermos tentando DESATIVAR, podemos forçar cancelamento local
+        if (!newState) {
+          AppLogger.w('Aplicando fallback: cancelando notificações localmente');
+          try {
+            await _notificationService.cancelAllReminders();
+          } catch (e2, st2) {
+            AppLogger.e('Falha ao executar cancelAllReminders fallback', e2);
+            AppLogger.e('StackTrace:', st2);
+          }
+
+          // Atualiza estado local para desligado
+          state = state.copyWith(isEnabled: false, isLoading: false);
+          return;
+        }
+
+        // Para outros casos, repassa erro para UI com mensagem amigável
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Erro nativo ao alterar lembretes: ${pe.message ?? pe.code}',
+        );
+      }
+    } catch (e, st) {
       AppLogger.e('Erro em toggleReminders', e);
+      AppLogger.e('StackTrace:', st);
       state = state.copyWith(
         isLoading: false,
         error:
