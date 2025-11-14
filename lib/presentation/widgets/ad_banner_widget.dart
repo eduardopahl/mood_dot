@@ -8,10 +8,10 @@ class AdBannerWidget extends StatefulWidget {
   final EdgeInsets margin;
 
   const AdBannerWidget({
-    Key? key,
+    super.key,
     this.size = AdSize.banner,
     this.margin = const EdgeInsets.symmetric(vertical: 4),
-  }) : super(key: key);
+  });
 
   @override
   State<AdBannerWidget> createState() => _AdBannerWidgetState();
@@ -62,7 +62,7 @@ class _AdBannerWidgetState extends State<AdBannerWidget> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: Theme.of(context).dividerColor.withOpacity(0.2),
+          color: Theme.of(context).dividerColor.withAlpha((0.2 * 255).round()),
         ),
         color: Theme.of(context).cardColor,
       ),

@@ -39,7 +39,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         padding: const EdgeInsets.all(16),
         children: [
           //TODO Ativar seção premium depois
-          // Seção Premium
           // _buildPremiumSection(context, l10n),
           const SizedBox(height: 24),
 
@@ -292,12 +291,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         if (!status.isGranted) {
           final result = await Permission.notification.request();
           if (!result.isGranted) {
-            AppSnackBar.showError(context, l10n.testNotificationSent);
+            if (!mounted) return;
+            AppSnackBar.showError(this.context, l10n.testNotificationSent);
             return;
           }
         }
         await ref.read(reminderStateProvider.notifier).testNotification();
-        AppSnackBar.showNotificationSuccess(context, l10n.testNotificationSent);
+        if (!mounted) return;
+        AppSnackBar.showNotificationSuccess(
+          this.context,
+          l10n.testNotificationSent,
+        );
       },
     );
   }
@@ -339,13 +343,14 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           // Acessa o serviço diretamente
           final notificationService = ref.read(notificationServiceProvider);
           await notificationService.resetLearningSystem();
-
-          AppSnackBar.showAISuccess(context, l10n.aiResetSuccess);
+          if (!mounted) return;
+          AppSnackBar.showAISuccess(this.context, l10n.aiResetSuccess);
         }
       },
     );
   }
 
+  //TODO sera ativado em uma versao futura
   Widget _buildPremiumSection(BuildContext context, AppLocalizations l10n) {
     return Consumer(
       builder: (context, ref, child) {
@@ -361,20 +366,20 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
               colors:
                   isPremium
                       ? [
-                        AppTheme.primaryColor.withOpacity(0.1),
-                        AppTheme.primaryColor.withOpacity(0.05),
+                        AppTheme.primaryColor.withAlpha((0.1 * 255).round()),
+                        AppTheme.primaryColor.withAlpha((0.05 * 255).round()),
                       ]
                       : [
-                        Colors.amber.withOpacity(0.1),
-                        Colors.orange.withOpacity(0.05),
+                        Colors.amber.withAlpha((0.1 * 255).round()),
+                        Colors.orange.withAlpha((0.05 * 255).round()),
                       ],
             ),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color:
                   isPremium
-                      ? AppTheme.primaryColor.withOpacity(0.3)
-                      : Colors.amber.withOpacity(0.3),
+                      ? AppTheme.primaryColor.withAlpha((0.3 * 255).round())
+                      : Colors.amber.withAlpha((0.3 * 255).round()),
             ),
           ),
           child: Column(
@@ -412,9 +417,8 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                           style: Theme.of(
                             context,
                           ).textTheme.bodyMedium?.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.7),
+                            color: Theme.of(context).colorScheme.onSurface
+                                .withAlpha((0.7 * 255).round()),
                           ),
                         ),
                       ],
@@ -484,7 +488,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
                 Container(
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    color: AppTheme.primaryColor.withAlpha((0.1 * 255).round()),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -523,7 +527,9 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
         Text(
           text,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.8),
+            color: Theme.of(
+              context,
+            ).colorScheme.onSurface.withAlpha((0.8 * 255).round()),
           ),
         ),
       ],

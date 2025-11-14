@@ -46,7 +46,7 @@ class MoodEntryCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withAlpha((0.08 * 255).round()),
             blurRadius: 16,
             offset: const Offset(0, 3),
           ),
@@ -76,7 +76,7 @@ class MoodEntryCard extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: entry
                                 .getColorFromContext(context)
-                                .withOpacity(0.15),
+                                .withAlpha((0.15 * 255).round()),
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -134,9 +134,8 @@ class MoodEntryCard extends ConsumerWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.surface.withOpacity(0.5),
+                            color: Theme.of(context).colorScheme.surface
+                                .withAlpha((0.5 * 255).round()),
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
@@ -144,9 +143,8 @@ class MoodEntryCard extends ConsumerWidget {
                             style: Theme.of(
                               context,
                             ).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withOpacity(0.7),
+                              color: Theme.of(context).colorScheme.onSurface
+                                  .withAlpha((0.7 * 255).round()),
                               fontStyle: FontStyle.italic,
                             ),
                             maxLines: 2,
@@ -183,9 +181,7 @@ class MoodEntryCard extends ConsumerWidget {
                                     size: 20,
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    context.l10n.deleteAction,
-                                  ),
+                                  Text(context.l10n.deleteAction),
                                 ],
                               ),
                             ),

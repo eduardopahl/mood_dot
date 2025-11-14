@@ -66,7 +66,9 @@ class CalendarPage extends ConsumerWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Theme.of(context).scaffoldBackgroundColor,
-                    Theme.of(context).scaffoldBackgroundColor.withOpacity(0.8),
+                    Theme.of(
+                      context,
+                    ).scaffoldBackgroundColor.withAlpha((0.8 * 255).round()),
                   ],
                 ),
               ),
@@ -89,7 +91,7 @@ class CalendarPage extends ConsumerWidget {
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         color: Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.6),
+                        ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
                       ),
                     ),
                   );
@@ -121,12 +123,16 @@ class CalendarPage extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
                     BoxShadow(
-                      color: Theme.of(context).shadowColor.withOpacity(0.08),
+                      color: Theme.of(
+                        context,
+                      ).shadowColor.withAlpha((0.08 * 255).round()),
                       blurRadius: 30,
                       offset: const Offset(0, 10),
                     ),
                     BoxShadow(
-                      color: Theme.of(context).shadowColor.withOpacity(0.05),
+                      color: Theme.of(
+                        context,
+                      ).shadowColor.withAlpha((0.05 * 255).round()),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
                     ),
@@ -186,7 +192,9 @@ class CalendarPage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).shadowColor.withOpacity(0.1),
+                  color: Theme.of(
+                    context,
+                  ).shadowColor.withAlpha((0.1 * 255).round()),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -226,8 +234,12 @@ class CalendarPage extends ConsumerWidget {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                      Theme.of(context).colorScheme.secondary.withOpacity(0.1),
+                      Theme.of(
+                        context,
+                      ).colorScheme.primary.withAlpha((0.1 * 255).round()),
+                      Theme.of(
+                        context,
+                      ).colorScheme.secondary.withAlpha((0.1 * 255).round()),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(16),
@@ -269,7 +281,9 @@ class CalendarPage extends ConsumerWidget {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(context).shadowColor.withOpacity(0.1),
+                  color: Theme.of(
+                    context,
+                  ).shadowColor.withAlpha((0.1 * 255).round()),
                   blurRadius: 8,
                   offset: const Offset(0, 2),
                 ),
@@ -422,19 +436,27 @@ class CalendarPage extends ConsumerWidget {
         boxShadow: [
           if (hasData) ...[
             BoxShadow(
-              color: _getMoodColor(context, average!).withOpacity(0.25),
+              color: _getMoodColor(
+                context,
+                average!,
+              ).withAlpha((0.25 * 255).round()),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
             BoxShadow(
-              color: _getMoodColor(context, average).withOpacity(0.1),
+              color: _getMoodColor(
+                context,
+                average,
+              ).withAlpha((0.1 * 255).round()),
               blurRadius: 15,
               offset: const Offset(0, 6),
             ),
           ],
           if (isToday && !hasData) ...[
             BoxShadow(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(
+                context,
+              ).colorScheme.primary.withAlpha((0.3 * 255).round()),
               blurRadius: 8,
               offset: const Offset(0, 3),
             ),
@@ -447,7 +469,10 @@ class CalendarPage extends ConsumerWidget {
                   end: Alignment.bottomRight,
                   colors: [
                     _getMoodColor(context, average!),
-                    _getMoodColor(context, average).withOpacity(0.8),
+                    _getMoodColor(
+                      context,
+                      average,
+                    ).withAlpha((0.8 * 255).round()),
                   ],
                 )
                 : null,
@@ -510,7 +535,7 @@ class CalendarPage extends ConsumerWidget {
                     size: 10,
                     color: Theme.of(
                       context,
-                    ).colorScheme.onSurface.withOpacity(0.4),
+                    ).colorScheme.onSurface.withAlpha((0.4 * 255).round()),
                   ),
                 ),
               ),
@@ -543,8 +568,16 @@ class CalendarPage extends ConsumerWidget {
     bool isToday,
     bool isFuture,
   ) {
-    if (isFuture) return Theme.of(context).colorScheme.surface.withOpacity(0.5);
-    if (!hasData) return Theme.of(context).colorScheme.surface.withOpacity(0.8);
+    if (isFuture) {
+      return Theme.of(
+        context,
+      ).colorScheme.surface.withAlpha((0.5 * 255).round());
+    }
+    if (!hasData) {
+      return Theme.of(
+        context,
+      ).colorScheme.surface.withAlpha((0.8 * 255).round());
+    }
     return _getMoodColor(context, average!);
   }
 
@@ -555,10 +588,16 @@ class CalendarPage extends ConsumerWidget {
     bool isToday,
     bool isFuture,
   ) {
-    if (isFuture)
-      return Theme.of(context).colorScheme.onSurface.withOpacity(0.4);
-    if (!hasData)
-      return Theme.of(context).colorScheme.onSurface.withOpacity(0.7);
+    if (isFuture) {
+      return Theme.of(
+        context,
+      ).colorScheme.onSurface.withAlpha((0.4 * 255).round());
+    }
+    if (!hasData) {
+      return Theme.of(
+        context,
+      ).colorScheme.onSurface.withAlpha((0.7 * 255).round());
+    }
 
     // Para dias com dados, usar cor com bom contraste baseada no fundo
     if (hasData && average != null) {

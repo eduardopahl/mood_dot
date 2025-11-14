@@ -55,8 +55,12 @@ class HomePage extends ConsumerWidget {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                AppTheme.primaryColor.withOpacity(0.15),
-                                AppTheme.secondaryColor.withOpacity(0.15),
+                                AppTheme.primaryColor.withAlpha(
+                                  (0.15 * 255).round(),
+                                ),
+                                AppTheme.secondaryColor.withAlpha(
+                                  (0.15 * 255).round(),
+                                ),
                               ],
                             ),
                     borderRadius: const BorderRadius.only(
@@ -104,12 +108,11 @@ class HomePage extends ConsumerWidget {
                             decoration: BoxDecoration(
                               color: AppTheme.getCardBackgroundColor(
                                 context,
-                              ).withOpacity(0.8),
+                              ).withAlpha((0.8 * 255).round()),
                               borderRadius: BorderRadius.circular(24),
                               border: Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.3),
+                                color: Theme.of(context).colorScheme.primary
+                                    .withAlpha((0.3 * 255).round()),
                                 width: 1,
                               ),
                             ),
@@ -140,9 +143,8 @@ class HomePage extends ConsumerWidget {
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withOpacity(0.8),
+                                    color: Theme.of(context).colorScheme.primary
+                                        .withAlpha((0.8 * 255).round()),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -160,7 +162,7 @@ class HomePage extends ConsumerWidget {
                         decoration: BoxDecoration(
                           color: AppTheme.getCardBackgroundColor(
                             context,
-                          ).withOpacity(0.6),
+                          ).withAlpha((0.6 * 255).round()),
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
@@ -335,7 +337,9 @@ class HomePage extends ConsumerWidget {
                                 width: 80,
                                 height: 80,
                                 decoration: BoxDecoration(
-                                  color: Colors.red.withOpacity(0.1),
+                                  color: Colors.red.withAlpha(
+                                    (0.1 * 255).round(),
+                                  ),
                                   shape: BoxShape.circle,
                                 ),
                                 child: Icon(

@@ -60,7 +60,7 @@ class DailyMoodCard extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.12),
+            color: Colors.black.withAlpha((0.12 * 255).round()),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -86,13 +86,13 @@ class DailyMoodCard extends ConsumerWidget {
                       color: _getAverageMoodColor(
                         context,
                         averageMood,
-                      ).withOpacity(0.1),
+                      ).withAlpha((0.1 * 255).round()),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: _getAverageMoodColor(
                           context,
                           averageMood,
-                        ).withOpacity(0.3),
+                        ).withAlpha((0.3 * 255).round()),
                       ),
                     ),
                     child: Text(
@@ -126,9 +126,8 @@ class DailyMoodCard extends ConsumerWidget {
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.onSurface.withOpacity(0.6),
+                            color: Theme.of(context).colorScheme.onSurface
+                                .withAlpha((0.6 * 255).round()),
                           ),
                         ),
                       ],
@@ -171,9 +170,8 @@ class DailyMoodCard extends ConsumerWidget {
                       child: Text(
                         DateFormat('HH:mm').format(moodEntry.date),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.7),
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withAlpha((0.7 * 255).round()),
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -193,7 +191,7 @@ class DailyMoodCard extends ConsumerWidget {
                               BoxShadow(
                                 color: moodEntry
                                     .getColorFromContext(context)
-                                    .withOpacity(0.3),
+                                    .withAlpha((0.3 * 255).round()),
                                 blurRadius: 4,
                                 spreadRadius: 1,
                               ),
@@ -239,12 +237,12 @@ class DailyMoodCard extends ConsumerWidget {
                           decoration: BoxDecoration(
                             color: moodEntry
                                 .getColorFromContext(context)
-                                .withOpacity(0.05),
+                                .withAlpha((0.05 * 255).round()),
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: moodEntry
                                   .getColorFromContext(context)
-                                  .withOpacity(0.2),
+                                  .withAlpha((0.2 * 255).round()),
                             ),
                           ),
                           child: Column(
@@ -270,9 +268,10 @@ class DailyMoodCard extends ConsumerWidget {
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurface.withOpacity(0.7),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurface
+                                        .withAlpha((0.7 * 255).round()),
                                   ),
                                   maxLines: 2,
                                   overflow: TextOverflow.ellipsis,
@@ -290,9 +289,8 @@ class DailyMoodCard extends ConsumerWidget {
                         icon: Icon(
                           Icons.more_vert,
                           size: 16,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.6),
+                          color: Theme.of(context).colorScheme.onSurface
+                              .withAlpha((0.6 * 255).round()),
                         ),
                         onSelected: (value) {
                           if (value == 'edit' && onEntryTap != null) {

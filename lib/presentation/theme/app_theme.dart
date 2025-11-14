@@ -86,10 +86,13 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: lightCardBackground,
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.15),
+        shadowColor: Colors.black.withAlpha((0.15 * 255).round()),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(color: lightDivider.withOpacity(0.3), width: 0.5),
+          side: BorderSide(
+            color: lightDivider.withAlpha((0.3 * 255).round()),
+            width: 0.5,
+          ),
         ),
       ),
 
@@ -99,7 +102,7 @@ class AppTheme {
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 2,
-          shadowColor: primaryColor.withOpacity(0.3),
+          shadowColor: primaryColor.withAlpha((0.3 * 255).round()),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -216,7 +219,7 @@ class AppTheme {
         activeTrackColor: primaryColor,
         inactiveTrackColor: lightDivider,
         thumbColor: primaryColor,
-        overlayColor: primaryColor.withOpacity(0.1),
+        overlayColor: primaryColor.withAlpha((0.1 * 255).round()),
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
         trackHeight: 6,
       ),
@@ -261,7 +264,7 @@ class AppTheme {
       cardTheme: CardThemeData(
         color: darkCardBackground,
         elevation: 4,
-        shadowColor: Colors.black.withOpacity(0.3),
+        shadowColor: Colors.black.withAlpha((0.3 * 255).round()),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       ),
 
@@ -271,7 +274,7 @@ class AppTheme {
           backgroundColor: primaryColor,
           foregroundColor: Colors.white,
           elevation: 4,
-          shadowColor: primaryColor.withOpacity(0.3),
+          shadowColor: primaryColor.withAlpha((0.3 * 255).round()),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -388,7 +391,7 @@ class AppTheme {
         activeTrackColor: primaryColor,
         inactiveTrackColor: darkDivider,
         thumbColor: primaryColor,
-        overlayColor: primaryColor.withOpacity(0.1),
+        overlayColor: primaryColor.withAlpha((0.1 * 255).round()),
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
         trackHeight: 6,
       ),

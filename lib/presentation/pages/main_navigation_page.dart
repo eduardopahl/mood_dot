@@ -33,7 +33,9 @@ class MainNavigationPage extends ConsumerWidget {
           color: Theme.of(context).bottomNavigationBarTheme.backgroundColor,
           boxShadow: [
             BoxShadow(
-              color: Theme.of(context).shadowColor.withOpacity(0.1),
+              color: Theme.of(
+                context,
+              ).shadowColor.withAlpha((0.1 * 255).round()),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),
@@ -96,7 +98,7 @@ class MainNavigationPage extends ConsumerWidget {
         decoration: BoxDecoration(
           color:
               isSelected
-                  ? theme.primaryColor.withOpacity(0.1)
+                  ? theme.primaryColor.withAlpha((0.1 * 255).round())
                   : Colors.transparent,
           borderRadius: BorderRadius.circular(16),
         ),
@@ -157,14 +159,17 @@ class MainNavigationPage extends ConsumerWidget {
         height: 56,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [theme.primaryColor, theme.primaryColor.withOpacity(0.8)],
+            colors: [
+              theme.primaryColor,
+              theme.primaryColor.withAlpha((0.8 * 255).round()),
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: theme.primaryColor.withOpacity(0.3),
+              color: theme.primaryColor.withAlpha((0.3 * 255).round()),
               blurRadius: 8,
               offset: const Offset(0, 4),
             ),

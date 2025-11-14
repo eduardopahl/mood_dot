@@ -72,7 +72,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                     moodNotifier.isLoading
                         ? Theme.of(
                           context,
-                        ).colorScheme.onSurface.withOpacity(0.4)
+                        ).colorScheme.onSurface.withAlpha((0.4 * 255).round())
                         : Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
               ),
@@ -98,9 +98,8 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                           color: Theme.of(context).colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withOpacity(0.3),
+                            color: Theme.of(context).colorScheme.primary
+                                .withAlpha((0.3 * 255).round()),
                           ),
                         ),
                         child: Column(
@@ -136,7 +135,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onPrimaryContainer
-                                    .withOpacity(0.8),
+                                    .withAlpha((0.8 * 255).round()),
                               ),
                             ),
                           ],
@@ -227,11 +226,15 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
         color: Theme.of(context).colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+          color: Theme.of(
+            context,
+          ).colorScheme.outline.withAlpha((0.2 * 255).round()),
         ),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.05),
+            color: Theme.of(
+              context,
+            ).shadowColor.withAlpha((0.05 * 255).round()),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -261,7 +264,9 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
           Container(
             width: 1,
             height: 60,
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            color: Theme.of(
+              context,
+            ).colorScheme.outline.withAlpha((0.2 * 255).round()),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -294,7 +299,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          color: color.withOpacity(0.05),
+          color: color.withAlpha((0.05 * 255).round()),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -314,7 +319,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
                 Icon(
                   Icons.edit_outlined,
                   size: 16,
-                  color: color.withOpacity(0.7),
+                  color: color.withAlpha((0.7 * 255).round()),
                 ),
               ],
             ),
@@ -330,7 +335,9 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
             Text(
               subtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
               ),
             ),
           ],
@@ -448,6 +455,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
 
         // Pequeno delay para suavizar a transição
         await Future.delayed(const Duration(milliseconds: 600));
+        if (!mounted) return;
         Navigator.of(context).pop(); // Fecha o modal de loading
         // Se a página foi aberta por notificação, notifica o sistema de lembretes
         if (widget.openedFromNotification) {
@@ -459,7 +467,7 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
             AppLogger.e('Erro ao notificar reminderProvider', e);
           }
         }
-
+        if (!mounted) return;
         Navigator.of(context).pop(true); // Volta para tela anterior
       }
     } catch (error) {

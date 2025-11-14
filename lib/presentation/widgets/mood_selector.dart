@@ -51,7 +51,7 @@ class MoodSelector extends ConsumerWidget {
                       decoration: BoxDecoration(
                         color:
                             isSelected
-                                ? tempEntry.color.withOpacity(0.2)
+                                ? tempEntry.color.withAlpha((0.2 * 255).round())
                                 : Colors.transparent,
                         shape: BoxShape.circle,
                         border: Border.all(
@@ -65,7 +65,9 @@ class MoodSelector extends ConsumerWidget {
                             isSelected
                                 ? [
                                   BoxShadow(
-                                    color: tempEntry.color.withOpacity(0.3),
+                                    color: tempEntry.color.withAlpha(
+                                      (0.3 * 255).round(),
+                                    ),
                                     blurRadius: 8,
                                     spreadRadius: 1,
                                   ),
@@ -127,7 +129,7 @@ class MoodSelector extends ConsumerWidget {
             overlayColor: AppTheme.getMoodColorFromContext(
               context,
               selectedMoodLevel,
-            ).withOpacity(0.1),
+            ).withAlpha((0.1 * 255).round()),
             thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
             trackHeight: 6,
           ),
@@ -175,13 +177,13 @@ class MoodSelector extends ConsumerWidget {
                   color: AppTheme.getMoodColorFromContext(
                     context,
                     selectedMoodLevel,
-                  ).withOpacity(0.1),
+                  ).withAlpha((0.1 * 255).round()),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
                     color: AppTheme.getMoodColorFromContext(
                       context,
                       selectedMoodLevel,
-                    ).withOpacity(0.3),
+                    ).withAlpha((0.3 * 255).round()),
                   ),
                 ),
                 child: Text(

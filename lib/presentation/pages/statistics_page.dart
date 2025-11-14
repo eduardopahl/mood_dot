@@ -281,7 +281,7 @@ class StatisticsPage extends ConsumerWidget {
         border: Border.all(color: Theme.of(context).dividerColor, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withAlpha((0.1 * 255).round()),
             blurRadius: 12,
             offset: const Offset(0, 2),
           ),
@@ -295,7 +295,7 @@ class StatisticsPage extends ConsumerWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
+              color: color.withAlpha((0.1 * 255).round()),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(_getIconForCard(title), size: 24, color: color),
@@ -306,7 +306,9 @@ class StatisticsPage extends ConsumerWidget {
           Text(
             title,
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              color: Theme.of(
+                context,
+              ).colorScheme.onSurface.withAlpha((0.7 * 255).round()),
               fontWeight: FontWeight.w500,
               fontSize: 12,
               letterSpacing: 0.5,
@@ -368,13 +370,15 @@ class StatisticsPage extends ConsumerWidget {
           end: Alignment.bottomRight,
           colors: [
             Theme.of(context).cardTheme.color ?? Colors.white,
-            Theme.of(context).colorScheme.primary.withOpacity(0.05),
+            Theme.of(
+              context,
+            ).colorScheme.primary.withAlpha((0.05 * 255).round()),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withAlpha((0.1 * 255).round()),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -393,7 +397,7 @@ class StatisticsPage extends ConsumerWidget {
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.secondaryColor,
-                        AppTheme.secondaryColor.withOpacity(0.8),
+                        AppTheme.secondaryColor.withAlpha((0.8 * 255).round()),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -419,8 +423,7 @@ class StatisticsPage extends ConsumerWidget {
                 final countByLevel =
                     countByLevelRaw is List
                         ? countByLevelRaw
-                            .where((item) => item is Map<String, dynamic>)
-                            .cast<Map<String, dynamic>>()
+                            .whereType<Map<String, dynamic>>()
                             .toList()
                         : <Map<String, dynamic>>[];
 
@@ -450,9 +453,9 @@ class StatisticsPage extends ConsumerWidget {
                           end: Alignment.bottomRight,
                           colors: [
                             Theme.of(context).colorScheme.surface,
-                            Theme.of(
-                              context,
-                            ).colorScheme.primary.withOpacity(0.02),
+                            Theme.of(context).colorScheme.primary.withAlpha(
+                              (0.02 * 255).round(),
+                            ),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(24),
@@ -460,7 +463,7 @@ class StatisticsPage extends ConsumerWidget {
                           BoxShadow(
                             color: Theme.of(
                               context,
-                            ).shadowColor.withOpacity(0.08),
+                            ).shadowColor.withAlpha((0.08 * 255).round()),
                             blurRadius: 24,
                             offset: const Offset(0, 12),
                           ),
@@ -502,8 +505,8 @@ class StatisticsPage extends ConsumerWidget {
                                             color: Colors.black87,
                                             shadows: [
                                               Shadow(
-                                                color: Colors.white.withOpacity(
-                                                  0.8,
+                                                color: Colors.white.withAlpha(
+                                                  (0.8 * 255).round(),
                                                 ),
                                                 blurRadius: 3,
                                               ),
@@ -537,25 +540,22 @@ class StatisticsPage extends ConsumerWidget {
                                       end: Alignment.bottomRight,
                                       colors: [
                                         Theme.of(context).cardColor,
-                                        Theme.of(
-                                          context,
-                                        ).colorScheme.primary.withOpacity(0.05),
+                                        Theme.of(context).colorScheme.primary
+                                            .withAlpha((0.05 * 255).round()),
                                       ],
                                     ),
                                     shape: BoxShape.circle,
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Theme.of(
-                                          context,
-                                        ).shadowColor.withOpacity(0.15),
+                                        color: Theme.of(context).shadowColor
+                                            .withAlpha((0.15 * 255).round()),
                                         blurRadius: 16,
                                         offset: const Offset(0, 4),
                                       ),
                                     ],
                                     border: Border.all(
-                                      color: Theme.of(
-                                        context,
-                                      ).dividerColor.withOpacity(0.1),
+                                      color: Theme.of(context).dividerColor
+                                          .withAlpha((0.1 * 255).round()),
                                       width: 1,
                                     ),
                                   ),
@@ -569,7 +569,7 @@ class StatisticsPage extends ConsumerWidget {
                                         ),
                                         decoration: BoxDecoration(
                                           color: AppTheme.primaryColor
-                                              .withOpacity(0.1),
+                                              .withAlpha((0.1 * 255).round()),
                                           borderRadius: BorderRadius.circular(
                                             12,
                                           ),
@@ -594,7 +594,7 @@ class StatisticsPage extends ConsumerWidget {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onSurface
-                                              .withOpacity(0.6),
+                                              .withAlpha((0.6 * 255).round()),
                                           fontWeight: FontWeight.w500,
                                           letterSpacing: 0.5,
                                         ),
@@ -626,9 +626,9 @@ class StatisticsPage extends ConsumerWidget {
                             end: Alignment.bottomRight,
                             colors: [
                               Theme.of(context).colorScheme.surface,
-                              Theme.of(
-                                context,
-                              ).colorScheme.primary.withOpacity(0.02),
+                              Theme.of(context).colorScheme.primary.withAlpha(
+                                (0.02 * 255).round(),
+                              ),
                             ],
                           ),
                           borderRadius: BorderRadius.circular(24),
@@ -636,7 +636,7 @@ class StatisticsPage extends ConsumerWidget {
                             BoxShadow(
                               color: Theme.of(
                                 context,
-                              ).shadowColor.withOpacity(0.08),
+                              ).shadowColor.withAlpha((0.08 * 255).round()),
                               blurRadius: 24,
                               offset: const Offset(0, 12),
                             ),
@@ -684,13 +684,13 @@ class StatisticsPage extends ConsumerWidget {
           end: Alignment.bottomRight,
           colors: [
             Theme.of(context).cardTheme.color ?? Colors.white,
-            AppTheme.primaryColor.withOpacity(0.05),
+            AppTheme.primaryColor.withAlpha((0.05 * 255).round()),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withAlpha((0.1 * 255).round()),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -709,7 +709,7 @@ class StatisticsPage extends ConsumerWidget {
                     gradient: LinearGradient(
                       colors: [
                         AppTheme.primaryColor,
-                        AppTheme.primaryColor.withOpacity(0.8),
+                        AppTheme.primaryColor.withAlpha((0.8 * 255).round()),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(12),
@@ -814,7 +814,7 @@ class StatisticsPage extends ConsumerWidget {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onSurface
-                                              .withOpacity(0.7),
+                                              .withAlpha((0.7 * 255).round()),
                                         ),
                                       ),
                                     );
@@ -842,7 +842,7 @@ class StatisticsPage extends ConsumerWidget {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onSurface
-                                              .withOpacity(0.6),
+                                              .withAlpha((0.6 * 255).round()),
                                         ),
                                       ),
                                     );
@@ -878,76 +878,79 @@ class StatisticsPage extends ConsumerWidget {
                               return FlLine(
                                 color: Theme.of(
                                   context,
-                                ).dividerColor.withOpacity(0.5),
+                                ).dividerColor.withAlpha((0.5 * 255).round()),
                                 strokeWidth: 1,
                               );
                             },
                           ),
                           barGroups:
-                              weeklyPattern.entries
-                                  .toList()
-                                  .asMap()
-                                  .entries
-                                  .map((entry) {
-                                    final index = entry.key;
-                                    final value = entry.value.value;
-                                    final isNotLaunched = value < 0;
-                                    final displayValue =
-                                        isNotLaunched ? 0.2 : value;
+                              weeklyPattern.entries.toList().asMap().entries.map(
+                                (entry) {
+                                  final index = entry.key;
+                                  final value = entry.value.value;
+                                  final isNotLaunched = value < 0;
+                                  final displayValue =
+                                      isNotLaunched ? 0.2 : value;
 
-                                    return BarChartGroupData(
-                                      x: index,
-                                      barRods: [
-                                        BarChartRodData(
-                                          toY: displayValue,
-                                          fromY: 0,
-                                          gradient: LinearGradient(
-                                            begin: Alignment.bottomCenter,
-                                            end: Alignment.topCenter,
-                                            colors:
-                                                isNotLaunched
-                                                    ? [
-                                                      Theme.of(context)
-                                                          .disabledColor
-                                                          .withOpacity(0.3),
-                                                      Theme.of(context)
-                                                          .disabledColor
-                                                          .withOpacity(0.5),
-                                                    ]
-                                                    : [
-                                                      _getModernMoodColor(
-                                                        _getMoodLevelFromValue(
-                                                          value,
-                                                        ),
-                                                        context,
+                                  return BarChartGroupData(
+                                    x: index,
+                                    barRods: [
+                                      BarChartRodData(
+                                        toY: displayValue,
+                                        fromY: 0,
+                                        gradient: LinearGradient(
+                                          begin: Alignment.bottomCenter,
+                                          end: Alignment.topCenter,
+                                          colors:
+                                              isNotLaunched
+                                                  ? [
+                                                    Theme.of(
+                                                      context,
+                                                    ).disabledColor.withAlpha(
+                                                      (0.3 * 255).round(),
+                                                    ),
+                                                    Theme.of(
+                                                      context,
+                                                    ).disabledColor.withAlpha(
+                                                      (0.5 * 255).round(),
+                                                    ),
+                                                  ]
+                                                  : [
+                                                    _getModernMoodColor(
+                                                      _getMoodLevelFromValue(
+                                                        value,
                                                       ),
-                                                      _getModernMoodColor(
-                                                        _getMoodLevelFromValue(
-                                                          value,
-                                                        ),
-                                                        context,
-                                                      ).withOpacity(0.7),
-                                                    ],
-                                          ),
-                                          width: 32,
-                                          borderRadius:
-                                              const BorderRadius.vertical(
-                                                top: Radius.circular(8),
-                                              ),
-                                          backDrawRodData:
-                                              BackgroundBarChartRodData(
-                                                show: true,
-                                                toY: 5,
-                                                color:
-                                                    Theme.of(context)
-                                                        .colorScheme
-                                                        .surfaceVariant,
-                                              ),
+                                                      context,
+                                                    ),
+                                                    _getModernMoodColor(
+                                                      _getMoodLevelFromValue(
+                                                        value,
+                                                      ),
+                                                      context,
+                                                    ).withAlpha(
+                                                      (0.7 * 255).round(),
+                                                    ),
+                                                  ],
                                         ),
-                                      ],
-                                    );
-                                  })
-                                  .toList(),
+                                        width: 32,
+                                        borderRadius:
+                                            const BorderRadius.vertical(
+                                              top: Radius.circular(8),
+                                            ),
+                                        backDrawRodData:
+                                            BackgroundBarChartRodData(
+                                              show: true,
+                                              toY: 5,
+                                              color:
+                                                  Theme.of(context)
+                                                      .colorScheme
+                                                      .surfaceContainerHighest,
+                                            ),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              ).toList(),
                         ),
                       ),
                     ),
@@ -1000,13 +1003,15 @@ class StatisticsPage extends ConsumerWidget {
           end: Alignment.bottomRight,
           colors: [
             Theme.of(context).cardColor,
-            Theme.of(context).colorScheme.primary.withOpacity(0.05),
+            Theme.of(
+              context,
+            ).colorScheme.primary.withAlpha((0.05 * 255).round()),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.1),
+            color: Theme.of(context).shadowColor.withAlpha((0.1 * 255).round()),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -1104,7 +1109,7 @@ class StatisticsPage extends ConsumerWidget {
                               return FlLine(
                                 color: Theme.of(
                                   context,
-                                ).dividerColor.withOpacity(0.5),
+                                ).dividerColor.withAlpha((0.5 * 255).round()),
                                 strokeWidth: 1,
                               );
                             },
@@ -1129,7 +1134,7 @@ class StatisticsPage extends ConsumerWidget {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onSurface
-                                              .withOpacity(0.6),
+                                              .withAlpha((0.6 * 255).round()),
                                         ),
                                       ),
                                     );
@@ -1145,7 +1150,7 @@ class StatisticsPage extends ConsumerWidget {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onSurface
-                                              .withOpacity(0.6),
+                                              .withAlpha((0.6 * 255).round()),
                                         ),
                                       ),
                                     );
@@ -1176,7 +1181,7 @@ class StatisticsPage extends ConsumerWidget {
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onSurface
-                                              .withOpacity(0.6),
+                                              .withAlpha((0.6 * 255).round()),
                                         ),
                                       ),
                                     );
@@ -1265,8 +1270,12 @@ class StatisticsPage extends ConsumerWidget {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    Colors.green.shade400.withOpacity(0.3),
-                                    Colors.green.shade400.withOpacity(0.1),
+                                    Colors.green.shade400.withAlpha(
+                                      (0.3 * 255).round(),
+                                    ),
+                                    Colors.green.shade400.withAlpha(
+                                      (0.1 * 255).round(),
+                                    ),
                                   ],
                                 ),
                               ),
@@ -1476,7 +1485,9 @@ class StatisticsPage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).shadowColor.withOpacity(0.05),
+            color: Theme.of(
+              context,
+            ).shadowColor.withAlpha((0.05 * 255).round()),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -1516,8 +1527,14 @@ class StatisticsPage extends ConsumerWidget {
                   begin: Alignment.centerLeft,
                   end: Alignment.centerRight,
                   colors: [
-                    _getModernMoodColor(moodLevel, context).withOpacity(0.08),
-                    _getModernMoodColor(moodLevel, context).withOpacity(0.02),
+                    _getModernMoodColor(
+                      moodLevel,
+                      context,
+                    ).withAlpha((0.08 * 255).round()),
+                    _getModernMoodColor(
+                      moodLevel,
+                      context,
+                    ).withAlpha((0.02 * 255).round()),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(16),
@@ -1525,7 +1542,7 @@ class StatisticsPage extends ConsumerWidget {
                   color: _getModernMoodColor(
                     moodLevel,
                     context,
-                  ).withOpacity(0.2),
+                  ).withAlpha((0.2 * 255).round()),
                   width: 1,
                 ),
               ),
@@ -1543,7 +1560,7 @@ class StatisticsPage extends ConsumerWidget {
                           _getModernMoodColor(
                             moodLevel,
                             context,
-                          ).withOpacity(0.8),
+                          ).withAlpha((0.8 * 255).round()),
                         ],
                       ),
                       shape: BoxShape.circle,
@@ -1552,7 +1569,7 @@ class StatisticsPage extends ConsumerWidget {
                           color: _getModernMoodColor(
                             moodLevel,
                             context,
-                          ).withOpacity(0.3),
+                          ).withAlpha((0.3 * 255).round()),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -1579,7 +1596,7 @@ class StatisticsPage extends ConsumerWidget {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(
                         context,
-                      ).colorScheme.onSurface.withOpacity(0.6),
+                      ).colorScheme.onSurface.withAlpha((0.6 * 255).round()),
                       fontWeight: FontWeight.w500,
                     ),
                   ),
@@ -1596,7 +1613,7 @@ class StatisticsPage extends ConsumerWidget {
                           _getModernMoodColor(
                             moodLevel,
                             context,
-                          ).withOpacity(0.8),
+                          ).withAlpha((0.8 * 255).round()),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(12),
@@ -1605,7 +1622,7 @@ class StatisticsPage extends ConsumerWidget {
                           color: _getModernMoodColor(
                             moodLevel,
                             context,
-                          ).withOpacity(0.3),
+                          ).withAlpha((0.3 * 255).round()),
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
@@ -1624,7 +1641,7 @@ class StatisticsPage extends ConsumerWidget {
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -1846,7 +1863,9 @@ class StatisticsPage extends ConsumerWidget {
                 color: Theme.of(context).cardColor,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withAlpha((0.2 * 255).round()),
                   width: 1,
                 ),
               ),
@@ -2014,7 +2033,9 @@ Widget _buildTimelineSummary(List<MoodEntry> entries, BuildContext context) {
       color: Theme.of(context).cardColor,
       borderRadius: BorderRadius.circular(12),
       border: Border.all(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+        color: Theme.of(
+          context,
+        ).colorScheme.primary.withAlpha((0.2 * 255).round()),
         width: 1,
       ),
     ),

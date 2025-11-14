@@ -229,7 +229,7 @@ class NotificationService {
       if (savedTime != null) {
         final hour = savedTime ~/ 100;
         final minute = savedTime % 100;
-        AppLogger.d('💾 Usando horário preferido salvo: ${hour}:${minute}');
+        AppLogger.d('💾 Usando horário preferido salvo: $hour:$minute');
         return TimeOfDay(hour: hour, minute: minute);
       }
 
@@ -262,8 +262,8 @@ class NotificationService {
         if (optimalHour < 8) optimalHour = 8;
         if (optimalHour > 22) optimalHour = 20;
 
-        AppLogger.d('📈 Horário mais comum de registro: ${mostCommonHour}h');
-        AppLogger.d('🎯 Horário ótimo calculado: ${optimalHour}:00');
+        AppLogger.d('📈 Horário mais comum de registro: $mostCommonHour h');
+        AppLogger.d('🎯 Horário ótimo calculado: $optimalHour:00');
 
         return TimeOfDay(hour: optimalHour, minute: 0);
       }
