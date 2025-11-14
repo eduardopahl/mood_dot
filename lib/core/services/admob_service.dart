@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:mooddot/core/app_logger.dart';
 import '../services/premium_service.dart';
 import '../../config/admob_config.dart';
@@ -23,12 +24,38 @@ class AdMobService {
 
   // Controle de frequência dos intersticiais
   static DateTime? _lastInterstitialShown;
-  static const Duration _interstitialCooldown = Duration(minutes: 3);
+  static const Duration _interstitialCooldown = Duration(minutes: 5);
+  static bool _startupGraceOver = false;
+  static const Duration _startupGracePeriod = Duration(seconds: 5);
+  // Controle para evitar mostrar/abrir múltiplos intersticiais simultaneamente
+  static bool _isShowingInterstitial = false;
+  static bool _isLoadingInterstitial = false;
+  static const String _prefsKeyLastInterstitial = 'last_interstitial_shown';
 
   /// Inicializa o AdMob
   static Future<void> initialize() async {
     if (Platform.isAndroid) {
       await MobileAds.instance.initialize();
+    }
+    // Inicia período de carência para evitar mostrar intersticiais imediatamente
+    _startupGraceOver = false;
+    Future.delayed(_startupGracePeriod, () {
+      _startupGraceOver = true;
+      AppLogger.d('⏱️ Startup grace period over — interstitials allowed');
+    });
+
+    // Load persisted last interstitial timestamp (to respect cooldown across restarts)
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final stored = prefs.getInt(_prefsKeyLastInterstitial);
+      if (stored != null) {
+        _lastInterstitialShown = DateTime.fromMillisecondsSinceEpoch(stored);
+        AppLogger.d(
+          '🔁 Loaded last interstitial timestamp: $_lastInterstitialShown',
+        );
+      }
+    } catch (e) {
+      AppLogger.w('⚠️ Failed to load last interstitial timestamp: $e');
     }
   }
 
@@ -68,7 +95,22 @@ class AdMobService {
 
   /// Carrega um anúncio intersticial
   Future<InterstitialAd?> loadInterstitialAd() async {
-    if (!shouldShowAds) return null;
+    AppLogger.d(
+      '🔎 loadInterstitialAd() called — shouldShowAds: ${shouldShowAds}, startupGraceOver: $_startupGraceOver, isLoading: $_isLoadingInterstitial, isShowing: $_isShowingInterstitial, lastShown: $_lastInterstitialShown',
+    );
+
+    if (!shouldShowAds) {
+      AppLogger.d('🚫 shouldShowAds=false — skipping load');
+      return null;
+    }
+
+    // Avoid starting another concurrent load
+    if (_isLoadingInterstitial) {
+      AppLogger.d('⏳ Intersticial já em carregamento — skipping new load');
+      return null;
+    }
+
+    _isLoadingInterstitial = true;
 
     final completer = Completer<InterstitialAd?>();
 
@@ -89,16 +131,37 @@ class AdMobService {
 
     try {
       // Aguarda o carregamento com timeout razoável
-      return await completer.future.timeout(const Duration(seconds: 8));
+      final InterstitialAd? ad = await completer.future.timeout(
+        const Duration(seconds: 8),
+      );
+      return ad;
     } catch (e) {
       AppLogger.w('⏳ Timeout carregando intersticial: $e');
       return null;
+    } finally {
+      _isLoadingInterstitial = false;
     }
   }
 
   /// Mostra intersticial se disponível e dentro do cooldown
   Future<void> showInterstitialAd() async {
     if (!shouldShowAds) return;
+    AppLogger.d(
+      '🔎 showInterstitialAd() called — shouldShowAds: ${shouldShowAds}, startupGraceOver: $_startupGraceOver, isLoading: $_isLoadingInterstitial, isShowing: $_isShowingInterstitial, lastShown: $_lastInterstitialShown',
+    );
+
+    // Don't show interstitials during the startup grace period (avoid showing on app open)
+    if (!_startupGraceOver) {
+      AppLogger.d(
+        '⏳ Startup grace period active — skipping interstitial on app open',
+      );
+      return;
+    }
+    // If already showing or loading, skip
+    if (_isShowingInterstitial || _isLoadingInterstitial) {
+      AppLogger.d('⏳ Intersticial já sendo mostrado/carregado — skipping show');
+      return;
+    }
 
     // Verifica cooldown
     if (_lastInterstitialShown != null) {
@@ -115,34 +178,58 @@ class AdMobService {
 
     try {
       final InterstitialAd? interstitialAd = await loadInterstitialAd();
-      if (interstitialAd != null) {
-        // Configura callbacks
-        interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
-          onAdShowedFullScreenContent: (ad) {
-            AppLogger.d('🎬 Intersticial exibido');
-            _lastInterstitialShown = DateTime.now();
-          },
-          onAdDismissedFullScreenContent: (ad) {
-            AppLogger.d('❌ Intersticial fechado');
-            ad.dispose();
-          },
-          onAdFailedToShowFullScreenContent: (ad, error) {
-            AppLogger.e('💥 Erro ao exibir intersticial: $error');
-            ad.dispose();
-          },
-        );
 
-        // Mostra o anúncio
-        await interstitialAd.show();
-      }
+      if (interstitialAd == null) return;
+
+      // Configura callbacks
+      interstitialAd.fullScreenContentCallback = FullScreenContentCallback(
+        onAdShowedFullScreenContent: (ad) {
+          AppLogger.d('🎬 Intersticial exibido');
+          _lastInterstitialShown = DateTime.now();
+          // Persist timestamp so cooldown survives app restarts
+          try {
+            SharedPreferences.getInstance().then((prefs) {
+              prefs.setInt(
+                _prefsKeyLastInterstitial,
+                _lastInterstitialShown!.millisecondsSinceEpoch,
+              );
+            });
+          } catch (e) {
+            AppLogger.w('⚠️ Failed to persist last interstitial timestamp: $e');
+          }
+          _isShowingInterstitial = true;
+        },
+        onAdDismissedFullScreenContent: (ad) {
+          AppLogger.d('❌ Intersticial fechado');
+          try {
+            ad.dispose();
+          } catch (_) {}
+          _isShowingInterstitial = false;
+        },
+        onAdFailedToShowFullScreenContent: (ad, error) {
+          AppLogger.e('💥 Erro ao exibir intersticial: $error');
+          try {
+            ad.dispose();
+          } catch (_) {}
+          _isShowingInterstitial = false;
+        },
+      );
+
+      // Mostra o anúncio
+      await interstitialAd.show();
     } catch (e) {
       AppLogger.e('💥 Erro geral no intersticial: $e');
+      _isShowingInterstitial = false;
+      _isLoadingInterstitial = false;
     }
   }
 
   /// Verifica se pode mostrar intersticial (respeitando cooldown)
   bool canShowInterstitial() {
     if (!shouldShowAds) return false;
+
+    // Respect startup grace period
+    if (!_startupGraceOver) return false;
 
     if (_lastInterstitialShown == null) return true;
 
