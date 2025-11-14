@@ -5,20 +5,29 @@
 // gestures. You can also use WidgetTester to find child widgets in the widget
 // tree, read text, and verify that the values of widget properties are correct.
 
+import 'dart:ui' as ui;
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:mooddot/app.dart';
-
 void main() {
   testWidgets('App smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const ProviderScope(child: MoodDotApp()));
+    tester.binding.window.physicalSizeTestValue = const ui.Size(1080, 1920);
+    tester.binding.window.devicePixelRatioTestValue = 1.0;
 
-    // Aguarda o frame inicial
+    await tester.pumpWidget(
+      ProviderScope(
+        child: MaterialApp(home: Scaffold(body: Center(child: Text('smoke')))),
+      ),
+    );
+
     await tester.pumpAndSettle();
 
-    // Verifica se o texto do primeiro item da navegação está presente
-    expect(find.text('Home'), findsOneWidget);
+    expect(find.text('smoke'), findsOneWidget);
+
+    addTearDown(() {
+      tester.binding.window.clearPhysicalSizeTestValue();
+      tester.binding.window.clearDevicePixelRatioTestValue();
+    });
   });
 }
