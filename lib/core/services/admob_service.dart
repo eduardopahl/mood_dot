@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:flutter/foundation.dart';
@@ -69,23 +70,30 @@ class AdMobService {
   Future<InterstitialAd?> loadInterstitialAd() async {
     if (!shouldShowAds) return null;
 
-    InterstitialAd? interstitialAd;
+    final completer = Completer<InterstitialAd?>();
 
-    await InterstitialAd.load(
+    InterstitialAd.load(
       adUnitId: _interstitialAdUnitId,
       request: const AdRequest(),
       adLoadCallback: InterstitialAdLoadCallback(
         onAdLoaded: (ad) {
-          interstitialAd = ad;
           AppLogger.d('✅ Intersticial carregado com sucesso');
+          if (!completer.isCompleted) completer.complete(ad);
         },
         onAdFailedToLoad: (error) {
           AppLogger.e('❌ Erro ao carregar intersticial: $error');
+          if (!completer.isCompleted) completer.complete(null);
         },
       ),
     );
 
-    return interstitialAd;
+    try {
+      // Aguarda o carregamento com timeout razoável
+      return await completer.future.timeout(const Duration(seconds: 8));
+    } catch (e) {
+      AppLogger.w('⏳ Timeout carregando intersticial: $e');
+      return null;
+    }
   }
 
   /// Mostra intersticial se disponível e dentro do cooldown
