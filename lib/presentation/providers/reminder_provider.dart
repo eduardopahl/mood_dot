@@ -133,10 +133,14 @@ class ReminderNotifier extends StateNotifier<ReminderState> {
   }
 
   /// Chamado quando um humor é registrado - para sistema de aprendizado
-  Future<void> onMoodRegistered() async {
+  Future<void> onMoodRegistered({bool respondedToNotification = false}) async {
     try {
-      debugPrint('🎭 Notificando sistema sobre registro de humor');
-      await _notificationService.onMoodRegistered();
+      debugPrint(
+        '🎭 Notificando sistema sobre registro de humor (responded=$respondedToNotification)',
+      );
+      await _notificationService.onMoodRegistered(
+        respondedToNotification: respondedToNotification,
+      );
     } catch (e) {
       debugPrint('Erro ao processar registro de humor: $e');
     }

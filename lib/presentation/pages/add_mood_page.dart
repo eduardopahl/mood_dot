@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../domain/entities/mood_entry.dart';
 import '../providers/mood_providers.dart';
+import '../providers/reminder_provider.dart';
 import '../providers/locale_provider.dart';
 import '../widgets/mood_selector.dart';
 import '../widgets/app_snackbar.dart';
@@ -12,8 +13,13 @@ import '../../core/services/ad_event_service.dart';
 
 class AddMoodPage extends ConsumerStatefulWidget {
   final MoodEntry? existingEntry;
+  final bool openedFromNotification;
 
-  const AddMoodPage({super.key, this.existingEntry});
+  const AddMoodPage({
+    super.key,
+    this.existingEntry,
+    this.openedFromNotification = false,
+  });
 
   @override
   ConsumerState<AddMoodPage> createState() => _AddMoodPageState();
@@ -442,6 +448,17 @@ class _AddMoodPageState extends ConsumerState<AddMoodPage> {
         // Pequeno delay para suavizar a transição
         await Future.delayed(const Duration(milliseconds: 600));
         Navigator.of(context).pop(); // Fecha o modal de loading
+        // Se a página foi aberta por notificação, notifica o sistema de lembretes
+        if (widget.openedFromNotification) {
+          try {
+            await ref
+                .read(reminderStateProvider.notifier)
+                .onMoodRegistered(respondedToNotification: true);
+          } catch (e) {
+            debugPrint('Erro ao notificar reminderProvider: $e');
+          }
+        }
+
         Navigator.of(context).pop(true); // Volta para tela anterior
       }
     } catch (error) {

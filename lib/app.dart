@@ -5,6 +5,7 @@ import 'presentation/pages/main_navigation_page.dart';
 import 'presentation/providers/theme_provider.dart';
 import 'presentation/providers/locale_provider.dart';
 import 'generated/l10n/app_localizations.dart';
+import 'core/navigation.dart';
 
 class MoodDotApp extends ConsumerWidget {
   const MoodDotApp({super.key});
@@ -16,6 +17,7 @@ class MoodDotApp extends ConsumerWidget {
 
     return MaterialApp(
       title: 'MoodDot',
+      navigatorKey: appNavigatorKey,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,

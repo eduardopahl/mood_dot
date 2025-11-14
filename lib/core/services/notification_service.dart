@@ -3,6 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'dart:io';
 import '../../domain/repositories/mood_repository.dart';
+import '../navigation.dart';
+import '../../presentation/pages/add_mood_page.dart';
 
 class NotificationService {
   static NotificationService? _instance;
@@ -73,8 +75,16 @@ class NotificationService {
   /// Callback quando usuário toca na notificação
   void _onNotificationResponse(NotificationResponse response) {
     debugPrint('📱 Notificação tocada - abrindo app para registrar humor');
-    // Aqui você pode navegar diretamente para a tela de registro de humor
-    // Por exemplo: Navigator.pushNamed(context, '/add_mood');
+
+    try {
+      appNavigatorKey.currentState?.push(
+        MaterialPageRoute(
+          builder: (_) => const AddMoodPage(openedFromNotification: true),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Erro ao navegar após toque na notificação: $e');
+    }
   }
 
   /// Solicita permissão para notificações (real)
@@ -438,7 +448,6 @@ class NotificationService {
       message,
       RepeatInterval.daily,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
 
     debugPrint('😊 Lembrete gentil agendado para repetir diariamente');
@@ -497,7 +506,6 @@ class NotificationService {
       message,
       RepeatInterval.daily,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
 
     debugPrint('🚀 Lembrete dinâmico agendado para repetir diariamente');
@@ -540,7 +548,6 @@ class NotificationService {
       message,
       RepeatInterval.daily,
       details,
-      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
 
     debugPrint('📱 Lembrete padrão agendado para repetir diariamente');
@@ -652,12 +659,12 @@ class NotificationService {
   }
 
   /// Chamado quando o usuário registra um humor - usado para aprendizado
-  Future<void> onMoodRegistered() async {
+  Future<void> onMoodRegistered({bool respondedToNotification = false}) async {
     debugPrint('🎭 Humor registrado - atualizando sistema inteligente');
 
     final now = TimeOfDay.now();
     await learnFromUserBehavior(
-      respondedToNotification: true,
+      respondedToNotification: respondedToNotification,
       responseTime: now,
     );
 

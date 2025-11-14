@@ -735,7 +735,7 @@ class StatisticsPage extends ConsumerWidget {
             advancedStatsAsync.when(
               data: (stats) {
                 final weeklyPattern =
-                    stats['weeklyPattern'] as Map<String, double>;
+                    stats['weeklyPattern'] as Map<int, double>;
 
                 if (weeklyPattern.isEmpty) {
                   return _buildEmptyState(l10n.noDataToDisplay);
@@ -761,16 +761,18 @@ class StatisticsPage extends ConsumerWidget {
                                 rod,
                                 rodIndex,
                               ) {
-                                final day =
-                                    weeklyPattern.keys.toList()[group.x
-                                        .toInt()];
+                                final keys = weeklyPattern.keys.toList();
+                                final idx = group.x.toInt();
+                                final dayIndex = keys[idx]; // 0 = domingo
+                                final shortNames = context.l10n.weekdaysShort
+                                    .split(',');
+                                final dayLabel = shortNames[dayIndex];
                                 final originalValue =
-                                    weeklyPattern.values.toList()[group.x
-                                        .toInt()];
+                                    weeklyPattern.values.toList()[idx];
                                 final displayText =
                                     originalValue < 0
-                                        ? '$day\nNão lançado'
-                                        : '$day\n${originalValue.toStringAsFixed(1)}';
+                                        ? '$dayLabel\nNão lançado'
+                                        : '$dayLabel\n${originalValue.toStringAsFixed(1)}';
                                 return BarTooltipItem(
                                   displayText,
                                   TextStyle(
@@ -796,11 +798,15 @@ class StatisticsPage extends ConsumerWidget {
                                   TitleMeta meta,
                                 ) {
                                   final days = weeklyPattern.keys.toList();
+                                  final shortNames = context.l10n.weekdaysShort
+                                      .split(',');
                                   if (value.toInt() < days.length) {
+                                    final dayIndex = days[value.toInt()];
+                                    final label = shortNames[dayIndex];
                                     return Padding(
                                       padding: const EdgeInsets.only(top: 8.0),
                                       child: Text(
-                                        days[value.toInt()],
+                                        label,
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,

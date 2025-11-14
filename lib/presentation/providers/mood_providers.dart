@@ -45,7 +45,7 @@ final advancedStatsProvider = FutureProvider<Map<String, dynamic>>((ref) async {
   if (entries.isEmpty) {
     return {
       'streak': 0,
-      'weeklyPattern': <String, double>{},
+      'weeklyPattern': <int, double>{},
       'hourlyPattern': <int, double>{},
       'monthlyTrend': <String, double>{},
       'insights': <String>[],
@@ -119,9 +119,7 @@ int _calculateStreak(List<MoodEntry> entries) {
   return streak;
 }
 
-Map<String, double> _calculateWeeklyPattern(List<MoodEntry> entries) {
-  final weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-
+Map<int, double> _calculateWeeklyPattern(List<MoodEntry> entries) {
   // Filtrar apenas entradas da semana atual (domingo até hoje)
   final now = DateTime.now();
   int daysFromSunday = now.weekday == 7 ? 0 : now.weekday;
@@ -156,7 +154,7 @@ Map<String, double> _calculateWeeklyPattern(List<MoodEntry> entries) {
   }
 
   // Mostrar todos os 7 dias da semana
-  final Map<String, double> result = {};
+  final Map<int, double> result = {};
   final todayWeekday = now.weekday == 7 ? 0 : now.weekday;
 
   for (int i = 0; i < 7; i++) {
@@ -172,7 +170,7 @@ Map<String, double> _calculateWeeklyPattern(List<MoodEntry> entries) {
           moods.isEmpty ? 0.0 : moods.reduce((a, b) => a + b) / moods.length;
     }
 
-    result[weekdays[i]] = average;
+    result[i] = average;
   }
 
   return result;
@@ -238,11 +236,12 @@ String? _getBestTimeOfDay(Map<int, double> hourlyPattern) {
 }
 
 List<String> _generateInsights(
-  Map<String, double> weeklyPattern,
+  Map<int, double> weeklyPattern,
   Map<int, double> hourlyPattern,
   List<MoodEntry> entries,
 ) {
   final List<String> insights = [];
+  final weekdays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
   // Insight sobre dia da semana
   if (weeklyPattern.isNotEmpty) {
@@ -254,15 +253,15 @@ List<String> _generateInsights(
     );
 
     if (bestDay.value > 3.5) {
+      final bestLabel = weekdays[bestDay.key % 7];
       insights.add(
-        'Seu humor é melhor nas ${bestDay.key}s (${bestDay.value.toStringAsFixed(1)}/5)',
+        'Seu humor é melhor nas ${bestLabel}s (${bestDay.value.toStringAsFixed(1)}/5)',
       );
     }
 
     if (worstDay.value < 2.5) {
-      insights.add(
-        '${worstDay.key}s tendem a ser dias mais difíceis para você',
-      );
+      final worstLabel = weekdays[worstDay.key % 7];
+      insights.add('${worstLabel}s tendem a ser dias mais difíceis para você');
     }
   }
 
