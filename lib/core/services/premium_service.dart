@@ -7,7 +7,7 @@ import 'dart:async';
 class PremiumService {
   static const String _premiumKey = 'is_premium_user';
   static const String _productId =
-      'premium_upgrade'; // Configurar no Google Play Console
+      'mooddot-premium-noads'; // ID cadastrado na Play Store
   static const String premiumPrice = '\$0.99'; // Preço do premium em dólares
 
   static PremiumService? _instance;

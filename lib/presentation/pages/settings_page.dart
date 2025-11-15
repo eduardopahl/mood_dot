@@ -38,20 +38,22 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          //TODO Ativar seção premium depois
-          // _buildPremiumSection(context, l10n),
+          _buildPremiumSection(context, l10n),
           const SizedBox(height: 24),
 
           _buildSettingsSection(context, l10n.appearance, [
             _buildThemeToggleTile(context, ref, isDarkMode, l10n),
             _buildLanguageTile(context, ref, currentLocale, l10n),
           ]),
+          //TODO Reminder removido temporariamente
+          /*
           const SizedBox(height: 24),
           _buildSettingsSection(context, l10n.notifications, [
             _buildReminderToggleTile(context, reminderState, ref, l10n),
             _buildTestButton(context, ref, l10n),
             _buildResetLearningButton(context, ref, l10n),
           ]),
+          */
           const SizedBox(height: 24),
           _buildSettingsSection(context, l10n.about, [
             _buildSettingsTile(Icons.info, l10n.version, '1.0.0', () {}),
@@ -350,7 +352,6 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
     );
   }
 
-  //TODO sera ativado em uma versao futura
   Widget _buildPremiumSection(BuildContext context, AppLocalizations l10n) {
     return Consumer(
       builder: (context, ref, child) {
