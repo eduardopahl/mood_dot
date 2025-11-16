@@ -24,7 +24,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(themeNotifierProvider);
-    final reminderState = ref.watch(reminderStateProvider);
+    // final reminderState = ref.watch(reminderStateProvider);
     final currentLocale = ref.watch(localeProvider);
     final l10n = context.l10n;
 
@@ -56,7 +56,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           */
           const SizedBox(height: 24),
           _buildSettingsSection(context, l10n.about, [
-            _buildSettingsTile(Icons.info, l10n.version, '1.0.0', () {}),
+            _buildSettingsTile(Icons.info, l10n.version, '1.0.2', () {}),
           ]),
         ],
       ),

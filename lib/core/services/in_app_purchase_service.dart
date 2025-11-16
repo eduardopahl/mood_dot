@@ -6,7 +6,7 @@ class InAppPurchaseService {
   InAppPurchaseService._();
 
   final InAppPurchase _iap = InAppPurchase.instance;
-  static const String _premiumProductId = 'mooddot-premium-noads';
+  static const String _premiumProductId = 'mooddot_premium_noads';
 
   Future<bool> buyPremium() async {
     final available = await _iap.isAvailable();
