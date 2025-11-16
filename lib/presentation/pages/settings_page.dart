@@ -21,6 +21,50 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
+  bool _dialogShown = false;
+
+  @override
+  void didUpdateWidget(covariant SettingsPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _checkPremiumStatusAndShowDialog();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _checkPremiumStatusAndShowDialog();
+  }
+
+  void _checkPremiumStatusAndShowDialog() {
+    final isPremium = ref.read(premiumStatusProvider);
+    final l10n = context.l10n;
+    if (isPremium && !_dialogShown) {
+      _dialogShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: Text('🏆 ${l10n.premiumActivated}'),
+                content: Text(
+                  '${l10n.thanksForSupport}\n\n'
+                  '${l10n.premiumActivatedMessage}',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: Text(l10n.excellent),
+                  ),
+                ],
+              ),
+        );
+      });
+    }
+    if (!isPremium) {
+      _dialogShown = false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(themeNotifierProvider);
@@ -56,7 +100,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           */
           const SizedBox(height: 24),
           _buildSettingsSection(context, l10n.about, [
-            _buildSettingsTile(Icons.info, l10n.version, '1.0.2', () {}),
+            _buildSettingsTile(Icons.info, l10n.version, '1.0.3', () {}),
           ]),
         ],
       ),
@@ -553,48 +597,17 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
       if (context.mounted) Navigator.of(context).pop(); // Fechar loading
 
-      if (success && context.mounted) {
-        // Atualizar o provider
-        if (mounted) {
-          ref.read(premiumStatusProvider.notifier).updateStatus(true);
-        }
-
-        // Sucesso na compra
-        showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text('🏆 ${l10n.premiumActivated}'),
-                content: Text(
-                  '${l10n.thanksForSupport}\n\n'
-                  '${l10n.premiumActivatedMessage}',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(l10n.excellent),
-                  ),
-                ],
-              ),
-        );
-      } else if (context.mounted) {
-        // Erro na compra
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.purchaseError),
-            backgroundColor: Colors.red,
-          ),
-        );
+      if (!success && context.mounted) {
+        // Erro ao iniciar compra
+        AppSnackBar.showError(context, l10n.purchaseError);
       }
+      // Não atualiza provider nem mostra sucesso aqui!
+      // O status premium será atualizado automaticamente pelo listener/provider
+      // O diálogo de sucesso pode ser mostrado em outro lugar, reagindo ao provider
     } catch (e) {
       if (context.mounted) Navigator.of(context).pop(); // Fechar loading
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.unexpectedError(e.toString())),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppSnackBar.showError(context, l10n.unexpectedError(e.toString()));
       }
     }
   }
@@ -627,38 +640,15 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
       if (success && context.mounted) {
         // Compras restauradas com sucesso
-        showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text('✅ ${l10n.purchasesRestored}'),
-                content: Text(l10n.purchasesRestoredMessage),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(l10n.ok),
-                  ),
-                ],
-              ),
-        );
+        AppSnackBar.showSuccess(context, l10n.purchasesRestoredMessage);
       } else if (context.mounted) {
         // Nenhuma compra encontrada
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.noPurchasesFound),
-            backgroundColor: Colors.orange,
-          ),
-        );
+        AppSnackBar.showWarning(context, l10n.noPurchasesFound);
       }
     } catch (e) {
       if (context.mounted) Navigator.of(context).pop(); // Fechar loading
       if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(l10n.restoreError(e.toString())),
-            backgroundColor: Colors.red,
-          ),
-        );
+        AppSnackBar.showError(context, l10n.restoreError(e.toString()));
       }
     }
   }
