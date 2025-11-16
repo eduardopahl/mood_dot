@@ -21,48 +21,26 @@ class SettingsPage extends ConsumerStatefulWidget {
 }
 
 class _SettingsPageState extends ConsumerState<SettingsPage> {
-  bool _dialogShown = false;
-
-  @override
-  void didUpdateWidget(covariant SettingsPage oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    _checkPremiumStatusAndShowDialog();
-  }
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _checkPremiumStatusAndShowDialog();
-  }
-
-  void _checkPremiumStatusAndShowDialog() {
-    final isPremium = ref.read(premiumStatusProvider);
+  // Exibir diálogo de sucesso apenas após compra/restauração
+  Future<void> _showPremiumSuccessDialog() async {
     final l10n = context.l10n;
-    if (isPremium && !_dialogShown) {
-      _dialogShown = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        showDialog(
-          context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text('🏆 ${l10n.premiumActivated}'),
-                content: Text(
-                  '${l10n.thanksForSupport}\n\n'
-                  '${l10n.premiumActivatedMessage}',
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(l10n.excellent),
-                  ),
-                ],
+    await showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('🏆 ${l10n.premiumActivated}'),
+            content: Text(
+              '${l10n.thanksForSupport}\n\n'
+              '${l10n.premiumActivatedMessage}',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(l10n.excellent),
               ),
-        );
-      });
-    }
-    if (!isPremium) {
-      _dialogShown = false;
-    }
+            ],
+          ),
+    );
   }
 
   @override
@@ -100,7 +78,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
           */
           const SizedBox(height: 24),
           _buildSettingsSection(context, l10n.about, [
-            _buildSettingsTile(Icons.info, l10n.version, '1.0.3', () {}),
+            _buildSettingsTile(Icons.info, l10n.version, '1.0.4', () {}),
           ]),
         ],
       ),
@@ -597,13 +575,12 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
 
       if (context.mounted) Navigator.of(context).pop(); // Fechar loading
 
-      if (!success && context.mounted) {
+      if (success && context.mounted) {
+        await _showPremiumSuccessDialog();
+      } else if (!success && context.mounted) {
         // Erro ao iniciar compra
         AppSnackBar.showError(context, l10n.purchaseError);
       }
-      // Não atualiza provider nem mostra sucesso aqui!
-      // O status premium será atualizado automaticamente pelo listener/provider
-      // O diálogo de sucesso pode ser mostrado em outro lugar, reagindo ao provider
     } catch (e) {
       if (context.mounted) Navigator.of(context).pop(); // Fechar loading
       if (context.mounted) {
@@ -639,7 +616,7 @@ class _SettingsPageState extends ConsumerState<SettingsPage> {
       if (context.mounted) Navigator.of(context).pop(); // Fechar loading
 
       if (success && context.mounted) {
-        // Compras restauradas com sucesso
+        await _showPremiumSuccessDialog();
         AppSnackBar.showSuccess(context, l10n.purchasesRestoredMessage);
       } else if (context.mounted) {
         // Nenhuma compra encontrada
